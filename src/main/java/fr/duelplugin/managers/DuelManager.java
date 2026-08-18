@@ -183,6 +183,9 @@ public class DuelManager {
             w.sendMessage("§6§l=============================");
             w.sendMessage("");
             plugin.getScoreboardManager().removeScoreboard(w);
+            if (plugin.getLobbyManager().isLobbySet()) {
+                w.teleport(plugin.getLobbyManager().getLobbySpawn());
+            }
         }
         if (l != null) {
             restoreInventory(l);
@@ -193,7 +196,22 @@ public class DuelManager {
             l.sendMessage("§6§l=============================");
             l.sendMessage("");
             plugin.getScoreboardManager().removeScoreboard(l);
+            if (plugin.getLobbyManager().isLobbySet()) {
+                l.teleport(plugin.getLobbyManager().getLobbySpawn());
+            }
         }
+
+        for (UUID specUuid : new HashSet<>(plugin.getTabManager().getSpectators(duel.getPlayer1()))) {
+            Player spec = Bukkit.getPlayer(specUuid);
+            if (spec != null) {
+                spec.setGameMode(org.bukkit.GameMode.ADVENTURE);
+                if (plugin.getLobbyManager().isLobbySet()) {
+                    spec.teleport(plugin.getLobbyManager().getLobbySpawn());
+                }
+                spec.sendMessage(plugin.getPrefix() + "§7Le duel est terminé.");
+            }
+        }
+        plugin.getTabManager().clearSpectators(duel.getPlayer1());
 
         if (duel.getArena() != null) {
             duel.getArena().restoreFromSnapshot();

@@ -233,22 +233,25 @@ public class Kit {
     }
 
     private static void giveSpearMaceKit(PlayerInventory inv) {
-        inv.setItem(0, ench(Material.NETHERITE_SWORD, Enchantment.SHARPNESS, 5, Enchantment.SWEEPING_EDGE, 3, Enchantment.KNOCKBACK, 1, Enchantment.UNBREAKING, 3));
+        inv.setItem(0, ench(Material.NETHERITE_SWORD, Enchantment.SHARPNESS, 5, Enchantment.UNBREAKING, 3));
         inv.setItem(1, ench(Material.NETHERITE_AXE, Enchantment.SHARPNESS, 5, Enchantment.UNBREAKING, 3));
-        inv.setItem(2, ench(Material.TRIDENT, Enchantment.IMPALING, 5, Enchantment.UNBREAKING, 3));
-        inv.setItem(3, ench(Material.MACE, Enchantment.DENSITY, 5, Enchantment.WIND_BURST, 1, Enchantment.UNBREAKING, 3));
-        inv.setItem(4, new ItemStack(Material.ENDER_PEARL, 16));
-        inv.setItem(5, new ItemStack(Material.GOLDEN_APPLE, 64));
-        inv.setItem(6, new ItemStack(Material.WIND_CHARGE, 64));
-        inv.setItem(7, new ItemStack(Material.ELYTRA));
-        inv.setItem(8, ench(Material.SHIELD, Enchantment.MENDING, 1, Enchantment.UNBREAKING, 3));
+        inv.setItem(2, ench(Material.TRIDENT, Enchantment.IMPALING, 5, Enchantment.LOYALTY, 3, Enchantment.UNBREAKING, 3));
+        inv.setItem(3, ench(Material.MACE, Enchantment.DENSITY, 5, Enchantment.WIND_BURST, 1));
+        inv.setItem(4, new ItemStack(Material.WIND_CHARGE, 192));
+        inv.setItem(5, new ItemStack(Material.ENDER_PEARL, 48));
         inv.setArmorContents(new ItemStack[]{
-                ench(Material.NETHERITE_BOOTS, Enchantment.PROTECTION, 4, Enchantment.FEATHER_FALLING, 4),
-                ench(Material.NETHERITE_LEGGINGS, Enchantment.PROTECTION, 4),
-                ench(Material.NETHERITE_CHESTPLATE, Enchantment.PROTECTION, 4),
-                ench(Material.NETHERITE_HELMET, Enchantment.PROTECTION, 4)
+                ench(Material.NETHERITE_BOOTS, Enchantment.PROTECTION, 4, Enchantment.FEATHER_FALLING, 4, Enchantment.UNBREAKING, 3),
+                ench(Material.NETHERITE_LEGGINGS, Enchantment.PROTECTION, 4, Enchantment.UNBREAKING, 3),
+                ench(Material.NETHERITE_CHESTPLATE, Enchantment.PROTECTION, 4, Enchantment.UNBREAKING, 3),
+                ench(Material.NETHERITE_HELMET, Enchantment.PROTECTION, 4, Enchantment.UNBREAKING, 3)
         });
-        inv.setItemInOffHand(new ItemStack(Material.TOTEM_OF_UNDYING));
+        inv.setItemInOffHand(ench(Material.SHIELD, Enchantment.UNBREAKING, 3, Enchantment.MENDING, 1));
+        for (int i = 6; i <= 16; i++) {
+            inv.setItem(i, splashWithDuration(PotionEffectType.STRENGTH, 1, 1800));
+        }
+        for (int i = 17; i <= 27; i++) {
+            inv.setItem(i, splashWithDuration(PotionEffectType.SPEED, 1, 1800));
+        }
     }
 
     private static ItemStack ench(Material mat, Object... enchPairs) {
@@ -281,6 +284,16 @@ public class Kit {
         if (meta instanceof org.bukkit.inventory.meta.PotionMeta pm) {
             pm.addCustomEffect(new PotionEffect(type1, 1, amp1), true);
             pm.addCustomEffect(new PotionEffect(type2, 1, amp2), true);
+            item.setItemMeta(pm);
+        }
+        return item;
+    }
+
+    private static ItemStack splashWithDuration(PotionEffectType type, int amplifier, int durationTicks) {
+        ItemStack item = new ItemStack(Material.SPLASH_POTION);
+        ItemMeta meta = item.getItemMeta();
+        if (meta instanceof org.bukkit.inventory.meta.PotionMeta pm) {
+            pm.addCustomEffect(new PotionEffect(type, durationTicks, amplifier), true);
             item.setItemMeta(pm);
         }
         return item;

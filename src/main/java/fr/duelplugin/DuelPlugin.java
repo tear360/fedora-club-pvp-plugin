@@ -4,6 +4,8 @@ import fr.duelplugin.commands.AcceptDuelCommand;
 import fr.duelplugin.commands.DenyDuelCommand;
 import fr.duelplugin.commands.DuelAdminCommand;
 import fr.duelplugin.commands.DuelCommand;
+import fr.duelplugin.commands.SpecCommand;
+import fr.duelplugin.gui.DuelGUI;
 import fr.duelplugin.listeners.ArenaListener;
 import fr.duelplugin.listeners.GameListener;
 import fr.duelplugin.listeners.PlayerListener;
@@ -19,6 +21,8 @@ public class DuelPlugin extends JavaPlugin {
     private PlayerManager playerManager;
     private ScoreboardManager scoreboardManager;
     private LobbyManager lobbyManager;
+    private DuelGUI duelGUI;
+    private TabManager tabManager;
 
     @Override
     public void onEnable() {
@@ -30,6 +34,8 @@ public class DuelPlugin extends JavaPlugin {
         playerManager = new PlayerManager(this);
         scoreboardManager = new ScoreboardManager(this);
         duelManager = new DuelManager(this);
+        duelGUI = new DuelGUI(this);
+        tabManager = new TabManager(this);
 
         getCommand("duel").setExecutor(new DuelCommand(this));
         getCommand("duel").setTabCompleter(new DuelCommand(this));
@@ -38,6 +44,8 @@ public class DuelPlugin extends JavaPlugin {
         getCommand("denyduel").setExecutor(new DenyDuelCommand(this));
         getCommand("da").setExecutor(new DuelAdminCommand(this));
         getCommand("da").setTabCompleter(new DuelAdminCommand(this));
+        getCommand("spec").setExecutor(new SpecCommand(this));
+        getCommand("spec").setTabCompleter(new SpecCommand(this));
 
         getServer().getPluginManager().registerEvents(new GameListener(this), this);
         getServer().getPluginManager().registerEvents(new ArenaListener(this), this);
@@ -60,6 +68,8 @@ public class DuelPlugin extends JavaPlugin {
     public PlayerManager getPlayerManager() { return playerManager; }
     public ScoreboardManager getScoreboardManager() { return scoreboardManager; }
     public LobbyManager getLobbyManager() { return lobbyManager; }
+    public DuelGUI getDuelGUI() { return duelGUI; }
+    public TabManager getTabManager() { return tabManager; }
 
     public String getPrefix() {
         return colorize(getConfig().getString("messages.prefix", "&8[&6Fedora &eClub&8] &r"));

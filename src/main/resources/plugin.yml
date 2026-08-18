@@ -21,6 +21,10 @@ commands:
     usage: /da <args>
     aliases: [dueladmin]
     permission: duelplugin.admin
+  spec:
+    description: Spectater un duel
+    usage: /spec <joueur>
+    aliases: [spectate, spect]
 
 permissions:
   duelplugin.admin:

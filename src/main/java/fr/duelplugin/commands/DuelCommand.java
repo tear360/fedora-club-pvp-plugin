@@ -74,8 +74,7 @@ public class DuelCommand implements CommandExecutor, TabCompleter {
     }
 
     private void openDuelMenu(Player player, Player target) {
-        DuelGUI gui = new DuelGUI(plugin);
-        gui.openModeSelector(player, target);
+        plugin.getDuelGUI().openModeSelector(player, target);
     }
 
     @Override

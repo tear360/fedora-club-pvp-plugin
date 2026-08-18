@@ -22,7 +22,7 @@ public class ArenaListener implements Listener {
 
     public ArenaListener(DuelPlugin plugin) {
         this.plugin = plugin;
-        this.duelGUI = new DuelGUI(plugin);
+        this.duelGUI = plugin.getDuelGUI();
     }
 
     @EventHandler

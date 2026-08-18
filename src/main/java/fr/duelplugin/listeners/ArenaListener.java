@@ -31,7 +31,7 @@ public class ArenaListener implements Listener {
         Inventory inv = event.getInventory();
         if (inv == null) return;
 
-        String title = inv.getTitle();
+        String title = event.getView().getTitle();
         if (!title.contains("Choisir un mode")) return;
 
         event.setCancelled(true);

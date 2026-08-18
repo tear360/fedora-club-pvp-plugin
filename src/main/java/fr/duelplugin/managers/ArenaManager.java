@@ -60,7 +60,7 @@ public class ArenaManager {
         String key = name.toLowerCase();
         Arena removed = arenas.remove(key);
         if (removed != null) {
-            removed.restoreBlocks();
+            removed.restoreFromSnapshot();
             saveArenas();
             return true;
         }

@@ -1,6 +1,7 @@
 package fr.duelplugin;
 
 import fr.duelplugin.commands.AcceptDuelCommand;
+import fr.duelplugin.commands.DenyDuelCommand;
 import fr.duelplugin.commands.DuelAdminCommand;
 import fr.duelplugin.commands.DuelCommand;
 import fr.duelplugin.listeners.ArenaListener;

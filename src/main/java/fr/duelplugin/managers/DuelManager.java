@@ -135,8 +135,8 @@ public class DuelManager {
         player1.teleport(loc1);
         player2.teleport(loc2);
 
-        fr.duelplugin.models.Kit.giveKit(player1.getInventory(), mode);
-        fr.duelplugin.models.Kit.giveKit(player2.getInventory(), mode);
+        fr.duelplugin.models.Kit.giveKit(player1, mode);
+        fr.duelplugin.models.Kit.giveKit(player2, mode);
 
         player1.setHealth(20.0);
         player2.setHealth(20.0);

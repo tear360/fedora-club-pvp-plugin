@@ -6,8 +6,10 @@ import fr.duelplugin.commands.DuelAdminCommand;
 import fr.duelplugin.commands.DuelCommand;
 import fr.duelplugin.commands.SpecCommand;
 import fr.duelplugin.gui.DuelGUI;
+import fr.duelplugin.gui.KitEditorGUI;
 import fr.duelplugin.listeners.ArenaListener;
 import fr.duelplugin.listeners.GameListener;
+import fr.duelplugin.listeners.LobbyItemListener;
 import fr.duelplugin.listeners.PlayerListener;
 import fr.duelplugin.managers.*;
 import org.bukkit.ChatColor;
@@ -24,6 +26,8 @@ public class DuelPlugin extends JavaPlugin {
     private DuelGUI duelGUI;
     private TabManager tabManager;
     private UpdateManager updateManager;
+    private KitManager kitManager;
+    private KitEditorGUI kitEditorGUI;
 
     @Override
     public void onEnable() {
@@ -38,6 +42,8 @@ public class DuelPlugin extends JavaPlugin {
         duelGUI = new DuelGUI(this);
         tabManager = new TabManager(this);
         updateManager = new UpdateManager(this);
+        kitManager = new KitManager(this);
+        kitEditorGUI = new KitEditorGUI(this);
 
         getCommand("duel").setExecutor(new DuelCommand(this));
         getCommand("duel").setTabCompleter(new DuelCommand(this));
@@ -52,6 +58,7 @@ public class DuelPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new GameListener(this), this);
         getServer().getPluginManager().registerEvents(new ArenaListener(this), this);
         getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
+        getServer().getPluginManager().registerEvents(new LobbyItemListener(this), this);
 
         updateManager.checkForUpdates();
 
@@ -75,6 +82,8 @@ public class DuelPlugin extends JavaPlugin {
     public DuelGUI getDuelGUI() { return duelGUI; }
     public TabManager getTabManager() { return tabManager; }
     public UpdateManager getUpdateManager() { return updateManager; }
+    public KitManager getKitManager() { return kitManager; }
+    public KitEditorGUI getKitEditorGUI() { return kitEditorGUI; }
 
     public String getPrefix() {
         return colorize(getConfig().getString("messages.prefix", "&8[&6Fedora &eClub&8] &r"));

@@ -10,6 +10,7 @@ import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
+import fr.duelplugin.listeners.PlayerListener;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -136,8 +137,8 @@ public class DuelManager {
         player1.teleport(loc1);
         player2.teleport(loc2);
 
-        fr.duelplugin.models.Kit.giveKit(player1, mode);
-        fr.duelplugin.models.Kit.giveKit(player2, mode);
+        applyKit(player1, mode);
+        applyKit(player2, mode);
 
         player1.setHealth(20.0);
         player2.setHealth(20.0);
@@ -186,6 +187,7 @@ public class DuelManager {
             plugin.getScoreboardManager().removeScoreboard(w);
             if (plugin.getLobbyManager().isLobbySet()) {
                 w.teleport(plugin.getLobbyManager().getLobbySpawn());
+                PlayerListener.giveLobbyItems(w);
             }
         }
         if (l != null) {
@@ -199,6 +201,7 @@ public class DuelManager {
             plugin.getScoreboardManager().removeScoreboard(l);
             if (plugin.getLobbyManager().isLobbySet()) {
                 l.teleport(plugin.getLobbyManager().getLobbySpawn());
+                PlayerListener.giveLobbyItems(l);
             }
         }
 
@@ -208,6 +211,7 @@ public class DuelManager {
                 spec.setGameMode(GameMode.ADVENTURE);
                 if (plugin.getLobbyManager().isLobbySet()) {
                     spec.teleport(plugin.getLobbyManager().getLobbySpawn());
+                    PlayerListener.giveLobbyItems(spec);
                 }
                 spec.sendMessage(plugin.getPrefix() + "§7Le duel est terminé.");
             }
@@ -235,6 +239,20 @@ public class DuelManager {
 
     public boolean isInDuel(UUID uuid) {
         return activeDuels.containsKey(uuid);
+    }
+
+    private void applyKit(Player player, DuelGameMode mode) {
+        java.util.Map<String, ItemStack[]> customKit = plugin.getKitManager().loadKit(player.getUniqueId(), mode);
+        if (customKit != null) {
+            ItemStack[] contents = customKit.get("contents");
+            if (contents != null) player.getInventory().setContents(contents);
+            ItemStack[] armor = customKit.get("armor");
+            if (armor != null) player.getInventory().setArmorContents(armor);
+            ItemStack[] offhand = customKit.get("offhand");
+            if (offhand != null && offhand.length > 0) player.getInventory().setItemInOffHand(offhand[0]);
+        } else {
+            fr.duelplugin.models.Kit.giveKit(player, mode);
+        }
     }
 
     public ActiveDuel getDuel(UUID uuid) {

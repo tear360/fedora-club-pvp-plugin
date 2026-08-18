@@ -1,12 +1,15 @@
 package fr.duelplugin.listeners;
 
 import fr.duelplugin.DuelPlugin;
+import fr.duelplugin.utils.ItemBuilder;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.ItemStack;
 
 public class PlayerListener implements Listener {
 
@@ -24,6 +27,7 @@ public class PlayerListener implements Listener {
         if (plugin.getLobbyManager().isLobbySet()) {
             plugin.getLobbyManager().teleportToLobby(player);
             plugin.getScoreboardManager().createLobbyScoreboard(player, null, null);
+            giveLobbyItems(player);
         }
 
         event.setJoinMessage(plugin.colorize("&5+ &d" + player.getName() + " &7a rejoint le serveur"));
@@ -57,5 +61,19 @@ public class PlayerListener implements Listener {
         if (killer != null) {
             plugin.getDuelManager().endDuel(killer.getUniqueId(), killer.getUniqueId(), player.getUniqueId());
         }
+    }
+
+    public static void giveLobbyItems(Player player) {
+        player.getInventory().clear();
+        player.getInventory().setArmorContents(null);
+        player.getInventory().setItemInOffHand(null);
+
+        player.getInventory().setItem(0, new ItemBuilder(Material.NETHERITE_SWORD)
+                .name("§d§lDéfi")
+                .lore("", "§7Ouvrez le menu de duel", "").build());
+
+        player.getInventory().setItem(4, new ItemBuilder(Material.CRAFTING_TABLE)
+                .name("§5§lKits")
+                .lore("", "§7Éditez vos kits", "").build());
     }
 }

@@ -119,6 +119,10 @@ public class DuelManager {
         saveInventory(player1);
         saveInventory(player2);
 
+        if (arena != null && arena.canInteractBlocks()) {
+            arena.takeSnapshot();
+        }
+
         Location loc1, loc2;
         if (arena != null && arena.getSpawn1() != null && arena.getSpawn2() != null) {
             loc1 = arena.getSpawn1().clone();
@@ -192,7 +196,7 @@ public class DuelManager {
         }
 
         if (duel.getArena() != null) {
-            duel.getArena().restoreBlocks();
+            duel.getArena().restoreFromSnapshot();
         }
     }
 

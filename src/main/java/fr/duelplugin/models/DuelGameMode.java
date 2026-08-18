@@ -4,12 +4,12 @@ public enum DuelGameMode {
 
     SWORD("Sword", "§6⚔ Sword", "sword", true, false, false),
     AXE("Axe", "§6🪓 Axe", "axe", true, false, false),
-    UHC("UHC", "§6❤ UHC", "uhc", true, false, false),
+    UHC("UHC", "§6❤ UHC", "uhc", true, true, true),
     POT("Pot", "§6🧪 Pot", "pot", true, false, false),
     NETHPOT("NethPot", "§6🔥 NethPot", "nethpot", true, false, false),
     MACE("Mace", "§6🔨 Mace", "mace", true, false, false),
     VANILLA("Vanilla", "§6🌍 Vanilla", "vanilla", false, true, true),
-    SMP("SMP", "§6⚔ SMP", "smp", false, true, true),
+    SMP("SMP", "§6⚔ SMP", "smp", false, false, false),
     DIASMP("DiaSMP", "§6💎 DiaSMP", "diasmp", false, true, true),
     SPEAR_MACE("Spear-Mace", "§6🗡 Spear-Mace", "spear-mace", true, false, false);
 

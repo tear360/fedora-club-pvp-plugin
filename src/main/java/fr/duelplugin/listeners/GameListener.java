@@ -34,12 +34,6 @@ public class GameListener implements Listener {
         if (!mode.canBreakBlocks()) {
             event.setCancelled(true);
             player.sendMessage(plugin.getMessage("gamemode-disabled"));
-            return;
-        }
-
-        // Save original block for restoration
-        if (duel.getArena() != null) {
-            duel.getArena().saveOriginalBlock(event.getBlock().getLocation());
         }
     }
 
@@ -56,11 +50,6 @@ public class GameListener implements Listener {
         if (!mode.canPlaceBlocks()) {
             event.setCancelled(true);
             player.sendMessage(plugin.getMessage("gamemode-disabled"));
-            return;
-        }
-
-        if (duel.getArena() != null) {
-            duel.getArena().saveOriginalBlock(event.getBlock().getLocation());
         }
     }
 
@@ -87,12 +76,6 @@ public class GameListener implements Listener {
             return;
         }
 
-        // UHC: no natural regen
-        if (duel.getMode().isNaturalRegenDisabled()) {
-            event.setDamage(event.getDamage());
-        }
-
-        // Handle death
         if (victim.getHealth() - event.getFinalDamage() <= 0) {
             event.setCancelled(true);
             victim.setHealth(20.0);
@@ -122,7 +105,6 @@ public class GameListener implements Listener {
         var duel = plugin.getDuelManager().getDuel(player.getUniqueId());
         if (duel == null) return;
 
-        // Prevent players from leaving the arena bounds
         if (duel.getArena() != null && duel.getArena().getMinCorner() != null && duel.getArena().getMaxCorner() != null) {
             if (!duel.getArena().isInArena(event.getTo())) {
                 player.teleport(event.getFrom());

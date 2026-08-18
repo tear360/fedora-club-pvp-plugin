@@ -10,8 +10,7 @@ public enum DuelGameMode {
     MACE("Mace", "§6🔨 Mace", "mace", true, false, false),
     VANILLA("Vanilla", "§6🌍 Vanilla", "vanilla", false, true, true),
     SMP("SMP", "§6⚔ SMP", "smp", false, false, false),
-    DIASMP("DiaSMP", "§6💎 DiaSMP", "diasmp", false, true, true),
-    SPEAR_MACE("Spear-Mace", "§6🗡 Spear-Mace", "spear-mace", true, false, false);
+    DIASMP("DiaSMP", "§6💎 DiaSMP", "diasmp", false, true, true);
 
     private final String displayName;
     private final String coloredName;

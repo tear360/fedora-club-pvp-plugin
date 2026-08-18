@@ -27,46 +27,55 @@ public class DuelGUI {
             pendingTarget.put(player.getUniqueId(), target.getUniqueId());
         }
 
-        Inventory inv = Bukkit.createInventory(null, 27,
+        Inventory inv = Bukkit.createInventory(null, 45,
                 plugin.colorize(target != null ?
-                        "&6&lChoisir un mode → §f" + target.getName() :
-                        "&6&lChoisir un mode de duel"));
+                        "&8Sélection de mode &7→ &f" + target.getName() :
+                        "&8Sélection de mode de duel"));
 
-        int slot = 10;
-        for (DuelGameMode mode : DuelGameMode.values()) {
-            Material itemMat;
-            switch (mode) {
-                case MACE, SPEAR_MACE -> itemMat = Material.MACE;
-                case VANILLA, SMP, DIASMP -> itemMat = Material.DIAMOND_SWORD;
-                default -> itemMat = Material.NETHERITE_SWORD;
+        for (int i = 0; i < 45; i++) {
+            if (i == 10 || i == 11 || i == 12 || i == 13 || i == 14 ||
+                    i == 19 || i == 20 || i == 21 || i == 22 || i == 23) {
+                continue;
             }
+            inv.setItem(i, new ItemBuilder(Material.GRAY_STAINED_GLASS_PANE).name(" ").build());
+        }
 
+        DuelGameMode[] modes = DuelGameMode.values();
+        int[] slots = {10, 11, 12, 13, 14, 19, 20, 21, 22, 23};
+
+        for (int i = 0; i < modes.length && i < slots.length; i++) {
+            DuelGameMode mode = modes[i];
+            Material icon = getModeIcon(mode);
             boolean hasArena = !mode.isArenaRestricted() || plugin.getArenaManager().getAvailableArena(mode) != null;
 
-            inv.setItem(slot, new ItemBuilder(itemMat)
+            inv.setItem(slots[i], new ItemBuilder(icon)
                     .name(mode.getColoredName())
                     .lore(
                             "",
                             mode.isArenaRestricted() ?
-                                    (hasArena ? "&aArènes disponibles!" : "&cAucune arène disponible") :
-                                    "&aMode libre",
-                            "&eBlocs: " + (mode.canBreakBlocks() ? "&aCassables" : "&cNon cassables"),
+                                    (hasArena ? "&a&lArènes disponibles" : "&c&lAucune arène") :
+                                    "&a&lMode libre",
+                            "&7Blocs: " + (mode.canBreakBlocks() ? "&aCassables" : "&cNon cassables"),
                             "",
-                            "&7Cliquez pour sélectionner"
+                            "&e&lCliquez pour jouer"
                     ).build());
-            slot++;
-            if (slot == 17) slot = 19;
-            if (slot > 25) break;
-        }
-
-        for (int i = 0; i < 27; i++) {
-            if (inv.getItem(i) == null) {
-                inv.setItem(i, new ItemBuilder(Material.BLACK_STAINED_GLASS_PANE)
-                        .name(" ").build());
-            }
         }
 
         player.openInventory(inv);
+    }
+
+    private Material getModeIcon(DuelGameMode mode) {
+        return switch (mode) {
+            case SWORD -> Material.DIAMOND_SWORD;
+            case AXE -> Material.DIAMOND_AXE;
+            case UHC -> Material.GOLDEN_APPLE;
+            case MACE -> Material.MACE;
+            case VANILLA -> Material.END_CRYSTAL;
+            case SMP -> Material.SHIELD;
+            case DIASMP -> Material.CHORUS_FRUIT;
+            case POT -> Material.SPLASH_POTION;
+            case NETHPOT -> Material.NETHERITE_HELMET;
+        };
     }
 
     public UUID getPendingTarget(UUID playerUuid) {

@@ -2,7 +2,6 @@ package fr.duelplugin.listeners;
 
 import fr.duelplugin.DuelPlugin;
 import fr.duelplugin.gui.DuelGUI;
-import fr.duelplugin.models.Arena;
 import fr.duelplugin.models.DuelGameMode;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -10,7 +9,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.UUID;
@@ -18,26 +16,22 @@ import java.util.UUID;
 public class ArenaListener implements Listener {
 
     private final DuelPlugin plugin;
-    private final DuelGUI duelGUI;
 
     public ArenaListener(DuelPlugin plugin) {
         this.plugin = plugin;
-        this.duelGUI = plugin.getDuelGUI();
     }
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
         if (!(event.getWhoClicked() instanceof Player player)) return;
-        Inventory inv = event.getInventory();
-        if (inv == null) return;
-
+        if (event.getView().getTitle() == null) return;
         String title = event.getView().getTitle();
-        if (!title.contains("Choisir un mode")) return;
+        if (!title.contains("Sélection de mode")) return;
 
         event.setCancelled(true);
         ItemStack item = event.getCurrentItem();
         if (item == null || item.getType() == Material.AIR) return;
-        if (item.getType() == Material.BLACK_STAINED_GLASS_PANE) return;
+        if (item.getType() == Material.GRAY_STAINED_GLASS_PANE) return;
 
         if (item.getItemMeta() == null) return;
         String name = item.getItemMeta().getDisplayName();
@@ -52,7 +46,7 @@ public class ArenaListener implements Listener {
 
         if (mode == null) return;
 
-        UUID targetUuid = duelGUI.getPendingTarget(player.getUniqueId());
+        UUID targetUuid = plugin.getDuelGUI().getPendingTarget(player.getUniqueId());
         if (targetUuid == null) {
             player.sendMessage(plugin.getPrefix() + "§cErreur: sélection de cible perdue. Réessayez.");
             player.closeInventory();

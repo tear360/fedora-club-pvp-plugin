@@ -32,7 +32,6 @@ public class Kit {
             case VANILLA -> giveVanillaKit(inv);
             case SMP -> giveSMPKit(inv);
             case DIASMP -> giveDiaSMPKit(inv);
-            case SPEAR_MACE -> giveSpearMaceKit(inv);
         }
     }
 
@@ -230,28 +229,6 @@ public class Kit {
         inv.setItem(29, splash(PotionEffectType.FIRE_RESISTANCE, 0));
         inv.setItem(30, splash(PotionEffectType.FIRE_RESISTANCE, 0));
         inv.setItem(31, splash(PotionEffectType.FIRE_RESISTANCE, 0));
-    }
-
-    private static void giveSpearMaceKit(PlayerInventory inv) {
-        inv.setItem(0, ench(Material.NETHERITE_SWORD, Enchantment.SHARPNESS, 5, Enchantment.UNBREAKING, 3));
-        inv.setItem(1, ench(Material.NETHERITE_AXE, Enchantment.SHARPNESS, 5, Enchantment.UNBREAKING, 3));
-        inv.setItem(2, ench(Material.TRIDENT, Enchantment.IMPALING, 5, Enchantment.LOYALTY, 3, Enchantment.UNBREAKING, 3));
-        inv.setItem(3, ench(Material.MACE, Enchantment.DENSITY, 5, Enchantment.WIND_BURST, 1));
-        inv.setItem(4, new ItemStack(Material.WIND_CHARGE, 192));
-        inv.setItem(5, new ItemStack(Material.ENDER_PEARL, 48));
-        inv.setArmorContents(new ItemStack[]{
-                ench(Material.NETHERITE_BOOTS, Enchantment.PROTECTION, 4, Enchantment.FEATHER_FALLING, 4, Enchantment.UNBREAKING, 3),
-                ench(Material.NETHERITE_LEGGINGS, Enchantment.PROTECTION, 4, Enchantment.UNBREAKING, 3),
-                ench(Material.NETHERITE_CHESTPLATE, Enchantment.PROTECTION, 4, Enchantment.UNBREAKING, 3),
-                ench(Material.NETHERITE_HELMET, Enchantment.PROTECTION, 4, Enchantment.UNBREAKING, 3)
-        });
-        inv.setItemInOffHand(ench(Material.SHIELD, Enchantment.UNBREAKING, 3, Enchantment.MENDING, 1));
-        for (int i = 6; i <= 16; i++) {
-            inv.setItem(i, splashWithDuration(PotionEffectType.STRENGTH, 1, 1800));
-        }
-        for (int i = 17; i <= 27; i++) {
-            inv.setItem(i, splashWithDuration(PotionEffectType.SPEED, 1, 1800));
-        }
     }
 
     private static ItemStack ench(Material mat, Object... enchPairs) {

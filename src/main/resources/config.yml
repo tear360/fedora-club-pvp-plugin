@@ -1,0 +1,72 @@
+# Fedora Club - DuelPlugin Configuration
+
+# Messages
+messages:
+  prefix: "&8[&6Fedora &eClub&8] &r"
+  no-permission: "&cVous n'avez pas la permission."
+  player-not-found: "&cJoueur introuvable."
+  arena-not-found: "&cArène introuvable."
+  arena-created: "&aArène &e%name% &acréée avec succès."
+  arena-deleted: "&aArène &e%name% &asupprimée."
+  arena-spawn-set: "&aPoint d'apparition défini pour &e%arena% &a(slot %slot%)."
+  duel-sent: "&aDemande de duel envoyée à &e%player%&a."
+  duel-received: "&e%player% &avous a défié en &e%mode%&a!"
+  duel-accepted: "&aVous avez accepté le duel de &e%player%&a!"
+  duel-declined: "&cVous avez refusé le duel."
+  no-duel-request: "&cVous n'avez aucune demande de duel en attente."
+  duel-starting: "&6Le duel commence dans 3 secondes..."
+  duel-start: "&a&lDUEL COMMENCÉ!"
+  duel-win: "&6&lVICTOIRE! &e%winner% &aà gagné contre &e%loser%&a!"
+  duel-draw: "&eMatch nul!"
+  in-duel: "&cVous êtes déjà en duel."
+  in-lobby: "&cVous devez être dans le lobby."
+  inventory-cleared: "&aVotre inventaire a été sauvegardé et vidé."
+  inventory-restored: "&aVotre inventaire a été restauré."
+  lobby-set: "&aLobby défini avec succès."
+  health-regeneration: "&cLa régénération naturelle est désactivée dans ce mode."
+  gamemode-disabled: "&cCe bloc ne peut pas être cassé dans ce mode."
+  arena-full: "&cL'arène est complète."
+
+# Scoreboard
+scoreboard:
+  title: "&6&lFEDORA &e&lCLUB"
+  lobby-lines:
+    - "&8&m                    "
+    - "&fJoueur: &e%player%"
+    - ""
+    - "&fMode: &e%mode%"
+    - "&fArène: &e%arena%"
+    - ""
+    - "&fAdversaire: &e%opponent%"
+    - ""
+    - "&8&m                    "
+    - "&afedora.free-node.ovh"
+  waiting-lines:
+    - "&8&m                    "
+    - "&fJoueur: &e%player%"
+    - ""
+    - "&fEn attente..."
+    - "&fArène: &e%arena%"
+    - ""
+    - "&8&m                    "
+  duel-lines:
+    - "&8&m                    "
+    - "&fJoueur: &e%player%"
+    - ""
+    - "&fScore: &e%kills% &f- &e%deaths%"
+    - "&fAdversaire: &e%opponent%"
+    - "&fMode: &e%mode%"
+    - ""
+    - "&8&m                    "
+
+scoreboard-update-interval: 20
+
+# Lobby settings
+lobby:
+  spawn-x: 0
+  spawn-y: 64
+  spawn-z: 0
+  world: world
+
+# Arenas
+arenas: {}

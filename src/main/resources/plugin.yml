@@ -1,0 +1,31 @@
+name: DuelPlugin
+version: '${project.version}'
+main: fr.duelplugin.DuelPlugin
+api-version: '1.21'
+description: Plugin de duel PvP pour Fedora Club
+authors: [DuelPlugin]
+
+commands:
+  duel:
+    description: Défier un joueur en duel
+    usage: /duel <joueur>
+    aliases: [duels, fight]
+  acceptduel:
+    description: Accepter un duel
+    usage: /acceptduel [joueur]
+  denyduel:
+    description: Refuser un duel
+    usage: /denyduel [joueur]
+  da:
+    description: Administration Fedora Club
+    usage: /da <args>
+    aliases: [dueladmin]
+    permission: duelplugin.admin
+
+permissions:
+  duelplugin.admin:
+    description: Permission admin du plugin
+    default: op
+  duelplugin.play:
+    description: Permission de jouer
+    default: true

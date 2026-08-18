@@ -26,16 +26,16 @@ public class SpecCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage("§cSeuls les joueurs peuvent utiliser cette commande.");
+            sender.sendMessage("§5Seuls les joueurs peuvent utiliser cette commande.");
             return true;
         }
 
         if (args.length == 0) {
-            if (plugin.getTabManager().getSpectators(player.getUniqueId()).size() > 0 || isSpectating(player)) {
+            if (isSpectating(player)) {
                 stopSpectating(player);
                 return true;
             }
-            player.sendMessage(plugin.getPrefix() + "§cUsage: /spec <joueur>");
+            player.sendMessage(plugin.getPrefix() + "§dUsage: /spec <joueur>");
             return true;
         }
 
@@ -72,13 +72,13 @@ public class SpecCommand implements CommandExecutor, TabCompleter {
 
         plugin.getTabManager().addSpectator(duel.getPlayer1(), spectator.getUniqueId());
 
-        spectator.sendMessage(plugin.getPrefix() + "§7Vous spectate §e" + target.getName() + " §7(§e" + duel.getMode().getDisplayName() + "§7)");
-        target.sendMessage(plugin.getPrefix() + "§7§e" + spectator.getName() + " §7vous spectate.");
+        spectator.sendMessage(plugin.getPrefix() + "§7Vous spectate §d" + target.getName() + " §7(§d" + duel.getMode().getDisplayName() + "§7)");
+        target.sendMessage(plugin.getPrefix() + "§7§d" + spectator.getName() + " §7vous spectate.");
 
         UUID opponentUuid = duel.getOpponent(target.getUniqueId());
         Player opponent = Bukkit.getPlayer(opponentUuid);
         if (opponent != null) {
-            opponent.sendMessage(plugin.getPrefix() + "§7§e" + spectator.getName() + " §7est maintenant spectateur.");
+            opponent.sendMessage(plugin.getPrefix() + "§7§d" + spectator.getName() + " §7est maintenant spectateur.");
         }
     }
 

@@ -2,11 +2,6 @@ package fr.duelplugin.commands;
 
 import fr.duelplugin.DuelPlugin;
 import fr.duelplugin.models.DuelRequest;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.event.ClickEvent;
-import net.kyori.adventure.text.event.HoverEvent;
-import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -29,7 +24,7 @@ public class AcceptDuelCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage("§cSeuls les joueurs peuvent utiliser cette commande.");
+            sender.sendMessage("§5Seuls les joueurs peuvent utiliser cette commande.");
             return true;
         }
 

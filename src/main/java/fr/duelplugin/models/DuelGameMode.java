@@ -2,15 +2,15 @@ package fr.duelplugin.models;
 
 public enum DuelGameMode {
 
-    SWORD("Sword", "§6⚔ Sword", "sword", true, false, false),
-    AXE("Axe", "§6🪓 Axe", "axe", true, false, false),
-    UHC("UHC", "§6❤ UHC", "uhc", true, true, true),
-    POT("Pot", "§6🧪 Pot", "pot", true, false, false),
-    NETHPOT("NethPot", "§6🔥 NethPot", "nethpot", true, false, false),
-    MACE("Mace", "§6🔨 Mace", "mace", true, false, false),
-    VANILLA("Vanilla", "§6🌍 Vanilla", "vanilla", false, true, true),
-    SMP("SMP", "§6⚔ SMP", "smp", false, false, false),
-    DIASMP("DiaSMP", "§6💎 DiaSMP", "diasmp", false, true, true);
+    SWORD("Sword", "§5⚔ Sword", "sword", true, false, false),
+    AXE("Axe", "§5🪓 Axe", "axe", true, false, false),
+    UHC("UHC", "§5❤ UHC", "uhc", true, true, true),
+    POT("Pot", "§5🧪 Pot", "pot", true, false, false),
+    NETHPOT("NethPot", "§5🔥 NethPot", "nethpot", true, false, false),
+    MACE("Mace", "§5🔨 Mace", "mace", true, false, false),
+    VANILLA("Vanilla", "§5🌍 Vanilla", "vanilla", false, true, true),
+    SMP("SMP", "§5⚔ SMP", "smp", false, false, false),
+    DIASMP("DiaSMP", "§5💎 DiaSMP", "diasmp", false, true, true);
 
     private final String displayName;
     private final String coloredName;

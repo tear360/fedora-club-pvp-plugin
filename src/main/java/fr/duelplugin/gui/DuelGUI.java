@@ -29,15 +29,15 @@ public class DuelGUI {
 
         Inventory inv = Bukkit.createInventory(null, 45,
                 plugin.colorize(target != null ?
-                        "&8Sélection de mode &7→ &f" + target.getName() :
-                        "&8Sélection de mode de duel"));
+                        "&5Sélection de mode &7→ &d" + target.getName() :
+                        "&5Sélection de mode de duel"));
 
         for (int i = 0; i < 45; i++) {
             if (i == 10 || i == 11 || i == 12 || i == 13 || i == 14 ||
                     i == 19 || i == 20 || i == 21 || i == 22 || i == 23) {
                 continue;
             }
-            inv.setItem(i, new ItemBuilder(Material.GRAY_STAINED_GLASS_PANE).name(" ").build());
+            inv.setItem(i, new ItemBuilder(Material.BLACK_STAINED_GLASS_PANE).name(" ").build());
         }
 
         DuelGameMode[] modes = DuelGameMode.values();
@@ -57,7 +57,7 @@ public class DuelGUI {
                                     "&a&lMode libre",
                             "&7Blocs: " + (mode.canBreakBlocks() ? "&aCassables" : "&cNon cassables"),
                             "",
-                            "&e&lCliquez pour jouer"
+                            "&d&lCliquez pour jouer"
                     ).build());
         }
 

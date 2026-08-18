@@ -17,7 +17,6 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,49 +31,22 @@ public class DuelCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage("§cSeuls les joueurs peuvent utiliser cette commande.");
+            sender.sendMessage("§5Seuls les joueurs peuvent utiliser cette commande.");
             return true;
         }
 
         if (args.length == 0) {
-            openDuelMenu(player, null);
+            player.sendMessage(plugin.getPrefix() + "§dUsage: /duel <joueur>");
             return true;
         }
 
-        switch (args[0].toLowerCase()) {
-            case "send" -> {
-                if (args.length < 2) {
-                    player.sendMessage(plugin.getPrefix() + "§cUsage: /duel <joueur>");
-                    return true;
-                }
-                Player target = Bukkit.getPlayer(args[1]);
-                if (target == null) {
-                    player.sendMessage(plugin.getMessage("player-not-found"));
-                    return true;
-                }
-                openDuelMenu(player, target);
-            }
-            case "help" -> {
-                player.sendMessage("§6=== §eFedora Club §6- Aide Duel ===");
-                player.sendMessage("§e/duel <joueur> §7- Défier un joueur");
-                player.sendMessage("§e/acceptduel <joueur> §7- Accepter un duel");
-                player.sendMessage("§e/denyduel <joueur> §7- Refuser un duel");
-                player.sendMessage("§e/da §7- Administration");
-            }
-            default -> {
-                Player target = Bukkit.getPlayer(args[0]);
-                if (target != null) {
-                    openDuelMenu(player, target);
-                } else {
-                    player.sendMessage(plugin.getMessage("player-not-found"));
-                }
-            }
+        Player target = Bukkit.getPlayer(args[0]);
+        if (target != null) {
+            plugin.getDuelGUI().openModeSelector(player, target);
+        } else {
+            player.sendMessage(plugin.getMessage("player-not-found"));
         }
         return true;
-    }
-
-    private void openDuelMenu(Player player, Player target) {
-        plugin.getDuelGUI().openModeSelector(player, target);
     }
 
     @Override
@@ -83,7 +55,6 @@ public class DuelCommand implements CommandExecutor, TabCompleter {
         if (args.length == 1) {
             completions.addAll(Bukkit.getOnlinePlayers().stream()
                     .map(Player::getName).collect(Collectors.toList()));
-            completions.add("help");
         }
         return completions.stream()
                 .filter(s -> s.toLowerCase().startsWith(args[args.length - 1].toLowerCase()))

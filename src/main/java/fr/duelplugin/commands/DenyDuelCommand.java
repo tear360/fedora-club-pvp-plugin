@@ -24,7 +24,7 @@ public class DenyDuelCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage("§cSeuls les joueurs peuvent utiliser cette commande.");
+            sender.sendMessage("§5Seuls les joueurs peuvent utiliser cette commande.");
             return true;
         }
 

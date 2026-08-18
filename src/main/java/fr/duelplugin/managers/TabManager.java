@@ -41,15 +41,15 @@ public class TabManager {
 
     private Component buildHeader() {
         return Component.text()
-                .append(Component.text("         ", NamedTextColor.GOLD, TextDecoration.BOLD))
-                .append(Component.text("FEDORA ", NamedTextColor.GOLD, TextDecoration.BOLD))
-                .append(Component.text("CLUB", NamedTextColor.YELLOW, TextDecoration.BOLD))
-                .append(Component.text("         ", NamedTextColor.GOLD, TextDecoration.BOLD))
+                .append(Component.text("         ", NamedTextColor.DARK_PURPLE, TextDecoration.BOLD))
+                .append(Component.text("FEDORA ", NamedTextColor.DARK_PURPLE, TextDecoration.BOLD))
+                .append(Component.text("CLUB", NamedTextColor.LIGHT_PURPLE, TextDecoration.BOLD))
+                .append(Component.text("         ", NamedTextColor.DARK_PURPLE, TextDecoration.BOLD))
                 .build();
     }
 
     private Component buildLobbyFooter() {
-        return Component.text("§6§l-----------\n§7fedora.free-node.ovh\n§6§l-----------");
+        return Component.text("§5§l-----------\n§7fedora.free-node.ovh\n§5§l-----------");
     }
 
     private void updateLobbyTab(Player player) {
@@ -70,13 +70,13 @@ public class TabManager {
 
         Set<UUID> specs = spectators.getOrDefault(duel.getPlayer1(), new HashSet<>());
         StringBuilder footerBuilder = new StringBuilder();
-        footerBuilder.append("§6§l-----------\n");
-        footerBuilder.append("§e⚔ ").append(player.getName()).append(" §7vs §e").append(opponent != null ? opponent.getName() : "???").append("\n");
+        footerBuilder.append("§5§l-----------\n");
+        footerBuilder.append("§d⚔ ").append(player.getName()).append(" §7vs §d").append(opponent != null ? opponent.getName() : "???").append("\n");
         footerBuilder.append("§7Mode: ").append(duel.getMode().getDisplayName()).append("\n");
         if (!specs.isEmpty()) {
             footerBuilder.append("§8Spectateurs: §7").append(specs.size()).append("\n");
         }
-        footerBuilder.append("§6§l-----------");
+        footerBuilder.append("§5§l-----------");
 
         Component footer = Component.text(footerBuilder.toString());
 

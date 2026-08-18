@@ -26,7 +26,7 @@ public class PlayerListener implements Listener {
             plugin.getScoreboardManager().createLobbyScoreboard(player, null, null);
         }
 
-        event.setJoinMessage(plugin.colorize("&a+ &e" + player.getName() + " &7a rejoint le serveur"));
+        event.setJoinMessage(plugin.colorize("&5+ &d" + player.getName() + " &7a rejoint le serveur"));
     }
 
     @EventHandler
@@ -34,7 +34,7 @@ public class PlayerListener implements Listener {
         Player player = event.getPlayer();
         plugin.getDuelManager().handleDisconnect(player);
         plugin.getScoreboardManager().removeScoreboard(player);
-        event.setQuitMessage(plugin.colorize("&c- &e" + player.getName() + " &7a quitté le serveur"));
+        event.setQuitMessage(plugin.colorize("&5- &d" + player.getName() + " &7a quitté le serveur"));
     }
 
     @EventHandler

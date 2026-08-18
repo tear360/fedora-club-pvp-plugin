@@ -22,19 +22,19 @@ public class ScoreboardManager {
 
     public void createLobbyScoreboard(Player player, DuelGameMode mode, String arenaName) {
         Scoreboard board = Bukkit.getScoreboardManager().getNewScoreboard();
-        Objective obj = board.registerNewObjective("duel_lobby", Criteria.DUMMY, plugin.colorize("&6&lFEDORA &e&lCLUB"));
+        Objective obj = board.registerNewObjective("duel_lobby", Criteria.DUMMY, plugin.colorize("&5&lFEDORA &d&lCLUB"));
         obj.setDisplaySlot(DisplaySlot.SIDEBAR);
 
         int line = 8;
         addLine(obj, line--, "");
         addLine(obj, line--, "&8&m                    ");
-        addLine(obj, line--, "&fJoueur: &e" + player.getName());
+        addLine(obj, line--, "&fJoueur: &d" + player.getName());
         addLine(obj, line--, "");
-        addLine(obj, line--, "&fMode: &e" + (mode != null ? mode.getDisplayName() : "Aucun"));
-        addLine(obj, line--, "&fArène: &e" + (arenaName != null ? arenaName : "Aucune"));
+        addLine(obj, line--, "&fMode: &d" + (mode != null ? mode.getDisplayName() : "Aucun"));
+        addLine(obj, line--, "&fArène: &d" + (arenaName != null ? arenaName : "Aucune"));
         addLine(obj, line--, "");
         addLine(obj, line--, "&8&m                    ");
-        addLine(obj, line--, "&afedora.free-node.ovh");
+        addLine(obj, line--, "&dfedora.free-node.ovh");
 
         player.setScoreboard(board);
         scoreboards.put(player.getUniqueId(), board);
@@ -42,17 +42,17 @@ public class ScoreboardManager {
 
     public void createDuelScoreboard(Player player, Player opponent, DuelGameMode mode) {
         Scoreboard board = Bukkit.getScoreboardManager().getNewScoreboard();
-        Objective obj = board.registerNewObjective("duel_fight", Criteria.DUMMY, plugin.colorize("&6&lFEDORA &e&lCLUB"));
+        Objective obj = board.registerNewObjective("duel_fight", Criteria.DUMMY, plugin.colorize("&5&lFEDORA &d&lCLUB"));
         obj.setDisplaySlot(DisplaySlot.SIDEBAR);
 
         int line = 9;
         addLine(obj, line--, "");
         addLine(obj, line--, "&8&m                    ");
-        addLine(obj, line--, "&fJoueur: &e" + player.getName());
+        addLine(obj, line--, "&fJoueur: &d" + player.getName());
         addLine(obj, line--, "");
-        addLine(obj, line--, "&fScore: &e0 &f- &e0");
-        addLine(obj, line--, "&fAdversaire: &e" + opponent.getName());
-        addLine(obj, line--, "&fMode: &e" + mode.getDisplayName());
+        addLine(obj, line--, "&fScore: &d0 &f- &d0");
+        addLine(obj, line--, "&fAdversaire: &d" + opponent.getName());
+        addLine(obj, line--, "&fMode: &d" + mode.getDisplayName());
         addLine(obj, line--, "");
         addLine(obj, line--, "&8&m                    ");
 

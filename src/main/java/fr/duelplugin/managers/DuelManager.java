@@ -11,6 +11,7 @@ import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -48,10 +49,10 @@ public class DuelManager {
         pendingRequests.put(receiver.getUniqueId(), new DuelRequest(sender.getUniqueId(), receiver.getUniqueId(), mode));
 
         receiver.sendMessage("");
-        receiver.sendMessage("§6§l=============================");
-        receiver.sendMessage("§e⚔ §6Demande de duel!");
-        receiver.sendMessage("§eJoueur: §f" + sender.getName());
-        receiver.sendMessage("§eMode: §f" + mode.getDisplayName());
+        receiver.sendMessage("§5§l═══════════════════════════");
+        receiver.sendMessage("§d⚔ §5Demande de duel!");
+        receiver.sendMessage("§dJoueur: §f" + sender.getName());
+        receiver.sendMessage("§dMode: §f" + mode.getDisplayName());
         receiver.sendMessage("");
 
         Component acceptButton = Component.text("§a§l[ACCEPTER]")
@@ -62,9 +63,9 @@ public class DuelManager {
                 .clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, "/denyduel " + sender.getName()))
                 .hoverEvent(HoverEvent.hoverEvent(HoverEvent.Action.SHOW_TEXT, Component.text("§cCliquez pour refuser le duel")));
 
-        receiver.sendMessage(Component.text("§eAction: ").append(acceptButton).append(denyButton));
+        receiver.sendMessage(Component.text("§dAction: ").append(acceptButton).append(denyButton));
         receiver.sendMessage("");
-        receiver.sendMessage("§6§l=============================");
+        receiver.sendMessage("§5§l═══════════════════════════");
 
         return true;
     }
@@ -152,8 +153,8 @@ public class DuelManager {
         plugin.getScoreboardManager().createDuelScoreboard(player1, player2, mode);
         plugin.getScoreboardManager().createDuelScoreboard(player2, player1, mode);
 
-        player1.sendMessage(plugin.getPrefix() + "§6§lDUEL COMMENCÉ! §eContre §f" + player2.getName() + " §een §f" + mode.getDisplayName());
-        player2.sendMessage(plugin.getPrefix() + "§6§lDUEL COMMENCÉ! §eContre §f" + player1.getName() + " §een §f" + mode.getDisplayName());
+        player1.sendMessage(plugin.getPrefix() + "§5§lDUEL COMMENCÉ! §dContre §f" + player2.getName() + " §den §f" + mode.getDisplayName());
+        player2.sendMessage(plugin.getPrefix() + "§5§lDUEL COMMENCÉ! §dContre §f" + player1.getName() + " §den §f" + mode.getDisplayName());
     }
 
     public void endDuel(UUID uuid, UUID winner, UUID loser) {
@@ -177,10 +178,10 @@ public class DuelManager {
         if (w != null) {
             restoreInventory(w);
             w.sendMessage("");
-            w.sendMessage("§6§l=============================");
+            w.sendMessage("§5§l═══════════════════════════");
             w.sendMessage("§a§l⚔ VICTOIRE!");
-            w.sendMessage("§aVous avez gagné contre §e" + (l != null ? l.getName() : "Unknown"));
-            w.sendMessage("§6§l=============================");
+            w.sendMessage("§aVous avez gagné contre §d" + (l != null ? l.getName() : "Unknown"));
+            w.sendMessage("§5§l═══════════════════════════");
             w.sendMessage("");
             plugin.getScoreboardManager().removeScoreboard(w);
             if (plugin.getLobbyManager().isLobbySet()) {
@@ -190,10 +191,10 @@ public class DuelManager {
         if (l != null) {
             restoreInventory(l);
             l.sendMessage("");
-            l.sendMessage("§6§l=============================");
+            l.sendMessage("§5§l═══════════════════════════");
             l.sendMessage("§c§l⚔ DÉFAITE");
-            l.sendMessage("§cVous avez perdu contre §e" + (w != null ? w.getName() : "Unknown"));
-            l.sendMessage("§6§l=============================");
+            l.sendMessage("§cVous avez perdu contre §d" + (w != null ? w.getName() : "Unknown"));
+            l.sendMessage("§5§l═══════════════════════════");
             l.sendMessage("");
             plugin.getScoreboardManager().removeScoreboard(l);
             if (plugin.getLobbyManager().isLobbySet()) {
@@ -204,7 +205,7 @@ public class DuelManager {
         for (UUID specUuid : new HashSet<>(plugin.getTabManager().getSpectators(duel.getPlayer1()))) {
             Player spec = Bukkit.getPlayer(specUuid);
             if (spec != null) {
-                spec.setGameMode(org.bukkit.GameMode.ADVENTURE);
+                spec.setGameMode(GameMode.ADVENTURE);
                 if (plugin.getLobbyManager().isLobbySet()) {
                     spec.teleport(plugin.getLobbyManager().getLobbySpawn());
                 }

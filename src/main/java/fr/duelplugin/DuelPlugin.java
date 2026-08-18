@@ -23,6 +23,7 @@ public class DuelPlugin extends JavaPlugin {
     private LobbyManager lobbyManager;
     private DuelGUI duelGUI;
     private TabManager tabManager;
+    private UpdateManager updateManager;
 
     @Override
     public void onEnable() {
@@ -36,6 +37,7 @@ public class DuelPlugin extends JavaPlugin {
         duelManager = new DuelManager(this);
         duelGUI = new DuelGUI(this);
         tabManager = new TabManager(this);
+        updateManager = new UpdateManager(this);
 
         getCommand("duel").setExecutor(new DuelCommand(this));
         getCommand("duel").setTabCompleter(new DuelCommand(this));
@@ -51,7 +53,9 @@ public class DuelPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new ArenaListener(this), this);
         getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
 
-        getLogger().info("Fedora Club - DuelPlugin enabled!");
+        updateManager.checkForUpdates();
+
+        getLogger().info("§5Fedora Club §d- DuelPlugin enabled!");
     }
 
     @Override
@@ -70,6 +74,7 @@ public class DuelPlugin extends JavaPlugin {
     public LobbyManager getLobbyManager() { return lobbyManager; }
     public DuelGUI getDuelGUI() { return duelGUI; }
     public TabManager getTabManager() { return tabManager; }
+    public UpdateManager getUpdateManager() { return updateManager; }
 
     public String getPrefix() {
         return colorize(getConfig().getString("messages.prefix", "&8[&6Fedora &eClub&8] &r"));

@@ -80,7 +80,12 @@ public class QueueManager {
             for (UUID uuid : queue) {
                 Player p = Bukkit.getPlayer(uuid);
                 if (p == null || !p.isOnline()) continue;
-                p.sendActionBar(Component.text("§dEn queue pour §f" + mode.getDisplayName() + " §d... §7(" + count + " joueur" + (count > 1 ? "s" : "") + ")", NamedTextColor.LIGHT_PURPLE));
+                p.sendActionBar(Component.text()
+                        .append(Component.text("En queue pour ", NamedTextColor.LIGHT_PURPLE))
+                        .append(Component.text(mode.getDisplayName(), NamedTextColor.WHITE))
+                        .append(Component.text(" ... ", NamedTextColor.LIGHT_PURPLE))
+                        .append(Component.text("(" + count + " joueur" + (count > 1 ? "s" : "") + ")", NamedTextColor.GRAY))
+                        .build());
             }
         }
     }

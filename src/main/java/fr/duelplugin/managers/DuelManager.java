@@ -56,15 +56,15 @@ public class DuelManager {
         receiver.sendMessage("§dMode: §f" + mode.getDisplayName());
         receiver.sendMessage("");
 
-        Component acceptButton = Component.text("§a§l[ACCEPTER]")
+        Component acceptButton = Component.text("[ACCEPTER]", NamedTextColor.GREEN, TextDecoration.BOLD)
                 .clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, "/acceptduel " + sender.getName()))
-                .hoverEvent(HoverEvent.hoverEvent(HoverEvent.Action.SHOW_TEXT, Component.text("§aCliquez pour accepter le duel")));
+                .hoverEvent(HoverEvent.hoverEvent(HoverEvent.Action.SHOW_TEXT, Component.text("Cliquez pour accepter le duel", NamedTextColor.GREEN)));
 
-        Component denyButton = Component.text(" §c§l[REFUSER]")
+        Component denyButton = Component.text(" [REFUSER]", NamedTextColor.RED, TextDecoration.BOLD)
                 .clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, "/denyduel " + sender.getName()))
-                .hoverEvent(HoverEvent.hoverEvent(HoverEvent.Action.SHOW_TEXT, Component.text("§cCliquez pour refuser le duel")));
+                .hoverEvent(HoverEvent.hoverEvent(HoverEvent.Action.SHOW_TEXT, Component.text("Cliquez pour refuser le duel", NamedTextColor.RED)));
 
-        receiver.sendMessage(Component.text("§dAction: ").append(acceptButton).append(denyButton));
+        receiver.sendMessage(Component.text("Action: ", NamedTextColor.LIGHT_PURPLE).append(acceptButton).append(denyButton));
         receiver.sendMessage("");
         receiver.sendMessage("§5§l═══════════════════════════");
 

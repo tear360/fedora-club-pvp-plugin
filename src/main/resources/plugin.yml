@@ -29,6 +29,10 @@ commands:
     description: Commande VIP Fedora Club
     usage: /vip <args>
     aliases: [vipcolor]
+  f:
+    description: Commande Amis
+    usage: /f <add|remove|list>
+    aliases: [ami, friends]
 
 permissions:
   duelplugin.admin:

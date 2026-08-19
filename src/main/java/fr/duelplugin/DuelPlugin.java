@@ -4,12 +4,14 @@ import fr.duelplugin.commands.AcceptDuelCommand;
 import fr.duelplugin.commands.DenyDuelCommand;
 import fr.duelplugin.commands.DuelAdminCommand;
 import fr.duelplugin.commands.DuelCommand;
+import fr.duelplugin.commands.FriendsCommand;
 import fr.duelplugin.commands.SpecCommand;
 import fr.duelplugin.commands.VipCommand;
 import fr.duelplugin.gui.DuelGUI;
 import fr.duelplugin.gui.KitEditorGUI;
 import fr.duelplugin.listeners.ArenaListener;
 import fr.duelplugin.listeners.ChatListener;
+import fr.duelplugin.listeners.FriendsTabListener;
 import fr.duelplugin.listeners.GameListener;
 import fr.duelplugin.listeners.LobbyItemListener;
 import fr.duelplugin.listeners.PlayerListener;
@@ -32,6 +34,7 @@ public class DuelPlugin extends JavaPlugin {
     private KitEditorGUI kitEditorGUI;
     private QueueManager queueManager;
     private VIPManager vipManager;
+    private FriendsManager friendsManager;
 
     @Override
     public void onEnable() {
@@ -50,6 +53,7 @@ public class DuelPlugin extends JavaPlugin {
         kitEditorGUI = new KitEditorGUI(this);
         queueManager = new QueueManager(this);
         vipManager = new VIPManager(this);
+        friendsManager = new FriendsManager(this);
 
         getCommand("duel").setExecutor(new DuelCommand(this));
         getCommand("duel").setTabCompleter(new DuelCommand(this));
@@ -62,12 +66,15 @@ public class DuelPlugin extends JavaPlugin {
         getCommand("spec").setTabCompleter(new SpecCommand(this));
         getCommand("vip").setExecutor(new VipCommand(this));
         getCommand("vip").setTabCompleter(new VipCommand(this));
+        getCommand("f").setExecutor(new FriendsCommand(this));
+        getCommand("f").setTabCompleter(new FriendsCommand(this));
 
         getServer().getPluginManager().registerEvents(new GameListener(this), this);
         getServer().getPluginManager().registerEvents(new ArenaListener(this), this);
         getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
         getServer().getPluginManager().registerEvents(new LobbyItemListener(this), this);
         getServer().getPluginManager().registerEvents(new ChatListener(this), this);
+        getServer().getPluginManager().registerEvents(new FriendsTabListener(this), this);
 
         updateManager.checkForUpdates();
 
@@ -96,6 +103,7 @@ public class DuelPlugin extends JavaPlugin {
     public KitEditorGUI getKitEditorGUI() { return kitEditorGUI; }
     public QueueManager getQueueManager() { return queueManager; }
     public VIPManager getVipManager() { return vipManager; }
+    public FriendsManager getFriendsManager() { return friendsManager; }
 
     public String getPrefix() {
         return colorize(getConfig().getString("messages.prefix", "&8[&6Fedora &eClub&8] &r"));

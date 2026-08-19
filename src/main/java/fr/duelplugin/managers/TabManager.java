@@ -15,6 +15,7 @@ public class TabManager {
 
     private final DuelPlugin plugin;
     private final Map<UUID, Set<UUID>> spectators = new HashMap<>();
+    private final Set<UUID> friendTabActive = new HashSet<>();
 
     private static final Map<String, TextColor> COLOR_MAP = Map.of(
             "§c", NamedTextColor.RED,
@@ -70,27 +71,31 @@ public class TabManager {
                 .build();
     }
 
-    private Component buildLobbyFooter() {
-        return Component.text()
-                .append(Component.text("\n"))
-                .append(Component.text(" fedora.free-node.ovh", NamedTextColor.GRAY, TextDecoration.BOLD))
-                .append(Component.text("\n"))
-                .build();
+    private Component buildLobbyFooter(boolean friendMode) {
+        net.kyori.adventure.text.TextComponent.Builder footer = Component.text();
+        footer.append(Component.text("\n"));
+
+        if (friendMode) {
+            footer.append(Component.text(" §d★ Mode Amis", NamedTextColor.LIGHT_PURPLE, TextDecoration.BOLD));
+        } else {
+            footer.append(Component.text(" fedora.free-node.ovh", NamedTextColor.GRAY, TextDecoration.BOLD));
+        }
+
+        footer.append(Component.text("\n"));
+        return footer.build();
     }
 
     private void updateLobbyTab(Player player) {
-        player.sendPlayerListHeaderAndFooter(buildHeader(), buildLobbyFooter());
+        boolean isFriendMode = friendTabActive.contains(player.getUniqueId());
+        player.sendPlayerListHeaderAndFooter(buildHeader(), buildLobbyFooter(isFriendMode));
 
-        DuelManager.ActiveDuel duel = plugin.getDuelManager().getDuel(player.getUniqueId());
-        if (duel == null) {
-            if (plugin.getVipManager().isVip(player.getUniqueId())) {
-                String colorCode = plugin.getVipManager().getNameColor(player.getUniqueId());
-                if (colorCode == null) colorCode = "§d";
-                TextColor color = COLOR_MAP.getOrDefault(colorCode, NamedTextColor.LIGHT_PURPLE);
-                player.playerListName(Component.text().append(Component.text("★ ", color)).append(Component.text(player.getName(), NamedTextColor.WHITE)).build());
-            } else {
-                player.playerListName(Component.text(player.getName(), NamedTextColor.WHITE));
-            }
+        if (plugin.getVipManager().isVip(player.getUniqueId())) {
+            String colorCode = plugin.getVipManager().getNameColor(player.getUniqueId());
+            if (colorCode == null) colorCode = "§d";
+            TextColor color = COLOR_MAP.getOrDefault(colorCode, NamedTextColor.LIGHT_PURPLE);
+            player.playerListName(Component.text().append(Component.text("★ ", color)).append(Component.text(player.getName(), NamedTextColor.WHITE)).build());
+        } else {
+            player.playerListName(Component.text(player.getName(), NamedTextColor.WHITE));
         }
     }
 
@@ -142,6 +147,44 @@ public class TabManager {
                 spec.playerListName(Component.text().append(Component.text("👁 ", NamedTextColor.GRAY)).append(Component.text(spec.getName(), NamedTextColor.GRAY)).build());
             }
         }
+    }
+
+    public void toggleFriendTab(Player player) {
+        UUID uuid = player.getUniqueId();
+
+        if (!friendTabActive.add(uuid)) {
+            friendTabActive.remove(uuid);
+            showAllPlayers(player);
+            player.sendMessage(plugin.getPrefix() + "§7Tab: §fTous les joueurs");
+        } else {
+            hideNonFriends(player);
+            player.sendMessage(plugin.getPrefix() + "§dTab: §fAmis uniquement");
+        }
+    }
+
+    private void hideNonFriends(Player player) {
+        UUID uuid = player.getUniqueId();
+        Set<UUID> friends = plugin.getFriendsManager().getFriends(uuid);
+
+        for (Player other : Bukkit.getOnlinePlayers()) {
+            if (other.getUniqueId().equals(uuid)) continue;
+            if (friends.contains(other.getUniqueId())) {
+                player.showPlayer(plugin, other);
+            } else {
+                player.hidePlayer(plugin, other);
+            }
+        }
+    }
+
+    private void showAllPlayers(Player player) {
+        for (Player other : Bukkit.getOnlinePlayers()) {
+            if (other.getUniqueId().equals(player.getUniqueId())) continue;
+            player.showPlayer(plugin, other);
+        }
+    }
+
+    public boolean isFriendTabActive(UUID uuid) {
+        return friendTabActive.contains(uuid);
     }
 
     public void addSpectator(UUID duelOwner, UUID spectator) {

@@ -2,9 +2,15 @@ package fr.duelplugin.managers;
 
 import fr.duelplugin.DuelPlugin;
 import fr.duelplugin.models.DuelGameMode;
+import io.papermc.paper.registry.RegistryAccess;
+import io.papermc.paper.registry.RegistryKey;
+import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.trim.ArmorTrim;
+import org.bukkit.inventory.meta.trim.TrimMaterial;
+import org.bukkit.inventory.meta.trim.TrimPattern;
 
 import java.io.File;
 import java.io.IOException;
@@ -51,6 +57,25 @@ public class KitManager {
         }
     }
 
+    public void saveKitTrims(java.util.UUID playerUuid, DuelGameMode mode, Map<Integer, ArmorTrim> trims) {
+        File file = getKitFile(playerUuid, mode);
+        FileConfiguration config = YamlConfiguration.loadConfiguration(file);
+
+        config.set("trims", null);
+        if (trims != null) {
+            for (Map.Entry<Integer, ArmorTrim> entry : trims.entrySet()) {
+                config.set("trims." + entry.getKey() + ".pattern", entry.getValue().getPattern().getKey().toString());
+                config.set("trims." + entry.getKey() + ".material", entry.getValue().getMaterial().getKey().toString());
+            }
+        }
+
+        try {
+            config.save(file);
+        } catch (IOException e) {
+            plugin.getLogger().warning("Failed to save kit trims for " + playerUuid + " mode " + mode.getConfigName());
+        }
+    }
+
     public Map<String, ItemStack[]> loadKit(java.util.UUID playerUuid, DuelGameMode mode) {
         File file = getKitFile(playerUuid, mode);
         if (!file.exists()) return null;
@@ -81,6 +106,38 @@ public class KitManager {
         }
 
         return result;
+    }
+
+    public Map<Integer, ArmorTrim> loadKitTrims(java.util.UUID playerUuid, DuelGameMode mode) {
+        File file = getKitFile(playerUuid, mode);
+        if (!file.exists()) return null;
+
+        FileConfiguration config = YamlConfiguration.loadConfiguration(file);
+        if (!config.contains("trims")) return null;
+
+        var patternRegistry = RegistryAccess.registryAccess().getRegistry(RegistryKey.TRIM_PATTERN);
+        var materialRegistry = RegistryAccess.registryAccess().getRegistry(RegistryKey.TRIM_MATERIAL);
+
+        Map<Integer, ArmorTrim> trims = new HashMap<>();
+        for (String key : config.getConfigurationSection("trims").getKeys(false)) {
+            int slot = Integer.parseInt(key);
+            String patternKey = config.getString("trims." + key + ".pattern");
+            String materialKey = config.getString("trims." + key + ".material");
+
+            if (patternKey == null || materialKey == null) continue;
+
+            NamespacedKey pKey = NamespacedKey.fromString(patternKey);
+            NamespacedKey mKey = NamespacedKey.fromString(materialKey);
+            if (pKey == null || mKey == null) continue;
+
+            TrimPattern pattern = patternRegistry.get(pKey);
+            TrimMaterial material = materialRegistry.get(mKey);
+
+            if (pattern != null && material != null) {
+                trims.put(slot, new ArmorTrim(material, pattern));
+            }
+        }
+        return trims.isEmpty() ? null : trims;
     }
 
     public boolean hasCustomKit(java.util.UUID playerUuid, DuelGameMode mode) {

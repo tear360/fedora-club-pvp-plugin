@@ -253,12 +253,36 @@ public class DuelManager {
             ItemStack[] contents = customKit.get("contents");
             if (contents != null) player.getInventory().setContents(contents);
             ItemStack[] armor = customKit.get("armor");
-            if (armor != null) player.getInventory().setArmorContents(armor);
+            if (armor != null) {
+                player.getInventory().setArmorContents(armor);
+
+                java.util.Map<Integer, org.bukkit.inventory.meta.trim.ArmorTrim> trims =
+                        plugin.getKitManager().loadKitTrims(player.getUniqueId(), mode);
+                if (trims != null) {
+                    applyTrimsToArmor(player, trims);
+                }
+            }
             ItemStack[] offhand = customKit.get("offhand");
             if (offhand != null && offhand.length > 0) player.getInventory().setItemInOffHand(offhand[0]);
         } else {
             fr.duelplugin.models.Kit.giveKit(player, mode);
         }
+    }
+
+    private void applyTrimsToArmor(Player player, java.util.Map<Integer, org.bukkit.inventory.meta.trim.ArmorTrim> trims) {
+        int[] armorSlots = {0, 1, 2, 3}; // boots, leggings, chest, helmet indices
+        ItemStack[] armor = player.getInventory().getArmorContents();
+
+        for (int i = 0; i < armorSlots.length && i < armor.length; i++) {
+            int trimSlot = armorSlots[i];
+            org.bukkit.inventory.meta.trim.ArmorTrim trim = trims.get(trimSlot);
+            if (trim != null && armor[i] != null && armor[i].hasItemMeta() && armor[i].getItemMeta() instanceof org.bukkit.inventory.meta.ArmorMeta) {
+                org.bukkit.inventory.meta.ArmorMeta meta = (org.bukkit.inventory.meta.ArmorMeta) armor[i].getItemMeta();
+                meta.setTrim(trim);
+                armor[i].setItemMeta(meta);
+            }
+        }
+        player.getInventory().setArmorContents(armor);
     }
 
     public ActiveDuel getDuel(UUID uuid) {

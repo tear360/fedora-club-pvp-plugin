@@ -18,6 +18,9 @@ import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.trim.ArmorTrim;
+import org.bukkit.inventory.meta.trim.TrimMaterial;
+import org.bukkit.inventory.meta.trim.TrimPattern;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -147,7 +150,7 @@ public class LobbyItemListener implements Listener {
 
             String name = event.getCurrentItem().getItemMeta() != null ? event.getCurrentItem().getItemMeta().getDisplayName() : "";
 
-            if (name.contains("Sauvegarder") || name.contains("Réinitialiser") || name.contains("Retour")) {
+            if (name.contains("Sauvegarder") || name.contains("Réinitialiser") || name.contains("Retour") || name.contains("Trims")) {
                 event.setCancelled(true);
             }
 
@@ -171,10 +174,79 @@ public class LobbyItemListener implements Listener {
                 return;
             }
 
+            if (name.contains("Trims VIP")) {
+                if (!plugin.getVipManager().isVip(player.getUniqueId())) {
+                    player.sendMessage(plugin.getPrefix() + "§cFonctionnalité VIP uniquement!");
+                    return;
+                }
+                plugin.getKitEditorGUI().openTrimSelector(player);
+                return;
+            }
+
             if (name.contains("Retour")) {
                 plugin.getKitEditorGUI().removeEditingMode(player.getUniqueId());
                 plugin.getKitEditorGUI().openModeSelector(player);
                 return;
+            }
+        }
+
+        if (title.contains("Sélection de trim")) {
+            event.setCancelled(true);
+            if (event.getCurrentItem() == null || event.getCurrentItem().getType() == Material.AIR) return;
+            if (event.getCurrentItem().getType() == Material.BLACK_STAINED_GLASS_PANE) return;
+
+            String name = event.getCurrentItem().getItemMeta() != null ? event.getCurrentItem().getItemMeta().getDisplayName() : "";
+
+            if (name.contains("Réinitialiser")) {
+                plugin.getKitEditorGUI().clearTrims(player.getUniqueId());
+                player.sendMessage(plugin.getPrefix() + "§dTrims réinitialisés!");
+                plugin.getKitEditorGUI().openTrimSelector(player);
+                return;
+            }
+
+            if (name.contains("Retour")) {
+                DuelGameMode mode = plugin.getKitEditorGUI().getEditingMode(player.getUniqueId());
+                if (mode != null) {
+                    plugin.getKitEditorGUI().openKitEditor(player, mode);
+                }
+                return;
+            }
+
+            TrimPattern[] patterns = {
+                    TrimPattern.SENTRY, TrimPattern.DUNE, TrimPattern.COAST, TrimPattern.WILD,
+                    TrimPattern.WARD, TrimPattern.SILENCE, TrimPattern.RAISER, TrimPattern.HOST
+            };
+            for (TrimPattern p : patterns) {
+                if (name.contains(p.getKey().getKey())) {
+                    Map<Integer, ArmorTrim> trims = plugin.getKitEditorGUI().getEditingTrims(player.getUniqueId());
+                    ArmorTrim current = trims.isEmpty() ? null : trims.values().iterator().next();
+                    TrimMaterial mat = current != null ? current.getMaterial() : TrimMaterial.IRON;
+                    plugin.getKitEditorGUI().setTrim(player.getUniqueId(), 3, new ArmorTrim(mat, p));
+                    plugin.getKitEditorGUI().setTrim(player.getUniqueId(), 2, new ArmorTrim(mat, p));
+                    plugin.getKitEditorGUI().setTrim(player.getUniqueId(), 1, new ArmorTrim(mat, p));
+                    plugin.getKitEditorGUI().setTrim(player.getUniqueId(), 0, new ArmorTrim(mat, p));
+                    player.sendMessage(plugin.getPrefix() + "§dPattern sélectionné: §f" + p.getKey().getKey());
+                    plugin.getKitEditorGUI().openTrimSelector(player);
+                    return;
+                }
+            }
+
+            TrimMaterial[] materials = {
+                    TrimMaterial.IRON, TrimMaterial.COPPER, TrimMaterial.GOLD, TrimMaterial.LAPIS,
+                    TrimMaterial.EMERALD, TrimMaterial.DIAMOND, TrimMaterial.NETHERITE, TrimMaterial.REDSTONE
+            };
+            for (TrimMaterial m : materials) {
+                if (name.contains(m.getKey().getKey())) {
+                    Map<Integer, ArmorTrim> trims = plugin.getKitEditorGUI().getEditingTrims(player.getUniqueId());
+                    TrimPattern pat = !trims.isEmpty() ? trims.values().iterator().next().getPattern() : TrimPattern.SENTRY;
+                    plugin.getKitEditorGUI().setTrim(player.getUniqueId(), 3, new ArmorTrim(m, pat));
+                    plugin.getKitEditorGUI().setTrim(player.getUniqueId(), 2, new ArmorTrim(m, pat));
+                    plugin.getKitEditorGUI().setTrim(player.getUniqueId(), 1, new ArmorTrim(m, pat));
+                    plugin.getKitEditorGUI().setTrim(player.getUniqueId(), 0, new ArmorTrim(m, pat));
+                    player.sendMessage(plugin.getPrefix() + "§dMatériau sélectionné: §f" + m.getKey().getKey());
+                    plugin.getKitEditorGUI().openTrimSelector(player);
+                    return;
+                }
             }
         }
     }
@@ -184,7 +256,7 @@ public class LobbyItemListener implements Listener {
         if (!(event.getWhoClicked() instanceof Player player)) return;
         String title = event.getView().getTitle();
         if (title == null) return;
-        if (title.contains("Rejoindre une queue") || title.contains("Éditeur de kits")) {
+        if (title.contains("Rejoindre une queue") || title.contains("Éditeur de kits") || title.contains("Sélection de trim")) {
             event.setCancelled(true);
         }
     }

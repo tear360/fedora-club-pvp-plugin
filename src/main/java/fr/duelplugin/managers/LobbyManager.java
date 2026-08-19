@@ -11,6 +11,7 @@ public class LobbyManager {
 
     private final DuelPlugin plugin;
     private Location lobbySpawn;
+    private boolean explicitlySet = false;
 
     public LobbyManager(DuelPlugin plugin) {
         this.plugin = plugin;
@@ -24,15 +25,23 @@ public class LobbyManager {
         double y = config.getDouble("lobby.spawn-y", 64);
         double z = config.getDouble("lobby.spawn-z", 0);
 
+        if (x == 0 && y == 64 && z == 0 && "world".equals(world)) {
+            lobbySpawn = null;
+            explicitlySet = false;
+            return;
+        }
+
         World w = Bukkit.getWorld(world);
         if (w == null) {
             w = Bukkit.getWorlds().get(0);
         }
         lobbySpawn = new Location(w, x, y, z);
+        explicitlySet = true;
     }
 
     public void setLobby(Location loc) {
         this.lobbySpawn = loc.clone();
+        this.explicitlySet = true;
         FileConfiguration config = plugin.getConfig();
         config.set("lobby.world", loc.getWorld().getName());
         config.set("lobby.spawn-x", loc.getX());
@@ -43,38 +52,30 @@ public class LobbyManager {
 
     public Location getLobbySpawn() {
         if (lobbySpawn == null) return null;
+
         Location loc = lobbySpawn.clone();
-        if (loc.getWorld() == null) {
-            World w = Bukkit.getWorld(plugin.getConfig().getString("lobby.world", "world"));
-            if (w == null) w = Bukkit.getWorlds().get(0);
+        String worldName = lobbySpawn.getWorld() != null ? lobbySpawn.getWorld().getName() : plugin.getConfig().getString("lobby.world", "world");
+        World w = Bukkit.getWorld(worldName);
+        if (w != null) {
             loc.setWorld(w);
         }
         return loc;
     }
 
     public boolean isLobbySet() {
-        return lobbySpawn != null;
+        return explicitlySet && lobbySpawn != null;
     }
 
     public void teleportToLobby(Player player) {
-        if (lobbySpawn == null) return;
+        if (!isLobbySet()) return;
 
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
             if (!player.isOnline()) return;
 
-            World targetWorld = Bukkit.getWorld(lobbySpawn.getWorld().getName());
-            if (targetWorld == null) {
-                targetWorld = Bukkit.getWorlds().get(0);
-            }
+            Location target = getLobbySpawn();
+            if (target == null || target.getWorld() == null) return;
 
-            Location tpLoc = lobbySpawn.clone();
-            tpLoc.setWorld(targetWorld);
-
-            player.teleportAsync(tpLoc).thenAccept(success -> {
-                if (!success) {
-                    player.teleport(tpLoc);
-                }
-            });
-        }, 1L);
+            player.teleportAsync(target, org.bukkit.event.player.PlayerTeleportEvent.TeleportCause.PLUGIN);
+        }, 2L);
     }
 }

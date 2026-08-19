@@ -214,7 +214,10 @@ public class LobbyItemListener implements Listener {
 
             TrimPattern[] patterns = {
                     TrimPattern.SENTRY, TrimPattern.DUNE, TrimPattern.COAST, TrimPattern.WILD,
-                    TrimPattern.WARD, TrimPattern.SILENCE, TrimPattern.RAISER, TrimPattern.HOST
+                    TrimPattern.WARD, TrimPattern.EYE, TrimPattern.VEX, TrimPattern.TIDE,
+                    TrimPattern.SNOUT, TrimPattern.RIB, TrimPattern.SPIRE, TrimPattern.WAYFINDER,
+                    TrimPattern.SHAPER, TrimPattern.SILENCE, TrimPattern.RAISER, TrimPattern.HOST,
+                    TrimPattern.FLOW, TrimPattern.BOLT
             };
             for (TrimPattern p : patterns) {
                 if (name.contains(p.getKey().getKey())) {
@@ -232,8 +235,9 @@ public class LobbyItemListener implements Listener {
             }
 
             TrimMaterial[] materials = {
-                    TrimMaterial.IRON, TrimMaterial.COPPER, TrimMaterial.GOLD, TrimMaterial.LAPIS,
-                    TrimMaterial.EMERALD, TrimMaterial.DIAMOND, TrimMaterial.NETHERITE, TrimMaterial.REDSTONE
+                    TrimMaterial.QUARTZ, TrimMaterial.IRON, TrimMaterial.COPPER, TrimMaterial.GOLD,
+                    TrimMaterial.LAPIS, TrimMaterial.EMERALD, TrimMaterial.DIAMOND, TrimMaterial.NETHERITE,
+                    TrimMaterial.REDSTONE, TrimMaterial.AMETHYST, TrimMaterial.RESIN
             };
             for (TrimMaterial m : materials) {
                 if (name.contains(m.getKey().getKey())) {

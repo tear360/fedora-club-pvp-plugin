@@ -2,6 +2,9 @@ package fr.duelplugin.managers;
 
 import fr.duelplugin.DuelPlugin;
 import fr.duelplugin.models.DuelGameMode;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.*;
@@ -22,19 +25,24 @@ public class ScoreboardManager {
 
     public void createLobbyScoreboard(Player player, DuelGameMode mode, String arenaName) {
         Scoreboard board = Bukkit.getScoreboardManager().getNewScoreboard();
-        Objective obj = board.registerNewObjective("duel_lobby", Criteria.DUMMY, plugin.colorize("&5&lFEDORA &d&lCLUB"));
+        Component title = Component.text()
+                .append(Component.text("FEDORA", NamedTextColor.DARK_PURPLE, TextDecoration.BOLD))
+                .append(Component.text(" "))
+                .append(Component.text("CLUB", NamedTextColor.LIGHT_PURPLE, TextDecoration.BOLD))
+                .build();
+        Objective obj = board.registerNewObjective("duel_lobby", Criteria.DUMMY, title);
         obj.setDisplaySlot(DisplaySlot.SIDEBAR);
 
         int line = 8;
         addLine(obj, line--, "");
-        addLine(obj, line--, "&8&m                    ");
-        addLine(obj, line--, "&fJoueur: &d" + player.getName());
+        addLine(obj, line--, "--------------------");
+        addLine(obj, line--, "Joueur: " + player.getName());
         addLine(obj, line--, "");
-        addLine(obj, line--, "&fMode: &d" + (mode != null ? mode.getDisplayName() : "Aucun"));
-        addLine(obj, line--, "&fArène: &d" + (arenaName != null ? arenaName : "Aucune"));
+        addLine(obj, line--, "Mode: " + (mode != null ? mode.getDisplayName() : "Aucun"));
+        addLine(obj, line--, "Arène: " + (arenaName != null ? arenaName : "Aucune"));
         addLine(obj, line--, "");
-        addLine(obj, line--, "&8&m                    ");
-        addLine(obj, line--, "&dfedora.free-node.ovh");
+        addLine(obj, line--, "--------------------");
+        addLine(obj, line--, "fedora.free-node.ovh");
 
         player.setScoreboard(board);
         scoreboards.put(player.getUniqueId(), board);
@@ -42,19 +50,24 @@ public class ScoreboardManager {
 
     public void createDuelScoreboard(Player player, Player opponent, DuelGameMode mode) {
         Scoreboard board = Bukkit.getScoreboardManager().getNewScoreboard();
-        Objective obj = board.registerNewObjective("duel_fight", Criteria.DUMMY, plugin.colorize("&5&lFEDORA &d&lCLUB"));
+        Component title = Component.text()
+                .append(Component.text("FEDORA", NamedTextColor.DARK_PURPLE, TextDecoration.BOLD))
+                .append(Component.text(" "))
+                .append(Component.text("CLUB", NamedTextColor.LIGHT_PURPLE, TextDecoration.BOLD))
+                .build();
+        Objective obj = board.registerNewObjective("duel_fight", Criteria.DUMMY, title);
         obj.setDisplaySlot(DisplaySlot.SIDEBAR);
 
         int line = 9;
         addLine(obj, line--, "");
-        addLine(obj, line--, "&8&m                    ");
-        addLine(obj, line--, "&fJoueur: &d" + player.getName());
+        addLine(obj, line--, "--------------------");
+        addLine(obj, line--, "Joueur: " + player.getName());
         addLine(obj, line--, "");
-        addLine(obj, line--, "&fScore: &d0 &f- &d0");
-        addLine(obj, line--, "&fAdversaire: &d" + opponent.getName());
-        addLine(obj, line--, "&fMode: &d" + mode.getDisplayName());
+        addLine(obj, line--, "Score: 0 - 0");
+        addLine(obj, line--, "Adversaire: " + opponent.getName());
+        addLine(obj, line--, "Mode: " + mode.getDisplayName());
         addLine(obj, line--, "");
-        addLine(obj, line--, "&8&m                    ");
+        addLine(obj, line--, "--------------------");
 
         player.setScoreboard(board);
         scoreboards.put(player.getUniqueId(), board);
@@ -67,9 +80,8 @@ public class ScoreboardManager {
     }
 
     private void addLine(Objective obj, int score, String text) {
-        String colored = plugin.colorize(text);
-        if (colored.length() > 40) colored = colored.substring(0, 40);
-        Score s = obj.getScore(colored);
+        if (text.length() > 40) text = text.substring(0, 40);
+        Score s = obj.getScore(text);
         s.setScore(score);
     }
 }

@@ -112,10 +112,10 @@ public class KitEditorGUI {
         UUID uuid = player.getUniqueId();
         Map<Integer, ArmorTrim> currentTrims = editingTrims.getOrDefault(uuid, new HashMap<>());
 
-        Inventory inv = Bukkit.createInventory(null, 45,
+        Inventory inv = Bukkit.createInventory(null, 54,
                 plugin.colorize("&5Sélection de trim"));
 
-        for (int i = 0; i < 45; i++) {
+        for (int i = 0; i < 54; i++) {
             inv.setItem(i, new ItemBuilder(Material.BLACK_STAINED_GLASS_PANE).name(" ").build());
         }
 
@@ -136,7 +136,7 @@ public class KitEditorGUI {
                 Material.BOLT_ARMOR_TRIM_SMITHING_TEMPLATE
         };
 
-        int[] patternSlots = {10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27};
+        int[] patternSlots = {10, 11, 12, 13, 14, 15, 16, 17, 19, 20, 21, 22, 23, 24, 25, 26, 28, 29};
         for (int i = 0; i < patterns.length && i < patternSlots.length; i++) {
             TrimPattern p = patterns[i];
             Material icon = patternIcons[i];
@@ -157,7 +157,7 @@ public class KitEditorGUI {
                 Material.REDSTONE, Material.AMETHYST_SHARD, Material.RESIN_BRICK
         };
 
-        int[] materialSlots = {19, 20, 21, 22, 23, 24, 25, 28, 29, 30, 31};
+        int[] materialSlots = {37, 38, 39, 40, 41, 42, 43, 44, 46, 47, 48};
         for (int i = 0; i < materials.length && i < materialSlots.length; i++) {
             TrimMaterial m = materials[i];
             Material icon = materialIcons[i];
@@ -175,8 +175,8 @@ public class KitEditorGUI {
                         "§7Bottes: " + getTrimName(currentTrims, 0))
                 .build());
 
-        inv.setItem(36, new ItemBuilder(Material.RED_STAINED_GLASS_PANE).name("§c§lRéinitialiser").build());
-        inv.setItem(40, new ItemBuilder(Material.ARROW).name("§d§lRetour").build());
+        inv.setItem(49, new ItemBuilder(Material.RED_STAINED_GLASS_PANE).name("§c§lRéinitialiser").build());
+        inv.setItem(50, new ItemBuilder(Material.ARROW).name("§d§lRetour").build());
 
         player.openInventory(inv);
     }

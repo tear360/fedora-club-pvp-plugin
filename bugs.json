@@ -5,9 +5,11 @@
     "reporter": "pain.au.chocolatinement",
     "reporterId": "1355635086401474621",
     "timestamp": 1787158296376,
-    "status": "open",
+    "status": "resolved",
     "severity": "medium",
     "messageId": "1539678231811072061",
-    "threadId": "1539678231811072061"
+    "threadId": "1539678231811072061",
+    "resolvedBy": "pain.au.chocolatinement",
+    "resolvedAt": 1787158314728
   }
 ]

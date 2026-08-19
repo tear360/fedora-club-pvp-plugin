@@ -23,28 +23,74 @@ public class VipCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!(sender instanceof Player player)) {
-            sender.sendMessage("§cCommande réservée aux joueurs.");
-            return true;
-        }
-
-        if (!player.hasPermission("duelplugin.vip")) {
-            player.sendMessage(plugin.getPrefix() + "§cVous n'avez pas la permission VIP.");
-            return true;
-        }
-
         if (args.length == 0) {
-            sendHelp(player);
+            if (sender instanceof Player p) sendHelp(p);
+            else sender.sendMessage("§cUsage: /vip <set|remove|color|info>");
             return true;
         }
 
         switch (args[0].toLowerCase()) {
-            case "color" -> handleColor(player, args);
-            case "info" -> handleInfo(player);
-            default -> sendHelp(player);
+            case "set" -> handleSet(sender, args);
+            case "remove" -> handleRemove(sender, args);
+            case "color" -> {
+                if (!(sender instanceof Player player)) {
+                    sender.sendMessage("§cCommande réservée aux joueurs.");
+                    return true;
+                }
+                handleColor(player, args);
+            }
+            case "info" -> {
+                if (!(sender instanceof Player player)) {
+                    sender.sendMessage("§cCommande réservée aux joueurs.");
+                    return true;
+                }
+                handleInfo(player);
+            }
+            default -> {
+                if (sender instanceof Player p) sendHelp(p);
+                else sender.sendMessage("§cUsage: /vip <set|remove|color|info>");
+            }
         }
 
         return true;
+    }
+
+    private void handleSet(CommandSender sender, String[] args) {
+        if (!sender.hasPermission("duelplugin.admin")) {
+            sender.sendMessage(plugin.getPrefix() + "§cVous n'avez pas la permission.");
+            return;
+        }
+        if (args.length < 2) {
+            sender.sendMessage(plugin.getPrefix() + "§cUsage: /vip set <joueur>");
+            return;
+        }
+        Player target = Bukkit.getPlayer(args[1]);
+        if (target == null) {
+            sender.sendMessage(plugin.getPrefix() + "§cJoueur introuvable.");
+            return;
+        }
+        plugin.getVipManager().setVip(target.getUniqueId(), true);
+        sender.sendMessage(plugin.getPrefix() + "§d" + target.getName() + " §aest maintenant VIP!");
+        target.sendMessage(plugin.getPrefix() + "§aVous avez reçu le grade §dVIP§a!");
+    }
+
+    private void handleRemove(CommandSender sender, String[] args) {
+        if (!sender.hasPermission("duelplugin.admin")) {
+            sender.sendMessage(plugin.getPrefix() + "§cVous n'avez pas la permission.");
+            return;
+        }
+        if (args.length < 2) {
+            sender.sendMessage(plugin.getPrefix() + "§cUsage: /vip remove <joueur>");
+            return;
+        }
+        Player target = Bukkit.getPlayer(args[1]);
+        if (target == null) {
+            sender.sendMessage(plugin.getPrefix() + "§cJoueur introuvable.");
+            return;
+        }
+        plugin.getVipManager().setVip(target.getUniqueId(), false);
+        sender.sendMessage(plugin.getPrefix() + "§d" + target.getName() + " §c n'est plus VIP.");
+        target.sendMessage(plugin.getPrefix() + "§cVotre grade VIP a été retiré.");
     }
 
     private void handleColor(Player player, String[] args) {
@@ -97,6 +143,10 @@ public class VipCommand implements CommandExecutor, TabCompleter {
 
     private void sendHelp(Player player) {
         player.sendMessage(plugin.getPrefix() + "§d§l--- VIP ---");
+        if (player.hasPermission("duelplugin.admin")) {
+            player.sendMessage("§d/vip set <joueur> §7- Donner le VIP");
+            player.sendMessage("§d/vip remove <joueur> §7- Retirer le VIP");
+        }
         player.sendMessage("§d/vip color §7- Changer la couleur de nom");
         player.sendMessage("§d/vip info §7- Infos VIP");
     }
@@ -105,9 +155,21 @@ public class VipCommand implements CommandExecutor, TabCompleter {
     public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
         List<String> completions = new ArrayList<>();
         if (args.length == 1) {
-            completions.addAll(Arrays.asList("color", "info"));
-        } else if (args.length == 2 && args[0].equalsIgnoreCase("color")) {
-            completions.addAll(Arrays.asList("Rouge", "Or", "Jaune", "Vert", "Aqua", "Rose", "Violet", "Blanc", "Gris", "Noir"));
+            List<String> subs = new ArrayList<>(Arrays.asList("color", "info"));
+            if (sender.hasPermission("duelplugin.admin")) {
+                subs.addAll(Arrays.asList("set", "remove"));
+            }
+            completions.addAll(subs);
+        } else if (args.length == 2) {
+            if (args[0].equalsIgnoreCase("set") || args[0].equalsIgnoreCase("remove")) {
+                if (sender.hasPermission("duelplugin.admin")) {
+                    for (Player p : Bukkit.getOnlinePlayers()) {
+                        completions.add(p.getName());
+                    }
+                }
+            } else if (args[0].equalsIgnoreCase("color")) {
+                completions.addAll(Arrays.asList("Rouge", "Or", "Jaune", "Vert", "Aqua", "Rose", "Violet", "Blanc", "Gris", "Noir"));
+            }
         }
         return completions;
     }

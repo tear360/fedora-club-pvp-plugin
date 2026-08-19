@@ -136,32 +136,41 @@ public class DuelManager {
                 loc2.setWorld(Bukkit.getWorlds().get(0));
             }
         } else {
-            loc1 = plugin.getLobbyManager().getLobbySpawn().clone().add(2, 0, 0);
-            loc2 = plugin.getLobbyManager().getLobbySpawn().clone().add(-2, 0, 0);
+            Location lobby = plugin.getLobbyManager().getLobbySpawn();
+            if (lobby == null || lobby.getWorld() == null) {
+                lobby = new Location(Bukkit.getWorlds().get(0), 0, 64, 0);
+            }
+            loc1 = lobby.clone().add(2, 0, 0);
+            loc2 = lobby.clone().add(-2, 0, 0);
         }
 
-        player1.teleport(loc1);
-        player2.teleport(loc2);
-
-        applyKit(player1, mode);
-        applyKit(player2, mode);
-
-        player1.setHealth(20.0);
-        player2.setHealth(20.0);
-        player1.setFoodLevel(20);
-        player2.setFoodLevel(20);
-        player1.setSaturation(20f);
-        player2.setSaturation(20f);
+        final Location finalLoc1 = loc1;
+        final Location finalLoc2 = loc2;
 
         ActiveDuel duel = new ActiveDuel(player1.getUniqueId(), player2.getUniqueId(), mode, arena);
         activeDuels.put(player1.getUniqueId(), duel);
         activeDuels.put(player2.getUniqueId(), duel);
 
+        player1.teleportAsync(finalLoc1, org.bukkit.event.player.PlayerTeleportEvent.TeleportCause.PLUGIN).thenRun(() -> {
+            if (!player1.isOnline()) return;
+            applyKit(player1, mode);
+            player1.setHealth(20.0);
+            player1.setFoodLevel(20);
+            player1.setSaturation(20f);
+            player1.sendMessage(plugin.getPrefix() + "§5§lDUEL COMMENCÉ! §dContre §f" + player2.getName() + " §den §f" + mode.getDisplayName());
+        });
+
+        player2.teleportAsync(finalLoc2, org.bukkit.event.player.PlayerTeleportEvent.TeleportCause.PLUGIN).thenRun(() -> {
+            if (!player2.isOnline()) return;
+            applyKit(player2, mode);
+            player2.setHealth(20.0);
+            player2.setFoodLevel(20);
+            player2.setSaturation(20f);
+            player2.sendMessage(plugin.getPrefix() + "§5§lDUEL COMMENCÉ! §dContre §f" + player1.getName() + " §den §f" + mode.getDisplayName());
+        });
+
         plugin.getScoreboardManager().createDuelScoreboard(player1, player2, mode);
         plugin.getScoreboardManager().createDuelScoreboard(player2, player1, mode);
-
-        player1.sendMessage(plugin.getPrefix() + "§5§lDUEL COMMENCÉ! §dContre §f" + player2.getName() + " §den §f" + mode.getDisplayName());
-        player2.sendMessage(plugin.getPrefix() + "§5§lDUEL COMMENCÉ! §dContre §f" + player1.getName() + " §den §f" + mode.getDisplayName());
     }
 
     public void endDuel(UUID uuid, UUID winner, UUID loser) {

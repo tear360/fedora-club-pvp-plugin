@@ -214,7 +214,8 @@ public class DuelAdminCommand implements CommandExecutor, TabCompleter {
 
     private String formatLoc(Location loc) {
         if (loc == null) return "§cNon défini";
-        return String.format("§f%s §7(§f%.1f, %.1f, %.1f§7)", loc.getWorld().getName(), loc.getX(), loc.getY(), loc.getZ());
+        String worldName = loc.getWorld() != null ? loc.getWorld().getName() : "inconnu";
+        return String.format("§f%s §7(§f%.1f, %.1f, %.1f§7)", worldName, loc.getX(), loc.getY(), loc.getZ());
     }
 
     @Override

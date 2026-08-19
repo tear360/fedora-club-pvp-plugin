@@ -3,6 +3,7 @@ package fr.duelplugin.managers;
 import fr.duelplugin.DuelPlugin;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -14,6 +15,19 @@ public class TabManager {
 
     private final DuelPlugin plugin;
     private final Map<UUID, Set<UUID>> spectators = new HashMap<>();
+
+    private static final Map<String, TextColor> COLOR_MAP = Map.of(
+            "§c", NamedTextColor.RED,
+            "§6", NamedTextColor.GOLD,
+            "§e", NamedTextColor.YELLOW,
+            "§a", NamedTextColor.GREEN,
+            "§b", NamedTextColor.AQUA,
+            "§d", NamedTextColor.LIGHT_PURPLE,
+            "§5", NamedTextColor.DARK_PURPLE,
+            "§f", NamedTextColor.WHITE,
+            "§7", NamedTextColor.GRAY,
+            "§0", NamedTextColor.BLACK
+    );
 
     public TabManager(DuelPlugin plugin) {
         this.plugin = plugin;
@@ -70,7 +84,10 @@ public class TabManager {
         DuelManager.ActiveDuel duel = plugin.getDuelManager().getDuel(player.getUniqueId());
         if (duel == null) {
             if (plugin.getVipManager().isVip(player.getUniqueId())) {
-                player.playerListName(Component.text().append(Component.text("★ ", NamedTextColor.LIGHT_PURPLE)).append(Component.text(player.getName(), NamedTextColor.WHITE)).build());
+                String colorCode = plugin.getVipManager().getNameColor(player.getUniqueId());
+                if (colorCode == null) colorCode = "§d";
+                TextColor color = COLOR_MAP.getOrDefault(colorCode, NamedTextColor.LIGHT_PURPLE);
+                player.playerListName(Component.text().append(Component.text("★ ", color)).append(Component.text(player.getName(), NamedTextColor.WHITE)).build());
             } else {
                 player.playerListName(Component.text(player.getName(), NamedTextColor.WHITE));
             }

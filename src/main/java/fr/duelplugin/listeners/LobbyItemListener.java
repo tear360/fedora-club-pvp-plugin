@@ -47,7 +47,7 @@ public class LobbyItemListener implements Listener {
 
         String name = item.getItemMeta().getDisplayName();
 
-        if (name.contains("§d§lDéfi")) {
+        if (name.contains("§d§lQueue")) {
             event.setCancelled(true);
             openQueueGUI(player);
         } else if (name.contains("§5§lKits")) {
@@ -58,14 +58,15 @@ public class LobbyItemListener implements Listener {
 
     private void openQueueGUI(Player player) {
         Inventory inv = Bukkit.createInventory(null, 45,
-                plugin.colorize("&5Rejoindre une queue"));
+                plugin.colorize("&5&lRejoindre une queue"));
 
         for (int i = 0; i < 45; i++) {
-            if (i == 10 || i == 11 || i == 12 || i == 13 || i == 14 ||
-                    i == 19 || i == 20 || i == 21) {
-                continue;
-            }
-            inv.setItem(i, new ItemBuilder(Material.BLACK_STAINED_GLASS_PANE).name(" ").build());
+            inv.setItem(i, new ItemBuilder(Material.PURPLE_STAINED_GLASS_PANE).name(" ").build());
+        }
+
+        int[] border = {0,1,2,3,4,5,6,7,8,9,17,18,26,27,35,36,37,38,39,40,41,42,43,44};
+        for (int slot : border) {
+            inv.setItem(slot, new ItemBuilder(Material.BLACK_STAINED_GLASS_PANE).name(" ").build());
         }
 
         DuelGameMode[] modes = DuelGameMode.values();
@@ -83,8 +84,8 @@ public class LobbyItemListener implements Listener {
                     .lore(
                             "",
                             mode.isArenaRestricted() ?
-                                    (hasArena ? "&a&lArènes disponibles" : "&c&lAucune arène") :
-                                    "&a&lMode libre",
+                                    (hasArena ? "&aArènes disponibles" : "&cAucune arène") :
+                                    "&aMode libre",
                             "&7Blocs: " + (mode.canBreakBlocks() ? "&aCassables" : "&cNon cassables"),
                             "&dQueue: &f" + queueSize + " joueur" + (queueSize != 1 ? "s" : ""),
                             "",
@@ -105,7 +106,7 @@ public class LobbyItemListener implements Listener {
         if (title.contains("Rejoindre une queue")) {
             event.setCancelled(true);
             if (event.getCurrentItem() == null || event.getCurrentItem().getType() == Material.AIR) return;
-            if (event.getCurrentItem().getType() == Material.BLACK_STAINED_GLASS_PANE) return;
+            if (event.getCurrentItem().getType() == Material.BLACK_STAINED_GLASS_PANE || event.getCurrentItem().getType() == Material.PURPLE_STAINED_GLASS_PANE) return;
             if (event.getCurrentItem().getItemMeta() == null) return;
 
             String name = event.getCurrentItem().getItemMeta().getDisplayName();
@@ -132,7 +133,7 @@ public class LobbyItemListener implements Listener {
         if (title.contains("Éditeur de kits")) {
             event.setCancelled(true);
             if (event.getCurrentItem() == null || event.getCurrentItem().getType() == Material.AIR) return;
-            if (event.getCurrentItem().getType() == Material.BLACK_STAINED_GLASS_PANE) return;
+            if (event.getCurrentItem().getType() == Material.BLACK_STAINED_GLASS_PANE || event.getCurrentItem().getType() == Material.PURPLE_STAINED_GLASS_PANE) return;
             if (event.getCurrentItem().getItemMeta() == null) return;
 
             String name = event.getCurrentItem().getItemMeta().getDisplayName();
@@ -179,7 +180,7 @@ public class LobbyItemListener implements Listener {
                     player.sendMessage(plugin.getPrefix() + "§cFonctionnalité VIP uniquement!");
                     return;
                 }
-                plugin.getKitEditorGUI().openTrimSelector(player);
+                plugin.getKitEditorGUI().openArmorPieceSelector(player);
                 return;
             }
 
@@ -190,25 +191,42 @@ public class LobbyItemListener implements Listener {
             }
         }
 
-        if (title.contains("Sélection de trim")) {
+        if (title.contains("Choisir une pièce")) {
             event.setCancelled(true);
             if (event.getCurrentItem() == null || event.getCurrentItem().getType() == Material.AIR) return;
             if (event.getCurrentItem().getType() == Material.BLACK_STAINED_GLASS_PANE) return;
 
             String name = event.getCurrentItem().getItemMeta() != null ? event.getCurrentItem().getItemMeta().getDisplayName() : "";
 
-            if (name.contains("Réinitialiser")) {
-                plugin.getKitEditorGUI().clearTrims(player.getUniqueId());
-                player.sendMessage(plugin.getPrefix() + "§dTrims réinitialisés!");
-                plugin.getKitEditorGUI().openTrimSelector(player);
-                return;
-            }
-
             if (name.contains("Retour")) {
                 DuelGameMode mode = plugin.getKitEditorGUI().getEditingMode(player.getUniqueId());
                 if (mode != null) {
                     plugin.getKitEditorGUI().openKitEditor(player, mode);
                 }
+                return;
+            }
+
+            int armorSlot = -1;
+            if (name.contains("Casque")) armorSlot = 3;
+            else if (name.contains("Plastron")) armorSlot = 2;
+            else if (name.contains("Jambières")) armorSlot = 1;
+            else if (name.contains("Bottes")) armorSlot = 0;
+
+            if (armorSlot >= 0) {
+                plugin.getKitEditorGUI().openPatternSelector(player, armorSlot);
+            }
+            return;
+        }
+
+        if (title.contains("Choisir un pattern")) {
+            event.setCancelled(true);
+            if (event.getCurrentItem() == null || event.getCurrentItem().getType() == Material.AIR) return;
+            if (event.getCurrentItem().getType() == Material.BLACK_STAINED_GLASS_PANE) return;
+
+            String name = event.getCurrentItem().getItemMeta() != null ? event.getCurrentItem().getItemMeta().getDisplayName() : "";
+
+            if (name.contains("Retour")) {
+                plugin.getKitEditorGUI().openArmorPieceSelector(player);
                 return;
             }
 
@@ -220,39 +238,65 @@ public class LobbyItemListener implements Listener {
                     TrimPattern.FLOW, TrimPattern.BOLT
             };
             for (TrimPattern p : patterns) {
-                if (name.contains(p.getKey().getKey())) {
-                    Map<Integer, ArmorTrim> trims = plugin.getKitEditorGUI().getEditingTrims(player.getUniqueId());
-                    ArmorTrim current = trims.isEmpty() ? null : trims.values().iterator().next();
-                    TrimMaterial mat = current != null ? current.getMaterial() : TrimMaterial.IRON;
-                    plugin.getKitEditorGUI().setTrim(player.getUniqueId(), 3, new ArmorTrim(mat, p));
-                    plugin.getKitEditorGUI().setTrim(player.getUniqueId(), 2, new ArmorTrim(mat, p));
-                    plugin.getKitEditorGUI().setTrim(player.getUniqueId(), 1, new ArmorTrim(mat, p));
-                    plugin.getKitEditorGUI().setTrim(player.getUniqueId(), 0, new ArmorTrim(mat, p));
-                    player.sendMessage(plugin.getPrefix() + "§dPattern sélectionné: §f" + p.getKey().getKey());
-                    plugin.getKitEditorGUI().openTrimSelector(player);
+                String patternName = formatTrimName(p.getKey().getKey());
+                if (name.contains(patternName)) {
+                    plugin.getKitEditorGUI().openMaterialSelector(player, p);
                     return;
                 }
             }
+            return;
+        }
+
+        if (title.contains("Choisir un matériau")) {
+            event.setCancelled(true);
+            if (event.getCurrentItem() == null || event.getCurrentItem().getType() == Material.AIR) return;
+            if (event.getCurrentItem().getType() == Material.BLACK_STAINED_GLASS_PANE) return;
+
+            String name = event.getCurrentItem().getItemMeta() != null ? event.getCurrentItem().getItemMeta().getDisplayName() : "";
+
+            if (name.contains("Retour")) {
+                int armorSlot = plugin.getKitEditorGUI().getEditingArmorSlot(player.getUniqueId());
+                plugin.getKitEditorGUI().openPatternSelector(player, armorSlot);
+                return;
+            }
 
             TrimMaterial[] materials = {
-                    TrimMaterial.QUARTZ, TrimMaterial.IRON, TrimMaterial.COPPER, TrimMaterial.GOLD,
-                    TrimMaterial.LAPIS, TrimMaterial.EMERALD, TrimMaterial.DIAMOND, TrimMaterial.NETHERITE,
-                    TrimMaterial.REDSTONE, TrimMaterial.AMETHYST, TrimMaterial.RESIN
+                    TrimMaterial.IRON, TrimMaterial.COPPER, TrimMaterial.GOLD,
+                    TrimMaterial.DIAMOND, TrimMaterial.EMERALD, TrimMaterial.LAPIS,
+                    TrimMaterial.NETHERITE, TrimMaterial.AMETHYST
             };
             for (TrimMaterial m : materials) {
-                if (name.contains(m.getKey().getKey())) {
-                    Map<Integer, ArmorTrim> trims = plugin.getKitEditorGUI().getEditingTrims(player.getUniqueId());
-                    TrimPattern pat = !trims.isEmpty() ? trims.values().iterator().next().getPattern() : TrimPattern.SENTRY;
-                    plugin.getKitEditorGUI().setTrim(player.getUniqueId(), 3, new ArmorTrim(m, pat));
-                    plugin.getKitEditorGUI().setTrim(player.getUniqueId(), 2, new ArmorTrim(m, pat));
-                    plugin.getKitEditorGUI().setTrim(player.getUniqueId(), 1, new ArmorTrim(m, pat));
-                    plugin.getKitEditorGUI().setTrim(player.getUniqueId(), 0, new ArmorTrim(m, pat));
-                    player.sendMessage(plugin.getPrefix() + "§dMatériau sélectionné: §f" + m.getKey().getKey());
-                    plugin.getKitEditorGUI().openTrimSelector(player);
+                String matName = formatTrimName(m.getKey().getKey());
+                if (name.contains(matName)) {
+                    TrimPattern pattern = plugin.getKitEditorGUI().getSelectedPattern(player.getUniqueId());
+                    if (pattern != null) {
+                        plugin.getKitEditorGUI().applyTrimToSlot(player, pattern, m);
+                        int armorSlot = plugin.getKitEditorGUI().getEditingArmorSlot(player.getUniqueId());
+                        String slotName = switch (armorSlot) {
+                            case 0 -> "Bottes";
+                            case 1 -> "Jambières";
+                            case 2 -> "Plastron";
+                            case 3 -> "Casque";
+                            default -> "???";
+                        };
+                        player.sendMessage(plugin.getPrefix() + "§dTrim appliqué sur §f" + slotName + "§d: §f" + formatTrimName(pattern.getKey().getKey()) + " §7/ §f" + matName);
+                    }
+                    plugin.getKitEditorGUI().openArmorPieceSelector(player);
                     return;
                 }
             }
         }
+    }
+
+    private String formatTrimName(String key) {
+        if (key == null) return "???";
+        String[] parts = key.split("_");
+        StringBuilder sb = new StringBuilder();
+        for (String part : parts) {
+            if (sb.length() > 0) sb.append(" ");
+            sb.append(Character.toUpperCase(part.charAt(0))).append(part.substring(1));
+        }
+        return sb.toString();
     }
 
     @EventHandler
@@ -260,7 +304,7 @@ public class LobbyItemListener implements Listener {
         if (!(event.getWhoClicked() instanceof Player player)) return;
         String title = event.getView().getTitle();
         if (title == null) return;
-        if (title.contains("Rejoindre une queue") || title.contains("Éditeur de kits") || title.contains("Sélection de trim")) {
+        if (title.contains("Rejoindre une queue") || title.contains("Éditeur de kits") || title.contains("Choisir")) {
             event.setCancelled(true);
         }
     }
@@ -292,7 +336,7 @@ public class LobbyItemListener implements Listener {
         if (item == null || item.getType() == Material.AIR) return false;
         if (item.getItemMeta() == null || item.getItemMeta().getDisplayName() == null) return false;
         String name = item.getItemMeta().getDisplayName();
-        return name.contains("§d§lDéfi") || name.contains("§5§lKits");
+        return name.contains("§d§lQueue") || name.contains("§5§lKits");
     }
 
     private Material getModeIcon(DuelGameMode mode) {

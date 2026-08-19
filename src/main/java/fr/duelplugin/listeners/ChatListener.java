@@ -1,8 +1,6 @@
 package fr.duelplugin.listeners;
 
 import fr.duelplugin.DuelPlugin;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -25,7 +23,7 @@ public class ChatListener implements Listener {
         String color = plugin.getVipManager().getNameColor(player.getUniqueId());
         if (color == null) color = "§d";
 
-        String prefix = plugin.colorize("&8[&5VIP&8] ");
+        String prefix = plugin.colorize(color + "★ ");
         String coloredName = plugin.colorize(color + player.getName());
         event.setFormat(prefix + coloredName + plugin.colorize("&7: ") + "%2$s");
     }

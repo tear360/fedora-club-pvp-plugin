@@ -107,7 +107,7 @@ public class PlayerListener implements Listener {
         if (item == null || item.getType() == Material.AIR) return false;
         if (item.getItemMeta() == null || item.getItemMeta().getDisplayName() == null) return false;
         String name = item.getItemMeta().getDisplayName();
-        return name.contains("§d§lDéfi") || name.contains("§5§lKits");
+        return name.contains("§d§lQueue") || name.contains("§5§lKits");
     }
 
     public static void giveLobbyItems(Player player) {
@@ -116,8 +116,8 @@ public class PlayerListener implements Listener {
         player.getInventory().setItemInOffHand(null);
 
         player.getInventory().setItem(0, new ItemBuilder(Material.NETHERITE_SWORD)
-                .name("§d§lDéfi")
-                .lore("", "§7Ouvrez le menu de duel", "").build());
+                .name("§d§lQueue")
+                .lore("", "§7Rejoindre une queue de duel", "").build());
 
         player.getInventory().setItem(4, new ItemBuilder(Material.CRAFTING_TABLE)
                 .name("§5§lKits")

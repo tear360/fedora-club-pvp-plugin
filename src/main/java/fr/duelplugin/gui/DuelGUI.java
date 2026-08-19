@@ -7,7 +7,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -29,15 +28,16 @@ public class DuelGUI {
 
         Inventory inv = Bukkit.createInventory(null, 45,
                 plugin.colorize(target != null ?
-                        "&5Sélection de mode &7→ &d" + target.getName() :
-                        "&5Sélection de mode de duel"));
+                        "&5&lDéfi → &d" + target.getName() :
+                        "&5&lSélection de mode"));
 
         for (int i = 0; i < 45; i++) {
-            if (i == 10 || i == 11 || i == 12 || i == 13 || i == 14 ||
-                    i == 19 || i == 20 || i == 21) {
-                continue;
-            }
-            inv.setItem(i, new ItemBuilder(Material.BLACK_STAINED_GLASS_PANE).name(" ").build());
+            inv.setItem(i, new ItemBuilder(Material.PURPLE_STAINED_GLASS_PANE).name(" ").build());
+        }
+
+        int[] border = {0,1,2,3,4,5,6,7,8,9,17,18,26,27,35,36,37,38,39,40,41,42,43,44};
+        for (int slot : border) {
+            inv.setItem(slot, new ItemBuilder(Material.BLACK_STAINED_GLASS_PANE).name(" ").build());
         }
 
         DuelGameMode[] modes = DuelGameMode.values();
@@ -53,8 +53,8 @@ public class DuelGUI {
                     .lore(
                             "",
                             mode.isArenaRestricted() ?
-                                    (hasArena ? "&a&lArènes disponibles" : "&c&lAucune arène") :
-                                    "&a&lMode libre",
+                                    (hasArena ? "&aArènes disponibles" : "&cAucune arène") :
+                                    "&aMode libre",
                             "&7Blocs: " + (mode.canBreakBlocks() ? "&aCassables" : "&cNon cassables"),
                             "",
                             "&d&lCliquez pour jouer"

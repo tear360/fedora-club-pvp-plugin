@@ -20,8 +20,10 @@ import java.util.*;
 public class KitEditorGUI {
 
     private final DuelPlugin plugin;
-    private final Map<UUID, DuelGameMode> editingMode = new java.util.HashMap<>();
-    private final Map<UUID, Map<Integer, ArmorTrim>> editingTrims = new java.util.HashMap<>();
+    private final Map<UUID, DuelGameMode> editingMode = new HashMap<>();
+    private final Map<UUID, Map<Integer, ArmorTrim>> editingTrims = new HashMap<>();
+    private final Map<UUID, Integer> editingArmorSlot = new HashMap<>();
+    private final Map<UUID, TrimPattern> selectedPattern = new HashMap<>();
 
     public KitEditorGUI(DuelPlugin plugin) {
         this.plugin = plugin;
@@ -29,15 +31,9 @@ public class KitEditorGUI {
 
     public void openModeSelector(Player player) {
         Inventory inv = Bukkit.createInventory(null, 45,
-                plugin.colorize("&5Éditeur de kits"));
+                plugin.colorize("&5&lÉditeur de kits"));
 
-        for (int i = 0; i < 45; i++) {
-            if (i == 10 || i == 11 || i == 12 || i == 13 || i == 14 ||
-                    i == 19 || i == 20 || i == 21) {
-                continue;
-            }
-            inv.setItem(i, new ItemBuilder(Material.BLACK_STAINED_GLASS_PANE).name(" ").build());
-        }
+        fillGlass(inv, 45);
 
         DuelGameMode[] modes = DuelGameMode.values();
         int[] slots = {10, 11, 12, 13, 14, 19, 20, 21};
@@ -45,7 +41,6 @@ public class KitEditorGUI {
         for (int i = 0; i < modes.length && i < slots.length; i++) {
             DuelGameMode mode = modes[i];
             boolean hasCustom = plugin.getKitManager().hasCustomKit(player.getUniqueId(), mode);
-
             Material icon = getModeIcon(mode);
 
             inv.setItem(slots[i], new ItemBuilder(icon)
@@ -65,7 +60,7 @@ public class KitEditorGUI {
         editingMode.put(player.getUniqueId(), mode);
 
         Inventory inv = Bukkit.createInventory(null, 54,
-                plugin.colorize("&5Kit " + mode.getDisplayName()));
+                plugin.colorize("&5&lKit " + mode.getDisplayName()));
 
         Map<String, ItemStack[]> customKit = plugin.getKitManager().loadKit(player.getUniqueId(), mode);
         Map<Integer, ArmorTrim> trims = plugin.getKitManager().loadKitTrims(player.getUniqueId(), mode);
@@ -80,9 +75,7 @@ public class KitEditorGUI {
             ItemStack[] contents = customKit.get("contents");
             if (contents != null) {
                 for (int i = 0; i < Math.min(36, contents.length); i++) {
-                    if (contents[i] != null) {
-                        inv.setItem(i, contents[i]);
-                    }
+                    if (contents[i] != null) inv.setItem(i, contents[i]);
                 }
             }
             ItemStack[] armor = customKit.get("armor");
@@ -102,22 +95,40 @@ public class KitEditorGUI {
 
         inv.setItem(45, new ItemBuilder(Material.LIME_STAINED_GLASS_PANE).name("§a§lSauvegarder").lore("", "§7Cliquez pour sauvegarder").build());
         inv.setItem(46, new ItemBuilder(Material.RED_STAINED_GLASS_PANE).name("§c§lRéinitialiser").lore("", "§7Cliquez pour réinitialiser").build());
-        inv.setItem(47, new ItemBuilder(Material.ARMOR_STAND).name("§5§lTrims VIP").lore("", "§7Personnalisez les trims", "§7de votre armure (VIP)").build());
+        inv.setItem(47, new ItemBuilder(Material.ARMOR_STAND).name("§5§lTrims VIP").lore("", "§7Personnalisez les trims", "§7de votre armure", "").build());
         inv.setItem(49, new ItemBuilder(Material.ARROW).name("§d§lRetour").lore("", "§7Retour au menu").build());
 
         player.openInventory(inv);
     }
 
-    public void openTrimSelector(Player player) {
+    public void openArmorPieceSelector(Player player) {
         UUID uuid = player.getUniqueId();
+        Inventory inv = Bukkit.createInventory(null, 27,
+                plugin.colorize("&5&lChoisir une pièce d'armure"));
+
+        fillGlass(inv, 27);
+
+        inv.setItem(10, new ItemBuilder(Material.NETHERITE_HELMET).name("§dCasque").lore("", "§7Slot: Casque", "", "§d&lCliquez pour sélectionner").build());
+        inv.setItem(12, new ItemBuilder(Material.NETHERITE_CHESTPLATE).name("§dPlastron").lore("", "§7Slot: Plastron", "", "§d&lCliquez pour sélectionner").build());
+        inv.setItem(14, new ItemBuilder(Material.NETHERITE_LEGGINGS).name("§dJambières").lore("", "§7Slot: Jambières", "", "§d&lCliquez pour sélectionner").build());
+        inv.setItem(16, new ItemBuilder(Material.NETHERITE_BOOTS).name("§dBottes").lore("", "§7Slot: Bottes", "", "§d&lCliquez pour sélectionner").build());
+
+        inv.setItem(22, new ItemBuilder(Material.ARROW).name("§d§lRetour").lore("", "§7Retour à l'éditeur").build());
+
+        player.openInventory(inv);
+    }
+
+    public void openPatternSelector(Player player, int armorSlot) {
+        UUID uuid = player.getUniqueId();
+        editingArmorSlot.put(uuid, armorSlot);
         Map<Integer, ArmorTrim> currentTrims = editingTrims.getOrDefault(uuid, new HashMap<>());
+        ArmorTrim current = currentTrims.get(armorSlot);
+        String currentName = current != null ? formatTrimName(current.getPattern().getKey().getKey()) : "Aucun";
 
         Inventory inv = Bukkit.createInventory(null, 54,
-                plugin.colorize("&5Sélection de trim"));
+                plugin.colorize("&5&lChoisir un pattern"));
 
-        for (int i = 0; i < 54; i++) {
-            inv.setItem(i, new ItemBuilder(Material.BLACK_STAINED_GLASS_PANE).name(" ").build());
-        }
+        fillGlass(inv, 54);
 
         TrimPattern[] patterns = {
                 TrimPattern.SENTRY, TrimPattern.DUNE, TrimPattern.COAST, TrimPattern.WILD,
@@ -136,49 +147,70 @@ public class KitEditorGUI {
                 Material.BOLT_ARMOR_TRIM_SMITHING_TEMPLATE
         };
 
-        int[] patternSlots = {10, 11, 12, 13, 14, 15, 16, 17, 19, 20, 21, 22, 23, 24, 25, 26, 28, 29};
-        for (int i = 0; i < patterns.length && i < patternSlots.length; i++) {
+        int[] slots = {10, 11, 12, 13, 14, 15, 16, 17, 19, 20, 21, 22, 23, 24, 25, 26, 28, 29};
+        for (int i = 0; i < patterns.length && i < slots.length; i++) {
             TrimPattern p = patterns[i];
-            Material icon = patternIcons[i];
-            inv.setItem(patternSlots[i], new ItemBuilder(icon)
-                    .name("§d" + formatTrimName(p.getKey().getKey()))
-                    .lore("", "§7Pattern de trim", "", "§d&lCliquez pour sélectionner")
+            boolean isSelected = current != null && current.getPattern().getKey().equals(p.getKey());
+            inv.setItem(slots[i], new ItemBuilder(patternIcons[i])
+                    .name((isSelected ? "§a✓ " : "§d") + formatTrimName(p.getKey().getKey()))
+                    .lore("", "§7Pattern de trim", isSelected ? "§aSélectionné actuellement" : "", "", "§d&lCliquez pour sélectionner")
                     .build());
         }
 
-        TrimMaterial[] materials = {
-                TrimMaterial.QUARTZ, TrimMaterial.IRON, TrimMaterial.COPPER, TrimMaterial.GOLD,
-                TrimMaterial.LAPIS, TrimMaterial.EMERALD, TrimMaterial.DIAMOND, TrimMaterial.NETHERITE,
-                TrimMaterial.REDSTONE, TrimMaterial.AMETHYST, TrimMaterial.RESIN
-        };
-        Material[] materialIcons = {
-                Material.QUARTZ, Material.IRON_INGOT, Material.COPPER_INGOT, Material.GOLD_INGOT,
-                Material.LAPIS_LAZULI, Material.EMERALD, Material.DIAMOND, Material.NETHERITE_INGOT,
-                Material.REDSTONE, Material.AMETHYST_SHARD, Material.RESIN_BRICK
-        };
-
-        int[] materialSlots = {37, 38, 39, 40, 41, 42, 43, 44, 46, 47, 48};
-        for (int i = 0; i < materials.length && i < materialSlots.length; i++) {
-            TrimMaterial m = materials[i];
-            Material icon = materialIcons[i];
-            inv.setItem(materialSlots[i], new ItemBuilder(icon)
-                    .name("§d" + formatTrimName(m.getKey().getKey()))
-                    .lore("", "§7Matériau de trim", "", "§d&lCliquez pour sélectionner")
-                    .build());
-        }
-
-        inv.setItem(18, new ItemBuilder(Material.ARMOR_STAND)
-                .name("§5§lTrim actuel")
-                .lore("", "§7Casque: " + getTrimName(currentTrims, 3),
-                        "§7Plastron: " + getTrimName(currentTrims, 2),
-                        "§7Jambières: " + getTrimName(currentTrims, 1),
-                        "§7Bottes: " + getTrimName(currentTrims, 0))
-                .build());
-
-        inv.setItem(49, new ItemBuilder(Material.RED_STAINED_GLASS_PANE).name("§c§lRéinitialiser").build());
-        inv.setItem(50, new ItemBuilder(Material.ARROW).name("§d§lRetour").build());
+        inv.setItem(49, new ItemBuilder(Material.ARROW).name("§d§lRetour").lore("", "§7Retour à la sélection de pièce").build());
 
         player.openInventory(inv);
+    }
+
+    public void openMaterialSelector(Player player, TrimPattern pattern) {
+        UUID uuid = player.getUniqueId();
+        selectedPattern.put(uuid, pattern);
+        Map<Integer, ArmorTrim> currentTrims = editingTrims.getOrDefault(uuid, new HashMap<>());
+        int armorSlot = editingArmorSlot.getOrDefault(uuid, 3);
+        ArmorTrim current = currentTrims.get(armorSlot);
+        String currentName = current != null ? formatTrimName(current.getMaterial().getKey().getKey()) : "Aucun";
+
+        Inventory inv = Bukkit.createInventory(null, 27,
+                plugin.colorize("&5&lChoisir un matériau"));
+
+        fillGlass(inv, 27);
+
+        TrimMaterial[] materials = {
+                TrimMaterial.IRON, TrimMaterial.COPPER, TrimMaterial.GOLD,
+                TrimMaterial.DIAMOND, TrimMaterial.EMERALD, TrimMaterial.LAPIS,
+                TrimMaterial.NETHERITE, TrimMaterial.AMETHYST
+        };
+        Material[] materialIcons = {
+                Material.IRON_INGOT, Material.COPPER_INGOT, Material.GOLD_INGOT,
+                Material.DIAMOND, Material.EMERALD, Material.LAPIS_LAZULI,
+                Material.NETHERITE_INGOT, Material.AMETHYST_SHARD
+        };
+
+        int[] slots = {10, 11, 12, 13, 14, 15, 16, 17};
+        for (int i = 0; i < materials.length && i < slots.length; i++) {
+            TrimMaterial m = materials[i];
+            boolean isSelected = current != null && current.getMaterial().getKey().equals(m.getKey());
+            inv.setItem(slots[i], new ItemBuilder(materialIcons[i])
+                    .name((isSelected ? "§a✓ " : "§d") + formatTrimName(m.getKey().getKey()))
+                    .lore("", "§7Matériau de trim", isSelected ? "§aSélectionné actuellement" : "", "", "§d&lCliquez pour sélectionner")
+                    .build());
+        }
+
+        inv.setItem(22, new ItemBuilder(Material.ARROW).name("§d§lRetour").lore("", "§7Retour à la sélection de pattern").build());
+
+        player.openInventory(inv);
+    }
+
+    public void applyTrimToSlot(Player player, TrimPattern pattern, TrimMaterial material) {
+        UUID uuid = player.getUniqueId();
+        int armorSlot = editingArmorSlot.getOrDefault(uuid, 3);
+        editingTrims.computeIfAbsent(uuid, k -> new HashMap<>()).put(armorSlot, new ArmorTrim(material, pattern));
+    }
+
+    private void fillGlass(Inventory inv, int size) {
+        for (int i = 0; i < size; i++) {
+            inv.setItem(i, new ItemBuilder(Material.BLACK_STAINED_GLASS_PANE).name(" ").build());
+        }
     }
 
     private String formatTrimName(String key) {
@@ -192,10 +224,14 @@ public class KitEditorGUI {
         return sb.toString();
     }
 
-    private String getTrimName(Map<Integer, ArmorTrim> trims, int slot) {
-        ArmorTrim trim = trims.get(slot);
-        if (trim == null) return "§7Aucun";
-        return "§d" + formatTrimName(trim.getPattern().getKey().getKey()) + " §7/ §d" + formatTrimName(trim.getMaterial().getKey().getKey());
+    private String getArmorSlotName(int slot) {
+        return switch (slot) {
+            case 0 -> "Bottes";
+            case 1 -> "Jambières";
+            case 2 -> "Plastron";
+            case 3 -> "Casque";
+            default -> "???";
+        };
     }
 
     public void applyTrimsToArmor(Player player, Inventory inv) {
@@ -293,21 +329,20 @@ public class KitEditorGUI {
     public void removeEditingMode(UUID uuid) {
         editingMode.remove(uuid);
         editingTrims.remove(uuid);
+        editingArmorSlot.remove(uuid);
+        selectedPattern.remove(uuid);
     }
 
     public Map<Integer, ArmorTrim> getEditingTrims(UUID uuid) {
         return editingTrims.getOrDefault(uuid, new HashMap<>());
     }
 
-    public void setTrim(UUID uuid, int slot, ArmorTrim trim) {
-        editingTrims.computeIfAbsent(uuid, k -> new HashMap<>()).put(slot, trim);
+    public int getEditingArmorSlot(UUID uuid) {
+        return editingArmorSlot.getOrDefault(uuid, 3);
     }
 
-    public void removeTrim(UUID uuid, int slot) {
-        Map<Integer, ArmorTrim> trims = editingTrims.get(uuid);
-        if (trims != null) {
-            trims.remove(slot);
-        }
+    public TrimPattern getSelectedPattern(UUID uuid) {
+        return selectedPattern.get(uuid);
     }
 
     public void clearTrims(UUID uuid) {

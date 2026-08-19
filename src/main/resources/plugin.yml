@@ -37,6 +37,10 @@ commands:
     description: Commande Party
     usage: /party <create|invite|join|leave|kick|disband|list>
     aliases: [p, groupe]
+  leave:
+    description: Quitter un duel
+    usage: /leave
+    aliases: [quitter]
 
 permissions:
   duelplugin.admin:

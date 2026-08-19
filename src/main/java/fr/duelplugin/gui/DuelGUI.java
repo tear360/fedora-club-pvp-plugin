@@ -3,6 +3,9 @@ package fr.duelplugin.gui;
 import fr.duelplugin.DuelPlugin;
 import fr.duelplugin.models.DuelGameMode;
 import fr.duelplugin.utils.ItemBuilder;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -27,9 +30,8 @@ public class DuelGUI {
         }
 
         Inventory inv = Bukkit.createInventory(null, 45,
-                plugin.colorize(target != null ?
-                        "&5&lDéfi → &d" + target.getName() :
-                        "&5&lSélection de mode"));
+                Component.text(target != null ? "Défi → " + target.getName() : "Sélection de mode",
+                        NamedTextColor.DARK_PURPLE, TextDecoration.BOLD));
 
         for (int i = 0; i < 45; i++) {
             inv.setItem(i, new ItemBuilder(Material.PURPLE_STAINED_GLASS_PANE).name(" ").build());

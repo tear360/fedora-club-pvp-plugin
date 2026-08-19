@@ -76,7 +76,7 @@ public class TabManager {
         footer.append(Component.text("\n"));
 
         if (friendMode) {
-            footer.append(Component.text(" §d★ Mode Amis", NamedTextColor.LIGHT_PURPLE, TextDecoration.BOLD));
+            footer.append(Component.text(" ★ Mode Amis", NamedTextColor.LIGHT_PURPLE, TextDecoration.BOLD));
         } else {
             footer.append(Component.text(" fedora.free-node.ovh", NamedTextColor.GRAY, TextDecoration.BOLD));
         }

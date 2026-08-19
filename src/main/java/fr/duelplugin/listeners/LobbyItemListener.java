@@ -61,7 +61,8 @@ public class LobbyItemListener implements Listener {
 
     private void openQueueGUI(Player player) {
         Inventory inv = Bukkit.createInventory(null, 45,
-                plugin.colorize("&5&lRejoindre une queue"));
+                net.kyori.adventure.text.Component.text("Rejoindre une queue",
+                        net.kyori.adventure.text.format.NamedTextColor.DARK_PURPLE, net.kyori.adventure.text.format.TextDecoration.BOLD));
 
         for (int i = 0; i < 45; i++) {
             inv.setItem(i, new ItemBuilder(Material.PURPLE_STAINED_GLASS_PANE).name(" ").build());

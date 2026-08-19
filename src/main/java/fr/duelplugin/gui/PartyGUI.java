@@ -3,6 +3,9 @@ package fr.duelplugin.gui;
 import fr.duelplugin.DuelPlugin;
 import fr.duelplugin.managers.PartyManager;
 import fr.duelplugin.utils.ItemBuilder;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
@@ -40,7 +43,7 @@ public class PartyGUI {
 
     private void openNoPartyGUI(Player player) {
         Inventory inv = Bukkit.createInventory(null, 27,
-                plugin.colorize("&5&lParty"));
+                Component.text("Party", NamedTextColor.DARK_PURPLE, TextDecoration.BOLD));
 
         fillGlass(inv, 27);
 
@@ -71,7 +74,7 @@ public class PartyGUI {
 
     private void openLeaderGUI(Player player, PartyManager.Party party) {
         Inventory inv = Bukkit.createInventory(null, 54,
-                plugin.colorize("&5&lParty (Leader)"));
+                Component.text().append(Component.text("Party (Leader)", NamedTextColor.DARK_PURPLE, TextDecoration.BOLD)).build());
 
         fillGlass(inv, 54);
 
@@ -116,7 +119,7 @@ public class PartyGUI {
 
     private void openMemberGUI(Player player, PartyManager.Party party) {
         Inventory inv = Bukkit.createInventory(null, 45,
-                plugin.colorize("&5&lParty"));
+                Component.text("Party", NamedTextColor.DARK_PURPLE, TextDecoration.BOLD));
 
         fillGlass(inv, 45);
 
@@ -150,7 +153,7 @@ public class PartyGUI {
         if (party == null) return;
 
         Inventory inv = Bukkit.createInventory(null, 27,
-                plugin.colorize("&5&lKick un membre"));
+                Component.text("Kick un membre", NamedTextColor.DARK_PURPLE, TextDecoration.BOLD));
 
         fillGlass(inv, 27);
 
@@ -174,7 +177,7 @@ public class PartyGUI {
         if (party == null) return;
 
         Inventory inv = Bukkit.createInventory(null, 27,
-                plugin.colorize("&5&lTransférer le leadership"));
+                Component.text("Transférer le leadership", NamedTextColor.DARK_PURPLE, TextDecoration.BOLD));
 
         fillGlass(inv, 27);
 

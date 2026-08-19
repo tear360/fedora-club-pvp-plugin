@@ -4,6 +4,9 @@ import fr.duelplugin.DuelPlugin;
 import fr.duelplugin.models.DuelGameMode;
 import fr.duelplugin.models.Kit;
 import fr.duelplugin.utils.ItemBuilder;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -31,7 +34,7 @@ public class KitEditorGUI {
 
     public void openModeSelector(Player player) {
         Inventory inv = Bukkit.createInventory(null, 45,
-                plugin.colorize("&5&lÉditeur de kits"));
+                Component.text("Éditeur de kits", NamedTextColor.DARK_PURPLE, TextDecoration.BOLD));
 
         fillGlass(inv, 45);
 
@@ -60,7 +63,7 @@ public class KitEditorGUI {
         editingMode.put(player.getUniqueId(), mode);
 
         Inventory inv = Bukkit.createInventory(null, 54,
-                plugin.colorize("&5&lKit " + mode.getDisplayName()));
+                Component.text().append(Component.text("Kit ", NamedTextColor.DARK_PURPLE, TextDecoration.BOLD)).append(Component.text(mode.getDisplayName(), NamedTextColor.LIGHT_PURPLE, TextDecoration.BOLD)).build());
 
         Map<String, ItemStack[]> customKit = plugin.getKitManager().loadKit(player.getUniqueId(), mode);
         Map<Integer, ArmorTrim> trims = plugin.getKitManager().loadKitTrims(player.getUniqueId(), mode);
@@ -107,7 +110,7 @@ public class KitEditorGUI {
         if (mode == null) return;
 
         Inventory inv = Bukkit.createInventory(null, 27,
-                plugin.colorize("&5&lChoisir une pièce d'armure"));
+                Component.text("Choisir une pièce d'armure", NamedTextColor.DARK_PURPLE, TextDecoration.BOLD));
 
         fillGlass(inv, 27);
 
@@ -173,7 +176,7 @@ public class KitEditorGUI {
         ArmorTrim current = currentTrims.get(armorSlot);
 
         Inventory inv = Bukkit.createInventory(null, 54,
-                plugin.colorize("&5&lChoisir un pattern"));
+                Component.text("Choisir un pattern", NamedTextColor.DARK_PURPLE, TextDecoration.BOLD));
 
         fillGlass(inv, 54);
 
@@ -228,7 +231,7 @@ public class KitEditorGUI {
         ArmorTrim current = currentTrims.get(armorSlot);
 
         Inventory inv = Bukkit.createInventory(null, 27,
-                plugin.colorize("&5&lChoisir un matériau"));
+                Component.text("Choisir un matériau", NamedTextColor.DARK_PURPLE, TextDecoration.BOLD));
 
         fillGlass(inv, 27);
 

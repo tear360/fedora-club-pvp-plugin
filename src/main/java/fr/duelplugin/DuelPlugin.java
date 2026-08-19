@@ -5,6 +5,7 @@ import fr.duelplugin.commands.DenyDuelCommand;
 import fr.duelplugin.commands.DuelAdminCommand;
 import fr.duelplugin.commands.DuelCommand;
 import fr.duelplugin.commands.FriendsCommand;
+import fr.duelplugin.commands.LeaveCommand;
 import fr.duelplugin.commands.PartyCommand;
 import fr.duelplugin.commands.SpecCommand;
 import fr.duelplugin.commands.VipCommand;
@@ -74,6 +75,7 @@ public class DuelPlugin extends JavaPlugin {
         getCommand("vip").setTabCompleter(new VipCommand(this));
         getCommand("f").setExecutor(new FriendsCommand(this));
         getCommand("f").setTabCompleter(new FriendsCommand(this));
+        getCommand("leave").setExecutor(new LeaveCommand(this));
         getCommand("party").setExecutor(new PartyCommand(this));
         getCommand("party").setTabCompleter(new PartyCommand(this));
 

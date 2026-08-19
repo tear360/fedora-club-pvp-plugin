@@ -288,8 +288,8 @@ public class PartyCommand implements CommandExecutor, TabCompleter {
         int maxSize = plugin.getPartyManager().getMaxSize(player);
         String sizeInfo = count + "/" + maxSize;
 
-        Component joinButton = Component.text("§a§l[Rejoindre]")
-                .hoverEvent(HoverEvent.showText(Component.text("§aCliquez pour rejoindre la party de " + playerName + " §a(" + sizeInfo + ")", NamedTextColor.GREEN)))
+        Component joinButton = Component.text("[Rejoindre]", NamedTextColor.GREEN, TextDecoration.BOLD)
+                .hoverEvent(HoverEvent.showText(Component.text().append(Component.text("Cliquez pour rejoindre la party de " + playerName + " (" + sizeInfo + ")", NamedTextColor.GREEN)).build()))
                 .clickEvent(ClickEvent.runCommand("/party pubjoin " + leaderUuid.toString()));
 
         Component message = Component.text()

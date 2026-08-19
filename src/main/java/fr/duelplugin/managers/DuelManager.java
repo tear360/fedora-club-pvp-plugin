@@ -192,7 +192,7 @@ public class DuelManager {
             w.sendMessage("");
             plugin.getScoreboardManager().removeScoreboard(w);
             if (plugin.getLobbyManager().isLobbySet()) {
-                w.teleport(plugin.getLobbyManager().getLobbySpawn());
+                plugin.getLobbyManager().teleportToLobby(w);
                 PlayerListener.giveLobbyItems(w);
             }
         }
@@ -206,7 +206,7 @@ public class DuelManager {
             l.sendMessage("");
             plugin.getScoreboardManager().removeScoreboard(l);
             if (plugin.getLobbyManager().isLobbySet()) {
-                l.teleport(plugin.getLobbyManager().getLobbySpawn());
+                plugin.getLobbyManager().teleportToLobby(l);
                 PlayerListener.giveLobbyItems(l);
             }
         }
@@ -216,7 +216,7 @@ public class DuelManager {
             if (spec != null) {
                 spec.setGameMode(GameMode.ADVENTURE);
                 if (plugin.getLobbyManager().isLobbySet()) {
-                    spec.teleport(plugin.getLobbyManager().getLobbySpawn());
+                    plugin.getLobbyManager().teleportToLobby(spec);
                     PlayerListener.giveLobbyItems(spec);
                 }
                 spec.sendMessage(plugin.getPrefix() + "§7Le duel est terminé.");

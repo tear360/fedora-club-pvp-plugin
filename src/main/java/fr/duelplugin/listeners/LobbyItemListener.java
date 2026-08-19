@@ -53,6 +53,9 @@ public class LobbyItemListener implements Listener {
         } else if (name.contains("§5§lKits")) {
             event.setCancelled(true);
             plugin.getKitEditorGUI().openModeSelector(player);
+        } else if (name.contains("§d§lParty")) {
+            event.setCancelled(true);
+            plugin.getPartyGUI().openPartyMenu(player);
         }
     }
 
@@ -286,6 +289,118 @@ public class LobbyItemListener implements Listener {
                 }
             }
         }
+
+        if (title.contains("Party")) {
+            event.setCancelled(true);
+            if (event.getCurrentItem() == null || event.getCurrentItem().getType() == Material.AIR) return;
+            if (event.getCurrentItem().getType() == Material.BLACK_STAINED_GLASS_PANE || event.getCurrentItem().getType() == Material.PURPLE_STAINED_GLASS_PANE) return;
+            if (event.getCurrentItem().getItemMeta() == null) return;
+            String itemName = event.getCurrentItem().getItemMeta().getDisplayName();
+
+            if (title.equals(plugin.colorize("&5&lParty"))) {
+                if (itemName.contains("Créer une party")) {
+                    plugin.getPartyManager().createParty(player);
+                    player.closeInventory();
+                    player.sendMessage(plugin.getPrefix() + "§aParty créée! §7Invitez des joueurs avec §d/party invite <joueur>");
+                    return;
+                }
+                if (itemName.contains("Rejoindre la party")) {
+                    UUID leaderUuid = plugin.getPartyManager().getPendingInvite(player.getUniqueId());
+                    if (leaderUuid != null) {
+                        plugin.getPartyManager().acceptInvite(player);
+                        player.closeInventory();
+                        player.sendMessage(plugin.getPrefix() + "§aParty rejointe!");
+                    }
+                    return;
+                }
+                if (itemName.contains("Refuser l'invitation")) {
+                    plugin.getPartyManager().declineInvite(player);
+                    player.closeInventory();
+                    player.sendMessage(plugin.getPrefix() + "§cInvitation refusée.");
+                    return;
+                }
+                if (itemName.contains("Quitter la party")) {
+                    plugin.getPartyManager().leaveParty(player);
+                    player.closeInventory();
+                    player.sendMessage(plugin.getPrefix() + "§cVous avez quitté la party.");
+                    return;
+                }
+                if (itemName.contains("Retour")) {
+                    player.closeInventory();
+                    return;
+                }
+            }
+
+            if (title.equals(plugin.colorize("&5&lParty (Leader)"))) {
+                if (itemName.contains("Inviter un joueur")) {
+                    player.closeInventory();
+                    player.sendMessage(plugin.getPrefix() + "§dUtilisez §f/party invite <joueur> §dpour inviter.");
+                    return;
+                }
+                if (itemName.contains("Transférer")) {
+                    plugin.getPartyGUI().openTransferSelector(player);
+                    return;
+                }
+                if (itemName.contains("Dissoudre")) {
+                    plugin.getPartyManager().disbandParty(player);
+                    player.closeInventory();
+                    player.sendMessage(plugin.getPrefix() + "§cParty dissoute.");
+                    return;
+                }
+                if (itemName.contains("Quitter la party")) {
+                    plugin.getPartyManager().leaveParty(player);
+                    player.closeInventory();
+                    player.sendMessage(plugin.getPrefix() + "§cVous avez quitté la party.");
+                    return;
+                }
+                if (itemName.contains("Retour")) {
+                    player.closeInventory();
+                    return;
+                }
+            }
+
+            if (title.equals(plugin.colorize("&5&lKick un membre"))) {
+                if (itemName.contains("Retour")) {
+                    plugin.getPartyGUI().openPartyMenu(player);
+                    return;
+                }
+                if (itemName.contains("Kick")) {
+                    for (java.util.UUID m : plugin.getPartyManager().getParty(player.getUniqueId()).getMembers()) {
+                        Player member = org.bukkit.Bukkit.getPlayer(m);
+                        if (member != null && itemName.contains(member.getName())) {
+                            plugin.getPartyManager().kickPlayer(player, member);
+                            player.sendMessage(plugin.getPrefix() + "§c" + member.getName() + " §7a été kické.");
+                            plugin.getPartyGUI().openPartyMenu(player);
+                            return;
+                        }
+                    }
+                    return;
+                }
+            }
+
+            if (title.equals(plugin.colorize("&5&lTransférer le leadership"))) {
+                if (itemName.contains("Retour")) {
+                    plugin.getPartyGUI().openPartyMenu(player);
+                    return;
+                }
+                if (itemName.contains("Transférer")) {
+                    for (java.util.UUID m : plugin.getPartyManager().getParty(player.getUniqueId()).getMembers()) {
+                        Player member = org.bukkit.Bukkit.getPlayer(m);
+                        if (member != null && itemName.contains(member.getName())) {
+                            plugin.getPartyManager().transferLeadership(player, member);
+                            player.closeInventory();
+                            player.sendMessage(plugin.getPrefix() + "§dLeadership transféré à §f" + member.getName() + "§d!");
+                            return;
+                        }
+                    }
+                    return;
+                }
+            }
+
+            if (title.contains("Quitter la party")) {
+                return;
+            }
+        }
     }
 
     private String formatTrimName(String key) {
@@ -304,7 +419,7 @@ public class LobbyItemListener implements Listener {
         if (!(event.getWhoClicked() instanceof Player player)) return;
         String title = event.getView().getTitle();
         if (title == null) return;
-        if (title.contains("Rejoindre une queue") || title.contains("Éditeur de kits") || title.contains("Choisir")) {
+        if (title.contains("Rejoindre une queue") || title.contains("Éditeur de kits") || title.contains("Choisir") || title.contains("Party")) {
             event.setCancelled(true);
         }
     }
@@ -336,7 +451,7 @@ public class LobbyItemListener implements Listener {
         if (item == null || item.getType() == Material.AIR) return false;
         if (item.getItemMeta() == null || item.getItemMeta().getDisplayName() == null) return false;
         String name = item.getItemMeta().getDisplayName();
-        return name.contains("§d§lQueue") || name.contains("§5§lKits");
+        return name.contains("§d§lQueue") || name.contains("§5§lKits") || name.contains("§d§lParty");
     }
 
     private Material getModeIcon(DuelGameMode mode) {

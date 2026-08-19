@@ -156,6 +156,34 @@ public class PartyManager {
         return true;
     }
 
+    public boolean transferLeadership(Player leader, Player newLeader) {
+        UUID leaderUuid = leader.getUniqueId();
+        UUID newLeaderUuid = newLeader.getUniqueId();
+
+        UUID partyLeader = playerParty.get(leaderUuid);
+        if (partyLeader == null || !partyLeader.equals(leaderUuid)) return false;
+
+        Party party = parties.get(leaderUuid);
+        if (party == null || !party.hasMember(newLeaderUuid)) return false;
+
+        party.removeMember(newLeaderUuid);
+        Set<UUID> oldMembers = new HashSet<>(party.getMembers());
+        oldMembers.add(leaderUuid);
+
+        parties.remove(leaderUuid);
+
+        Party newParty = new Party(newLeaderUuid, oldMembers);
+        parties.put(newLeaderUuid, newParty);
+
+        playerParty.put(newLeaderUuid, newLeaderUuid);
+        for (UUID m : oldMembers) {
+            playerParty.put(m, newLeaderUuid);
+        }
+
+        save();
+        return true;
+    }
+
     public Party getParty(UUID playerUuid) {
         UUID leader = playerParty.get(playerUuid);
         if (leader == null) return null;

@@ -107,7 +107,7 @@ public class PlayerListener implements Listener {
         if (item == null || item.getType() == Material.AIR) return false;
         if (item.getItemMeta() == null || item.getItemMeta().getDisplayName() == null) return false;
         String name = item.getItemMeta().getDisplayName();
-        return name.contains("§d§lQueue") || name.contains("§5§lKits");
+        return name.contains("§d§lQueue") || name.contains("§5§lKits") || name.contains("§d§lParty");
     }
 
     public static void giveLobbyItems(Player player) {
@@ -122,5 +122,9 @@ public class PlayerListener implements Listener {
         player.getInventory().setItem(4, new ItemBuilder(Material.CRAFTING_TABLE)
                 .name("§5§lKits")
                 .lore("", "§7Éditez vos kits", "").build());
+
+        player.getInventory().setItem(8, new ItemBuilder(Material.NETHER_STAR)
+                .name("§d§lParty")
+                .lore("", "§7Gérez votre party", "").build());
     }
 }

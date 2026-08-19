@@ -10,6 +10,7 @@ import fr.duelplugin.commands.SpecCommand;
 import fr.duelplugin.commands.VipCommand;
 import fr.duelplugin.gui.DuelGUI;
 import fr.duelplugin.gui.KitEditorGUI;
+import fr.duelplugin.gui.PartyGUI;
 import fr.duelplugin.listeners.ArenaListener;
 import fr.duelplugin.listeners.ChatListener;
 import fr.duelplugin.listeners.FriendsTabListener;
@@ -33,6 +34,7 @@ public class DuelPlugin extends JavaPlugin {
     private UpdateManager updateManager;
     private KitManager kitManager;
     private KitEditorGUI kitEditorGUI;
+    private PartyGUI partyGUI;
     private QueueManager queueManager;
     private VIPManager vipManager;
     private FriendsManager friendsManager;
@@ -53,6 +55,7 @@ public class DuelPlugin extends JavaPlugin {
         updateManager = new UpdateManager(this);
         kitManager = new KitManager(this);
         kitEditorGUI = new KitEditorGUI(this);
+        partyGUI = new PartyGUI(this);
         queueManager = new QueueManager(this);
         vipManager = new VIPManager(this);
         friendsManager = new FriendsManager(this);
@@ -106,6 +109,7 @@ public class DuelPlugin extends JavaPlugin {
     public UpdateManager getUpdateManager() { return updateManager; }
     public KitManager getKitManager() { return kitManager; }
     public KitEditorGUI getKitEditorGUI() { return kitEditorGUI; }
+    public PartyGUI getPartyGUI() { return partyGUI; }
     public QueueManager getQueueManager() { return queueManager; }
     public VIPManager getVipManager() { return vipManager; }
     public FriendsManager getFriendsManager() { return friendsManager; }

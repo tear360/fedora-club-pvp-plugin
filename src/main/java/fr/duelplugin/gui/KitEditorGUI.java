@@ -103,15 +103,63 @@ public class KitEditorGUI {
 
     public void openArmorPieceSelector(Player player) {
         UUID uuid = player.getUniqueId();
+        DuelGameMode mode = editingMode.get(uuid);
+        if (mode == null) return;
+
         Inventory inv = Bukkit.createInventory(null, 27,
                 plugin.colorize("&5&lChoisir une pièce d'armure"));
 
         fillGlass(inv, 27);
 
-        inv.setItem(10, new ItemBuilder(Material.NETHERITE_HELMET).name("§dCasque").lore("", "§7Slot: Casque", "", "§d&lCliquez pour sélectionner").build());
-        inv.setItem(12, new ItemBuilder(Material.NETHERITE_CHESTPLATE).name("§dPlastron").lore("", "§7Slot: Plastron", "", "§d&lCliquez pour sélectionner").build());
-        inv.setItem(14, new ItemBuilder(Material.NETHERITE_LEGGINGS).name("§dJambières").lore("", "§7Slot: Jambières", "", "§d&lCliquez pour sélectionner").build());
-        inv.setItem(16, new ItemBuilder(Material.NETHERITE_BOOTS).name("§dBottes").lore("", "§7Slot: Bottes", "", "§d&lCliquez pour sélectionner").build());
+        Map<String, ItemStack[]> customKit = plugin.getKitManager().loadKit(uuid, mode);
+        ItemStack[] kitArmor = new ItemStack[4];
+
+        if (customKit != null && customKit.get("armor") != null) {
+            kitArmor = customKit.get("armor");
+        } else {
+            PlayerInventory tempInv = player.getInventory();
+            ItemStack[] savedContents = tempInv.getContents().clone();
+            ItemStack[] savedArmor = tempInv.getArmorContents().clone();
+            ItemStack savedOffHand = tempInv.getItemInOffHand();
+            Kit.giveKit(player, mode);
+            kitArmor = tempInv.getArmorContents().clone();
+            tempInv.setContents(savedContents);
+            tempInv.setArmorContents(savedArmor);
+            tempInv.setItemInOffHand(savedOffHand);
+        }
+
+        Map<Integer, ArmorTrim> trims = editingTrims.getOrDefault(uuid, new HashMap<>());
+
+        String[] slotNames = {"Bottes", "Jambières", "Plastron", "Casque"};
+        int[] invSlots = {16, 14, 12, 10};
+        int[] armorIndices = {0, 1, 2, 3};
+
+        for (int i = 0; i < 4; i++) {
+            int armorIdx = armorIndices[i];
+            ItemStack armorPiece = kitArmor != null && armorIdx < kitArmor.length ? kitArmor[armorIdx] : null;
+            ArmorTrim trim = trims.get(armorIdx);
+
+            if (armorPiece != null && armorPiece.getType() != Material.AIR) {
+                ItemStack display = armorPiece.clone();
+                if (trim != null && display.hasItemMeta() && display.getItemMeta() instanceof ArmorMeta) {
+                    ArmorMeta meta = (ArmorMeta) display.getItemMeta();
+                    meta.setTrim(trim);
+                    display.setItemMeta(meta);
+                }
+                ItemBuilder builder = new ItemBuilder(display.getType());
+                String trimInfo = trim != null ?
+                        "§d" + formatTrimName(trim.getPattern().getKey().getKey()) + " §7/ §d" + formatTrimName(trim.getMaterial().getKey().getKey()) :
+                        "§7Aucun";
+                builder.name("§d" + slotNames[armorIdx]);
+                builder.lore("", "§7Type: §f" + formatMaterialName(display.getType()), "§7Trim: " + trimInfo, "", "§d&lCliquez pour éditer");
+                inv.setItem(invSlots[i], builder.build());
+            } else {
+                inv.setItem(invSlots[i], new ItemBuilder(Material.BARRIER)
+                        .name("§c" + slotNames[armorIdx])
+                        .lore("", "§7Aucune armure dans ce slot", "", "§d&lCliquez pour ajouter")
+                        .build());
+            }
+        }
 
         inv.setItem(22, new ItemBuilder(Material.ARROW).name("§d§lRetour").lore("", "§7Retour à l'éditeur").build());
 
@@ -123,7 +171,6 @@ public class KitEditorGUI {
         editingArmorSlot.put(uuid, armorSlot);
         Map<Integer, ArmorTrim> currentTrims = editingTrims.getOrDefault(uuid, new HashMap<>());
         ArmorTrim current = currentTrims.get(armorSlot);
-        String currentName = current != null ? formatTrimName(current.getPattern().getKey().getKey()) : "Aucun";
 
         Inventory inv = Bukkit.createInventory(null, 54,
                 plugin.colorize("&5&lChoisir un pattern"));
@@ -138,12 +185,23 @@ public class KitEditorGUI {
                 TrimPattern.FLOW, TrimPattern.BOLT
         };
         Material[] patternIcons = {
-                Material.IRON_HELMET, Material.CACTUS, Material.SEAGRASS, Material.FERN,
-                Material.NETHER_WART, Material.OBSIDIAN, Material.PHANTOM_MEMBRANE, Material.NETHERITE_SCRAP,
-                Material.PIG_SPAWN_EGG, Material.RIB_ARMOR_TRIM_SMITHING_TEMPLATE, Material.SPIRE_ARMOR_TRIM_SMITHING_TEMPLATE,
-                Material.WAYFINDER_ARMOR_TRIM_SMITHING_TEMPLATE, Material.SHAPER_ARMOR_TRIM_SMITHING_TEMPLATE,
-                Material.SILENCE_ARMOR_TRIM_SMITHING_TEMPLATE, Material.RAISER_ARMOR_TRIM_SMITHING_TEMPLATE,
-                Material.HOST_ARMOR_TRIM_SMITHING_TEMPLATE, Material.FLOW_ARMOR_TRIM_SMITHING_TEMPLATE,
+                Material.SENTRY_ARMOR_TRIM_SMITHING_TEMPLATE,
+                Material.DUNE_ARMOR_TRIM_SMITHING_TEMPLATE,
+                Material.COAST_ARMOR_TRIM_SMITHING_TEMPLATE,
+                Material.WILD_ARMOR_TRIM_SMITHING_TEMPLATE,
+                Material.WARD_ARMOR_TRIM_SMITHING_TEMPLATE,
+                Material.EYE_ARMOR_TRIM_SMITHING_TEMPLATE,
+                Material.VEX_ARMOR_TRIM_SMITHING_TEMPLATE,
+                Material.TIDE_ARMOR_TRIM_SMITHING_TEMPLATE,
+                Material.SNOUT_ARMOR_TRIM_SMITHING_TEMPLATE,
+                Material.RIB_ARMOR_TRIM_SMITHING_TEMPLATE,
+                Material.SPIRE_ARMOR_TRIM_SMITHING_TEMPLATE,
+                Material.WAYFINDER_ARMOR_TRIM_SMITHING_TEMPLATE,
+                Material.SHAPER_ARMOR_TRIM_SMITHING_TEMPLATE,
+                Material.SILENCE_ARMOR_TRIM_SMITHING_TEMPLATE,
+                Material.RAISER_ARMOR_TRIM_SMITHING_TEMPLATE,
+                Material.HOST_ARMOR_TRIM_SMITHING_TEMPLATE,
+                Material.FLOW_ARMOR_TRIM_SMITHING_TEMPLATE,
                 Material.BOLT_ARMOR_TRIM_SMITHING_TEMPLATE
         };
 
@@ -168,7 +226,6 @@ public class KitEditorGUI {
         Map<Integer, ArmorTrim> currentTrims = editingTrims.getOrDefault(uuid, new HashMap<>());
         int armorSlot = editingArmorSlot.getOrDefault(uuid, 3);
         ArmorTrim current = currentTrims.get(armorSlot);
-        String currentName = current != null ? formatTrimName(current.getMaterial().getKey().getKey()) : "Aucun";
 
         Inventory inv = Bukkit.createInventory(null, 27,
                 plugin.colorize("&5&lChoisir un matériau"));
@@ -224,14 +281,14 @@ public class KitEditorGUI {
         return sb.toString();
     }
 
-    private String getArmorSlotName(int slot) {
-        return switch (slot) {
-            case 0 -> "Bottes";
-            case 1 -> "Jambières";
-            case 2 -> "Plastron";
-            case 3 -> "Casque";
-            default -> "???";
-        };
+    private String formatMaterialName(Material mat) {
+        String name = mat.name().replace("_", " ").toLowerCase();
+        StringBuilder sb = new StringBuilder();
+        for (String part : name.split(" ")) {
+            if (sb.length() > 0) sb.append(" ");
+            sb.append(Character.toUpperCase(part.charAt(0))).append(part.substring(1));
+        }
+        return sb.toString();
     }
 
     public void applyTrimsToArmor(Player player, Inventory inv) {

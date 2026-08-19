@@ -8,5 +8,16 @@
     "status": "open",
     "severity": "medium",
     "messageId": "1539669300833419275"
+  },
+  {
+    "id": 2,
+    "description": "y'a toujours le bug de déplacement au lobby, même après avoir désactivé la spawn protection",
+    "reporter": "pain.au.chocolatinement",
+    "reporterId": "1355635086401474621",
+    "timestamp": 1787157092708,
+    "status": "open",
+    "severity": "medium",
+    "messageId": "1539673183299305583",
+    "threadId": null
   }
 ]

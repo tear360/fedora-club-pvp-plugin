@@ -41,15 +41,21 @@ public class TabManager {
 
     private Component buildHeader() {
         return Component.text()
-                .append(Component.text("         ", NamedTextColor.DARK_PURPLE, TextDecoration.BOLD))
-                .append(Component.text("FEDORA ", NamedTextColor.DARK_PURPLE, TextDecoration.BOLD))
-                .append(Component.text("CLUB", NamedTextColor.LIGHT_PURPLE, TextDecoration.BOLD))
-                .append(Component.text("         ", NamedTextColor.DARK_PURPLE, TextDecoration.BOLD))
+                .append(Component.text("\n", NamedTextColor.DARK_PURPLE))
+                .append(Component.text("    §5§l▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", NamedTextColor.DARK_PURPLE))
+                .append(Component.text("\n", NamedTextColor.DARK_PURPLE))
+                .append(Component.text("\n", NamedTextColor.DARK_PURPLE))
+                .append(Component.text("         §5§lFEDORA ", NamedTextColor.DARK_PURPLE, TextDecoration.BOLD))
+                .append(Component.text("§d§lCLUB", NamedTextColor.LIGHT_PURPLE, TextDecoration.BOLD))
+                .append(Component.text("\n", NamedTextColor.DARK_PURPLE))
+                .append(Component.text("\n", NamedTextColor.DARK_PURPLE))
+                .append(Component.text("    §5§l▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", NamedTextColor.DARK_PURPLE))
+                .append(Component.text("\n", NamedTextColor.DARK_PURPLE))
                 .build();
     }
 
     private Component buildLobbyFooter() {
-        return Component.text("§5§l-----------\n§7fedora.free-node.ovh\n§5§l-----------");
+        return Component.text("\n§7§l fedora.free-node.ovh\n");
     }
 
     private void updateLobbyTab(Player player) {
@@ -57,7 +63,11 @@ public class TabManager {
 
         DuelManager.ActiveDuel duel = plugin.getDuelManager().getDuel(player.getUniqueId());
         if (duel == null) {
-            player.playerListName(Component.text(player.getName(), NamedTextColor.WHITE));
+            if (plugin.getVipManager().isVip(player.getUniqueId())) {
+                player.playerListName(Component.text("★ " + player.getName(), NamedTextColor.LIGHT_PURPLE));
+            } else {
+                player.playerListName(Component.text(player.getName(), NamedTextColor.WHITE));
+            }
         }
     }
 
@@ -70,13 +80,14 @@ public class TabManager {
 
         Set<UUID> specs = spectators.getOrDefault(duel.getPlayer1(), new HashSet<>());
         StringBuilder footerBuilder = new StringBuilder();
-        footerBuilder.append("§5§l-----------\n");
-        footerBuilder.append("§d⚔ ").append(player.getName()).append(" §7vs §d").append(opponent != null ? opponent.getName() : "???").append("\n");
-        footerBuilder.append("§7Mode: ").append(duel.getMode().getDisplayName()).append("\n");
+        footerBuilder.append("\n§5§l▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
+        footerBuilder.append("\n\n");
+        footerBuilder.append("  §d⚔ ").append(player.getName()).append(" §7vs §d").append(opponent != null ? opponent.getName() : "???").append("\n");
+        footerBuilder.append("  §7Mode: ").append(duel.getMode().getDisplayName()).append("\n");
         if (!specs.isEmpty()) {
-            footerBuilder.append("§8Spectateurs: §7").append(specs.size()).append("\n");
+            footerBuilder.append("  §8Spectateurs: §7").append(specs.size()).append("\n");
         }
-        footerBuilder.append("§5§l-----------");
+        footerBuilder.append("\n§5§l▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n");
 
         Component footer = Component.text(footerBuilder.toString());
 

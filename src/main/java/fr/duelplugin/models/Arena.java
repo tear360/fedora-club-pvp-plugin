@@ -66,7 +66,7 @@ public class Arena {
     }
 
     public boolean canInteractBlocks() {
-        return gameMode == DuelGameMode.VANILLA || gameMode == DuelGameMode.UHC || gameMode == DuelGameMode.DIASMP;
+        return gameMode == DuelGameMode.UHC || gameMode == DuelGameMode.DIASMP;
     }
 
     public void takeSnapshot() {

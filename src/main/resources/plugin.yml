@@ -25,6 +25,10 @@ commands:
     description: Spectater un duel
     usage: /spec <joueur>
     aliases: [spectate, spect]
+  vip:
+    description: Commande VIP Fedora Club
+    usage: /vip <args>
+    aliases: [vipcolor]
 
 permissions:
   duelplugin.admin:
@@ -33,3 +37,6 @@ permissions:
   duelplugin.play:
     description: Permission de jouer
     default: true
+  duelplugin.vip:
+    description: Permission VIP
+    default: op

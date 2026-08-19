@@ -59,14 +59,14 @@ public class LobbyItemListener implements Listener {
 
         for (int i = 0; i < 45; i++) {
             if (i == 10 || i == 11 || i == 12 || i == 13 || i == 14 ||
-                    i == 19 || i == 20 || i == 21 || i == 22 || i == 23) {
+                    i == 19 || i == 20 || i == 21) {
                 continue;
             }
             inv.setItem(i, new ItemBuilder(Material.BLACK_STAINED_GLASS_PANE).name(" ").build());
         }
 
         DuelGameMode[] modes = DuelGameMode.values();
-        int[] slots = {10, 11, 12, 13, 14, 19, 20, 21, 22, 23};
+        int[] slots = {10, 11, 12, 13, 14, 19, 20, 21};
 
         for (int i = 0; i < modes.length && i < slots.length; i++) {
             DuelGameMode mode = modes[i];
@@ -143,10 +143,13 @@ public class LobbyItemListener implements Listener {
         }
 
         if (title.contains("Kit ")) {
-            event.setCancelled(true);
             if (event.getCurrentItem() == null || event.getCurrentItem().getType() == Material.AIR) return;
 
             String name = event.getCurrentItem().getItemMeta() != null ? event.getCurrentItem().getItemMeta().getDisplayName() : "";
+
+            if (name.contains("Sauvegarder") || name.contains("Réinitialiser") || name.contains("Retour")) {
+                event.setCancelled(true);
+            }
 
             if (name.contains("Sauvegarder")) {
                 DuelGameMode mode = plugin.getKitEditorGUI().getEditingMode(player.getUniqueId());
@@ -181,7 +184,7 @@ public class LobbyItemListener implements Listener {
         if (!(event.getWhoClicked() instanceof Player player)) return;
         String title = event.getView().getTitle();
         if (title == null) return;
-        if (title.contains("Kit ") || title.contains("Rejoindre une queue") || title.contains("Éditeur de kits")) {
+        if (title.contains("Rejoindre une queue") || title.contains("Éditeur de kits")) {
             event.setCancelled(true);
         }
     }
@@ -222,7 +225,6 @@ public class LobbyItemListener implements Listener {
             case AXE -> Material.DIAMOND_AXE;
             case UHC -> Material.GOLDEN_APPLE;
             case MACE -> Material.MACE;
-            case VANILLA -> Material.END_CRYSTAL;
             case SMP -> Material.SHIELD;
             case DIASMP -> Material.CHORUS_FRUIT;
             case POT -> Material.SPLASH_POTION;

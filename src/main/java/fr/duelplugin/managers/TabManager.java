@@ -89,13 +89,22 @@ public class TabManager {
         boolean isFriendMode = friendTabActive.contains(player.getUniqueId());
         player.sendPlayerListHeaderAndFooter(buildHeader(), buildLobbyFooter(isFriendMode));
 
+        String prefix = "";
+        if (plugin.getPartyManager().isInParty(player.getUniqueId())) {
+            if (plugin.getPartyManager().isLeader(player.getUniqueId())) {
+                prefix = "§6👑 ";
+            } else {
+                prefix = "§7» ";
+            }
+        }
+
         if (plugin.getVipManager().isVip(player.getUniqueId())) {
             String colorCode = plugin.getVipManager().getNameColor(player.getUniqueId());
             if (colorCode == null) colorCode = "§d";
             TextColor color = COLOR_MAP.getOrDefault(colorCode, NamedTextColor.LIGHT_PURPLE);
-            player.playerListName(Component.text().append(Component.text("★ ", color)).append(Component.text(player.getName(), NamedTextColor.WHITE)).build());
+            player.playerListName(Component.text().append(Component.text(prefix + "★ ", color)).append(Component.text(player.getName(), NamedTextColor.WHITE)).build());
         } else {
-            player.playerListName(Component.text(player.getName(), NamedTextColor.WHITE));
+            player.playerListName(Component.text(prefix + player.getName(), NamedTextColor.WHITE));
         }
     }
 

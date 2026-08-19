@@ -33,6 +33,10 @@ commands:
     description: Commande Amis
     usage: /f <add|remove|list>
     aliases: [ami, friends]
+  party:
+    description: Commande Party
+    usage: /party <create|invite|join|leave|kick|disband|list>
+    aliases: [p, groupe]
 
 permissions:
   duelplugin.admin:

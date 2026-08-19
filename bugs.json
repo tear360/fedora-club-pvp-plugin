@@ -1,24 +1,27 @@
 [
   {
     "id": 1,
-    "description": "s test, ceci est un bug report de test, indique moi sur OpenCode si tu l'a reçu",
+    "description": "s test, ceci est un bug report de test, indique moi sur OpenCode si tu l'a reÃ§u",
     "reporter": "pain.au.chocolatinement",
     "reporterId": "1355635086401474621",
     "timestamp": 1787156167309,
-    "status": "open",
+    "status": "resolved",
     "severity": "medium",
-    "messageId": "1539669300833419275"
+    "messageId": "1539669300833419275",
+    "resolvedBy": "opencode",
+    "resolvedAt": 1787158000000
   },
   {
     "id": 2,
-    "description": "y'a toujours le bug de déplacement au lobby, même après avoir désactivé la spawn protection",
+    "description": "y'a toujours le bug de dÃ©placement au lobby, mÃªme aprÃ¨s avoir dÃ©sactivÃ© la spawn protection",
     "reporter": "pain.au.chocolatinement",
     "reporterId": "1355635086401474621",
     "timestamp": 1787157092708,
-    "status": "open",
+    "status": "resolved",
     "severity": "medium",
     "messageId": "1539673183299305583",
-    "threadId": null
+    "resolvedBy": "opencode",
+    "resolvedAt": 1787158000000
   },
   {
     "id": 3,
@@ -26,9 +29,10 @@
     "reporter": "pain.au.chocolatinement",
     "reporterId": "1355635086401474621",
     "timestamp": 1787157679247,
-    "status": "open",
+    "status": "resolved",
     "severity": "medium",
     "messageId": "1539675643565051904",
-    "threadId": null
+    "resolvedBy": "opencode",
+    "resolvedAt": 1787158000000
   }
 ]

@@ -129,6 +129,12 @@ public class DuelManager {
         if (arena != null && arena.getSpawn1() != null && arena.getSpawn2() != null) {
             loc1 = arena.getSpawn1().clone();
             loc2 = arena.getSpawn2().clone();
+            if (loc1.getWorld() == null) {
+                loc1.setWorld(Bukkit.getWorlds().get(0));
+            }
+            if (loc2.getWorld() == null) {
+                loc2.setWorld(Bukkit.getWorlds().get(0));
+            }
         } else {
             loc1 = plugin.getLobbyManager().getLobbySpawn().clone().add(2, 0, 0);
             loc2 = plugin.getLobbyManager().getLobbySpawn().clone().add(-2, 0, 0);

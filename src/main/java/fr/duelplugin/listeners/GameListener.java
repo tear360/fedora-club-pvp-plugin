@@ -86,7 +86,11 @@ public class GameListener implements Listener {
     @EventHandler
     public void onFoodLevelChange(FoodLevelChangeEvent event) {
         if (!(event.getEntity() instanceof Player player)) return;
-        if (!plugin.getDuelManager().isInDuel(player)) return;
+        if (!plugin.getDuelManager().isInDuel(player)) {
+            event.setCancelled(true);
+            player.setFoodLevel(20);
+            return;
+        }
 
         var duel = plugin.getDuelManager().getDuel(player.getUniqueId());
         if (duel == null) return;

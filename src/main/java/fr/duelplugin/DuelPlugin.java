@@ -28,6 +28,7 @@ public class DuelPlugin extends JavaPlugin {
     private UpdateManager updateManager;
     private KitManager kitManager;
     private KitEditorGUI kitEditorGUI;
+    private QueueManager queueManager;
 
     @Override
     public void onEnable() {
@@ -44,6 +45,7 @@ public class DuelPlugin extends JavaPlugin {
         updateManager = new UpdateManager(this);
         kitManager = new KitManager(this);
         kitEditorGUI = new KitEditorGUI(this);
+        queueManager = new QueueManager(this);
 
         getCommand("duel").setExecutor(new DuelCommand(this));
         getCommand("duel").setTabCompleter(new DuelCommand(this));
@@ -67,10 +69,11 @@ public class DuelPlugin extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        queueManager.cleanup();
         duelManager.cleanup();
         arenaManager.saveArenas();
         playerManager.saveAndUnload();
-        getLogger().info("Fedora Club - DuelPlugin disabled.");
+        getLogger().info("§5Fedora Club §d- DuelPlugin disabled.");
     }
 
     public static DuelPlugin getInstance() { return instance; }
@@ -84,6 +87,7 @@ public class DuelPlugin extends JavaPlugin {
     public UpdateManager getUpdateManager() { return updateManager; }
     public KitManager getKitManager() { return kitManager; }
     public KitEditorGUI getKitEditorGUI() { return kitEditorGUI; }
+    public QueueManager getQueueManager() { return queueManager; }
 
     public String getPrefix() {
         return colorize(getConfig().getString("messages.prefix", "&8[&6Fedora &eClub&8] &r"));

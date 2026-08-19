@@ -9,6 +9,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.*;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -33,16 +35,18 @@ public class ScoreboardManager {
         Objective obj = board.registerNewObjective("duel_lobby", Criteria.DUMMY, title);
         obj.setDisplaySlot(DisplaySlot.SIDEBAR);
 
-        int line = 8;
+        String date = new SimpleDateFormat("dd/MM/yyyy").format(new Date());
+
+        int line = 10;
         addLine(obj, line--, "");
-        addLine(obj, line--, "--------------------");
-        addLine(obj, line--, "Joueur: " + player.getName());
+        addLine(obj, line--, "+" + player.getName());
         addLine(obj, line--, "");
-        addLine(obj, line--, "Mode: " + (mode != null ? mode.getDisplayName() : "Aucun"));
-        addLine(obj, line--, "Arène: " + (arenaName != null ? arenaName : "Aucune"));
+        addLine(obj, line--, "Use §b⚔§7 to queue");
+        addLine(obj, line--, "or §b/duel§7 to duel.");
         addLine(obj, line--, "");
-        addLine(obj, line--, "--------------------");
-        addLine(obj, line--, "fedora.free-node.ovh");
+        addLine(obj, line--, "§7" + date);
+        addLine(obj, line--, "");
+        addLine(obj, line--, "§6fedora.free-node.ovh");
 
         player.setScoreboard(board);
         scoreboards.put(player.getUniqueId(), board);
@@ -58,16 +62,19 @@ public class ScoreboardManager {
         Objective obj = board.registerNewObjective("duel_fight", Criteria.DUMMY, title);
         obj.setDisplaySlot(DisplaySlot.SIDEBAR);
 
-        int line = 9;
+        String date = new SimpleDateFormat("dd/MM/yyyy").format(new Date());
+
+        int line = 11;
         addLine(obj, line--, "");
-        addLine(obj, line--, "--------------------");
-        addLine(obj, line--, "Joueur: " + player.getName());
+        addLine(obj, line--, "§c⚔ " + player.getName());
+        addLine(obj, line--, "§7vs §c" + opponent.getName());
         addLine(obj, line--, "");
-        addLine(obj, line--, "Score: 0 - 0");
-        addLine(obj, line--, "Adversaire: " + opponent.getName());
-        addLine(obj, line--, "Mode: " + mode.getDisplayName());
+        addLine(obj, line--, "§dMode: §f" + mode.getDisplayName());
+        addLine(obj, line--, "§dKills: §f0");
         addLine(obj, line--, "");
-        addLine(obj, line--, "--------------------");
+        addLine(obj, line--, "§7" + date);
+        addLine(obj, line--, "");
+        addLine(obj, line--, "§6fedora.free-node.ovh");
 
         player.setScoreboard(board);
         scoreboards.put(player.getUniqueId(), board);

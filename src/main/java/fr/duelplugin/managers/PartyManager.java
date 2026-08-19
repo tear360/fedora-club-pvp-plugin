@@ -13,6 +13,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class PartyManager {
 
+    public static final int MAX_SIZE_NORMAL = 10;
+    public static final int MAX_SIZE_VIP = 20;
+
     private final DuelPlugin plugin;
     private final File partyFile;
     private final FileConfiguration partyConfig;
@@ -20,6 +23,7 @@ public class PartyManager {
     private final Map<UUID, Party> parties = new ConcurrentHashMap<>();
     private final Map<UUID, UUID> playerParty = new ConcurrentHashMap<>();
     private final Map<UUID, UUID> pendingInvites = new ConcurrentHashMap<>();
+    private final Set<UUID> pubParties = ConcurrentHashMap.newKeySet();
 
     public PartyManager(DuelPlugin plugin) {
         this.plugin = plugin;
@@ -72,6 +76,9 @@ public class PartyManager {
         if (!partyLeader.equals(inviterUuid)) return false;
         if (playerParty.containsKey(targetUuid)) return false;
 
+        Party party = parties.get(partyLeader);
+        if (party != null && party.isFull(inviter)) return false;
+
         pendingInvites.put(targetUuid, partyLeader);
         return true;
     }
@@ -84,10 +91,57 @@ public class PartyManager {
         Party party = parties.get(partyLeader);
         if (party == null) return false;
 
+        Player leader = Bukkit.getPlayer(partyLeader);
+        if (party.isFull(leader)) return false;
+
         party.addMember(uuid);
         playerParty.put(uuid, partyLeader);
         save();
         return true;
+    }
+
+    public boolean openPub(Player leader) {
+        UUID uuid = leader.getUniqueId();
+        if (!isLeader(uuid)) return false;
+        pubParties.add(uuid);
+        return true;
+    }
+
+    public boolean closePub(Player leader) {
+        return pubParties.remove(leader.getUniqueId());
+    }
+
+    public boolean isPubOpen(UUID leaderUuid) {
+        return pubParties.contains(leaderUuid);
+    }
+
+    public boolean pubJoin(Player player, UUID leaderUuid) {
+        UUID uuid = player.getUniqueId();
+        if (playerParty.containsKey(uuid)) return false;
+        if (!pubParties.contains(leaderUuid)) return false;
+
+        Party party = parties.get(leaderUuid);
+        if (party == null) return false;
+
+        Player leader = Bukkit.getPlayer(leaderUuid);
+        if (party.isFull(leader)) return false;
+
+        party.addMember(uuid);
+        playerParty.put(uuid, leaderUuid);
+        save();
+        return true;
+    }
+
+    public int getMaxSize(Player leader) {
+        if (leader != null && plugin.getVipManager().isVip(leader.getUniqueId())) {
+            return MAX_SIZE_VIP;
+        }
+        return MAX_SIZE_NORMAL;
+    }
+
+    public int getMemberCount(UUID leaderUuid) {
+        Party party = parties.get(leaderUuid);
+        return party != null ? party.getSize() : 0;
     }
 
     public void declineInvite(Player player) {
@@ -244,6 +298,11 @@ public class PartyManager {
         public UUID getLeader() { return leader; }
         public Set<UUID> getMembers() { return Collections.unmodifiableSet(members); }
         public int getSize() { return members.size() + 1; }
+
+        public boolean isFull(Player leader) {
+            int maxSize = (leader != null && leader.hasPermission("duelplugin.vip")) ? MAX_SIZE_VIP : MAX_SIZE_NORMAL;
+            return getSize() >= maxSize;
+        }
 
         public boolean hasMember(UUID uuid) {
             return uuid.equals(leader) || members.contains(uuid);

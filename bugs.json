@@ -9,5 +9,16 @@
     "severity": "medium",
     "messageId": "1539728981320794254",
     "threadId": "1539728981320794254"
+  },
+  {
+    "id": 2,
+    "description": "y'a toujours le bug des invalid packet avec les joueurs des versions récentes",
+    "reporter": "pain.au.chocolatinement",
+    "reporterId": "1355635086401474621",
+    "timestamp": 1787171212870,
+    "status": "open",
+    "severity": "medium",
+    "messageId": "1539732407639343216",
+    "threadId": null
   }
 ]

@@ -36,7 +36,17 @@ public class DuelCommand implements CommandExecutor, TabCompleter {
         }
 
         if (args.length == 0) {
-            player.sendMessage(plugin.getPrefix() + "§dUsage: /duel <joueur>");
+            player.sendMessage(plugin.getPrefix() + "§dUsage: /duel <joueur> §7ou §d/duel leave");
+            return true;
+        }
+
+        if (args[0].equalsIgnoreCase("leave")) {
+            if (plugin.getQueueManager().isInAnyQueue(player)) {
+                plugin.getQueueManager().leaveQueue(player);
+                player.sendMessage(plugin.getPrefix() + "§cQueue quittée.");
+            } else {
+                player.sendMessage(plugin.getPrefix() + "§cVous n'êtes pas en queue.");
+            }
             return true;
         }
 
@@ -53,6 +63,7 @@ public class DuelCommand implements CommandExecutor, TabCompleter {
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         List<String> completions = new ArrayList<>();
         if (args.length == 1) {
+            completions.add("leave");
             completions.addAll(Bukkit.getOnlinePlayers().stream()
                     .map(Player::getName).collect(Collectors.toList()));
         }

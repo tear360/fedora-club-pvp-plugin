@@ -115,14 +115,19 @@ public class LobbyItemListener implements Listener {
 
             String name = event.getCurrentItem().getItemMeta().getDisplayName();
             for (DuelGameMode mode : DuelGameMode.values()) {
-                    if (name.contains(mode.getDisplayName())) {
+                if (name.contains(mode.getDisplayName())) {
+                    if (plugin.getQueueManager().isInQueue(player, mode)) {
+                        plugin.getQueueManager().leaveQueue(player, mode);
+                        player.sendMessage(plugin.getPrefix() + "§cQueue §f" + mode.getDisplayName() + " §cquittée.");
+                        openQueueGUI(player);
+                        return;
+                    }
                     if (mode.isArenaRestricted() && plugin.getArenaManager().getAvailableArena(mode) == null) {
                         player.sendMessage(plugin.getPrefix() + "§cAucune arène disponible pour §f" + mode.getDisplayName() + "§c!");
                         return;
                     }
                     if (plugin.getQueueManager().isInAnyQueue(player)) {
-                        player.sendMessage(plugin.getPrefix() + "§cVous êtes déjà en queue!");
-                        return;
+                        plugin.getQueueManager().leaveQueue(player);
                     }
                     plugin.getQueueManager().joinQueue(player, mode);
                     player.sendMessage(plugin.getPrefix() + "§dQueue rejoinue pour §f" + mode.getDisplayName() + "§d! §7En attente d'un adversaire...");
@@ -342,18 +347,22 @@ public class LobbyItemListener implements Listener {
             }
         }
 
-        if (title.contains("Party")) {
+        if (title.contains("Party") || title.equals("Kick un membre") || title.equals("§5§lKick un membre") || title.equals("Transférer le leadership") || title.equals("§5§lTransférer le leadership") || title.equals("Choisir un mode FFA") || title.equals("§5§lChoisir un mode FFA") || title.contains("Quitter la party")) {
             event.setCancelled(true);
             if (event.getCurrentItem() == null || event.getCurrentItem().getType() == Material.AIR) return;
             if (event.getCurrentItem().getType() == Material.BLACK_STAINED_GLASS_PANE || event.getCurrentItem().getType() == Material.PURPLE_STAINED_GLASS_PANE) return;
             if (event.getCurrentItem().getItemMeta() == null) return;
             String itemName = event.getCurrentItem().getItemMeta().getDisplayName();
+            String cleanTitle = title.replaceAll("§[0-9a-fk-or]", "");
 
-            if (title.equals("Party") && !title.contains("Leader") && !title.contains("FFA")) {
+            if (cleanTitle.equals("Party") && !cleanTitle.contains("Leader") && !cleanTitle.contains("FFA")) {
                 if (itemName.contains("Créer une party")) {
-                    plugin.getPartyManager().createParty(player);
-                    player.closeInventory();
-                    player.sendMessage(plugin.getPrefix() + "§aParty créée! §7Invitez des joueurs avec §d/party invite <joueur>");
+                    if (plugin.getPartyManager().createParty(player)) {
+                        player.closeInventory();
+                        player.sendMessage(plugin.getPrefix() + "§aParty créée! §7Invitez des joueurs avec §d/party invite <joueur>");
+                    } else {
+                        player.sendMessage(plugin.getPrefix() + "§cImpossible de créer la party.");
+                    }
                     return;
                 }
                 if (itemName.contains("Rejoindre la party")) {
@@ -383,7 +392,7 @@ public class LobbyItemListener implements Listener {
                 }
             }
 
-            if (title.equals("Party (Leader)")) {
+            if (cleanTitle.equals("Party (Leader)")) {
                 if (itemName.contains("Inviter un joueur")) {
                     player.closeInventory();
                     player.sendMessage(plugin.getPrefix() + "§dUtilisez §f/party invite <joueur> §dpour inviter.");
@@ -415,7 +424,7 @@ public class LobbyItemListener implements Listener {
                 }
             }
 
-            if (title.equals("Kick un membre")) {
+            if (cleanTitle.equals("Kick un membre")) {
                 if (itemName.contains("Retour")) {
                     plugin.getPartyGUI().openPartyMenu(player);
                     return;
@@ -434,7 +443,7 @@ public class LobbyItemListener implements Listener {
                 }
             }
 
-            if (title.equals("Transférer le leadership")) {
+            if (cleanTitle.equals("Transférer le leadership")) {
                 if (itemName.contains("Retour")) {
                     plugin.getPartyGUI().openPartyMenu(player);
                     return;
@@ -453,10 +462,7 @@ public class LobbyItemListener implements Listener {
                 }
             }
 
-            if (title.equals("Choisir un mode FFA")) {
-                event.setCancelled(true);
-                if (event.getCurrentItem() == null || event.getCurrentItem().getType() == Material.AIR) return;
-                if (event.getCurrentItem().getType() == Material.BLACK_STAINED_GLASS_PANE) return;
+            if (cleanTitle.equals("Choisir un mode FFA")) {
                 if (itemName.contains("Retour")) {
                     plugin.getPartyGUI().openPartyMenu(player);
                     return;
@@ -475,9 +481,7 @@ public class LobbyItemListener implements Listener {
                 return;
             }
 
-            if (title.contains("Quitter la party")) {
-                return;
-            }
+            return;
         }
     }
 
@@ -497,7 +501,7 @@ public class LobbyItemListener implements Listener {
         if (!(event.getWhoClicked() instanceof Player player)) return;
         String title = event.getView().getTitle();
         if (title == null) return;
-        if (title.contains("Rejoindre une queue") || title.contains("Éditeur de kits") || title.contains("Kit ") || title.contains("Choisir") || title.contains("Party") || title.contains("FFA") || title.contains("Sélection de mode") || title.contains("Défi")) {
+        if (title.contains("Rejoindre une queue") || title.contains("Éditeur de kits") || title.contains("Kit ") || title.contains("Choisir") || title.contains("Party") || title.contains("FFA") || title.contains("Sélection de mode") || title.contains("Défi") || title.contains("Kick") || title.contains("Transférer")) {
             event.setCancelled(true);
         }
     }

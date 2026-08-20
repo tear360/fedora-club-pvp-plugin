@@ -151,13 +151,10 @@ public class LobbyItemListener implements Listener {
         }
 
         if (title.contains("Kit ")) {
+            event.setCancelled(true);
             if (event.getCurrentItem() == null || event.getCurrentItem().getType() == Material.AIR) return;
 
             String name = event.getCurrentItem().getItemMeta() != null ? event.getCurrentItem().getItemMeta().getDisplayName() : "";
-
-            if (name.contains("Sauvegarder") || name.contains("Réinitialiser") || name.contains("Retour") || name.contains("Trims")) {
-                event.setCancelled(true);
-            }
 
             if (name.contains("Sauvegarder")) {
                 DuelGameMode mode = plugin.getKitEditorGUI().getEditingMode(player.getUniqueId());
@@ -338,6 +335,10 @@ public class LobbyItemListener implements Listener {
                     player.sendMessage(plugin.getPrefix() + "§dUtilisez §f/party invite <joueur> §dpour inviter.");
                     return;
                 }
+                if (itemName.contains("Lancer une FFA")) {
+                    plugin.getPartyGUI().openFFASelector(player);
+                    return;
+                }
                 if (itemName.contains("Transférer")) {
                     plugin.getPartyGUI().openTransferSelector(player);
                     return;
@@ -398,6 +399,24 @@ public class LobbyItemListener implements Listener {
                 }
             }
 
+            if (title.equals(plugin.colorize("&5&lChoisir un mode FFA"))) {
+                event.setCancelled(true);
+                if (event.getCurrentItem() == null || event.getCurrentItem().getType() == Material.AIR) return;
+                if (event.getCurrentItem().getType() == Material.BLACK_STAINED_GLASS_PANE) return;
+                if (itemName.contains("Retour")) {
+                    plugin.getPartyGUI().openPartyMenu(player);
+                    return;
+                }
+                for (DuelGameMode mode : DuelGameMode.values()) {
+                    if (itemName.contains(mode.getDisplayName())) {
+                        plugin.getDuelManager().startPartyFFA(player, mode);
+                        player.closeInventory();
+                        return;
+                    }
+                }
+                return;
+            }
+
             if (title.contains("Quitter la party")) {
                 return;
             }
@@ -420,7 +439,7 @@ public class LobbyItemListener implements Listener {
         if (!(event.getWhoClicked() instanceof Player player)) return;
         String title = event.getView().getTitle();
         if (title == null) return;
-        if (title.contains("Rejoindre une queue") || title.contains("Éditeur de kits") || title.contains("Choisir") || title.contains("Party")) {
+        if (title.contains("Rejoindre une queue") || title.contains("Éditeur de kits") || title.contains("Kit ") || title.contains("Choisir") || title.contains("Party") || title.contains("FFA")) {
             event.setCancelled(true);
         }
     }

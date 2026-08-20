@@ -2,6 +2,8 @@ package fr.duelplugin.listeners;
 
 import fr.duelplugin.DuelPlugin;
 import fr.duelplugin.models.DuelGameMode;
+import org.bukkit.GameMode;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -12,6 +14,7 @@ import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 
 import java.util.UUID;
+import java.util.Set;
 
 public class GameListener implements Listener {
 
@@ -58,6 +61,11 @@ public class GameListener implements Listener {
         if (!(event.getEntity() instanceof Player victim)) return;
         if (!(event.getDamager() instanceof Player attacker)) return;
 
+        if (plugin.getDuelManager().isFrozen(victim) || plugin.getDuelManager().isFrozen(attacker)) {
+            event.setCancelled(true);
+            return;
+        }
+
         if (!plugin.getDuelManager().isInDuel(attacker) || !plugin.getDuelManager().isInDuel(victim)) {
             event.setCancelled(true);
             return;
@@ -66,20 +74,45 @@ public class GameListener implements Listener {
         var duel = plugin.getDuelManager().getDuel(attacker.getUniqueId());
         if (duel == null) return;
 
-        UUID uuid1 = duel.getPlayer1();
-        UUID uuid2 = duel.getPlayer2();
-        boolean validFight = (attacker.getUniqueId().equals(uuid1) && victim.getUniqueId().equals(uuid2)) ||
-                (attacker.getUniqueId().equals(uuid2) && victim.getUniqueId().equals(uuid1));
+        boolean isFFA = duel.isFFA();
 
-        if (!validFight) {
-            event.setCancelled(true);
-            return;
+        if (!isFFA) {
+            UUID uuid1 = duel.getPlayer1();
+            UUID uuid2 = duel.getPlayer2();
+            boolean validFight = (attacker.getUniqueId().equals(uuid1) && victim.getUniqueId().equals(uuid2)) ||
+                    (attacker.getUniqueId().equals(uuid2) && victim.getUniqueId().equals(uuid1));
+
+            if (!validFight) {
+                event.setCancelled(true);
+                return;
+            }
         }
 
         if (victim.getHealth() - event.getFinalDamage() <= 0) {
             event.setCancelled(true);
             victim.setHealth(20.0);
-            plugin.getDuelManager().endDuel(attacker.getUniqueId(), attacker.getUniqueId(), victim.getUniqueId());
+
+            if (duel.isFFA()) {
+                Set<UUID> participants = duel.getFFAParticipants();
+                participants.remove(victim.getUniqueId());
+
+                victim.sendMessage(plugin.getPrefix() + "§c§lÉLIMINÉ! §7Vous avez été éliminé de la FFA.");
+                victim.setGameMode(GameMode.SPECTATOR);
+                if (plugin.getLobbyManager().isLobbySet()) {
+                    plugin.getLobbyManager().teleportToLobby(victim);
+                }
+
+                if (participants.size() <= 1) {
+                    UUID winnerId = participants.iterator().next();
+                    Player winner = Bukkit.getPlayer(winnerId);
+                    if (winner != null) {
+                        winner.sendMessage(plugin.getPrefix() + "§a§lVICTOIRE! §7Vous êtes le dernier en vie!");
+                    }
+                    plugin.getDuelManager().endDuel(attacker.getUniqueId(), winnerId, victim.getUniqueId());
+                }
+            } else {
+                plugin.getDuelManager().endDuel(attacker.getUniqueId(), attacker.getUniqueId(), victim.getUniqueId());
+            }
         }
     }
 
@@ -104,6 +137,16 @@ public class GameListener implements Listener {
     @EventHandler
     public void onPlayerMove(PlayerMoveEvent event) {
         Player player = event.getPlayer();
+
+        if (plugin.getDuelManager().isFrozen(player)) {
+            if (event.getFrom().getX() != event.getTo().getX() ||
+                event.getFrom().getY() != event.getTo().getY() ||
+                event.getFrom().getZ() != event.getTo().getZ()) {
+                event.setTo(event.getFrom().clone());
+            }
+            return;
+        }
+
         if (!plugin.getDuelManager().isInDuel(player)) return;
 
         var duel = plugin.getDuelManager().getDuel(player.getUniqueId());

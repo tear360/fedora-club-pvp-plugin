@@ -2,6 +2,7 @@ package fr.duelplugin.gui;
 
 import fr.duelplugin.DuelPlugin;
 import fr.duelplugin.managers.PartyManager;
+import fr.duelplugin.models.DuelGameMode;
 import fr.duelplugin.utils.ItemBuilder;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -81,6 +82,11 @@ public class PartyGUI {
         inv.setItem(10, new ItemBuilder(Material.PLAYER_HEAD)
                 .name("§d§lInviter un joueur")
                 .lore("", "§7Invitez un joueur en ligne", "§7dans votre party", "", "§d&lCliquez pour inviter")
+                .build());
+
+        inv.setItem(11, new ItemBuilder(Material.NETHERITE_SWORD)
+                .name("§d§lLancer une FFA")
+                .lore("", "§7Lancez un combat libre", "§7avec tous les membres", "§7de la party", "", "§d&lCliquez pour lancer")
                 .build());
 
         inv.setItem(12, new ItemBuilder(Material.TRIDENT)
@@ -165,6 +171,39 @@ public class PartyGUI {
                 inv.setItem(slot, createPlayerHead(member, "§c§lKick §f" + member.getName()));
                 slot++;
             }
+        }
+
+        inv.setItem(22, new ItemBuilder(Material.ARROW).name("§d§lRetour").lore("", "§7Retour à la party").build());
+
+        player.openInventory(inv);
+    }
+
+    public void openFFASelector(Player player) {
+        Inventory inv = Bukkit.createInventory(null, 27,
+                Component.text("Choisir un mode FFA", NamedTextColor.DARK_PURPLE, TextDecoration.BOLD));
+
+        fillGlass(inv, 27);
+
+        int[] slots = {10, 11, 12, 13, 14, 15, 16};
+        int[] icons = {0, 1, 2, 3, 4, 5, 6};
+        DuelGameMode[] modes = DuelGameMode.values();
+
+        for (int i = 0; i < modes.length && i < slots.length; i++) {
+            DuelGameMode mode = modes[i];
+            Material icon = switch (mode) {
+                case SWORD -> Material.DIAMOND_SWORD;
+                case AXE -> Material.DIAMOND_AXE;
+                case UHC -> Material.GOLDEN_APPLE;
+                case MACE -> Material.MACE;
+                case SMP -> Material.SHIELD;
+                case DIASMP -> Material.CHORUS_FRUIT;
+                case POT -> Material.SPLASH_POTION;
+                case NETHPOT -> Material.NETHERITE_HELMET;
+            };
+            inv.setItem(slots[i], new ItemBuilder(icon)
+                    .name(mode.getColoredName())
+                    .lore("", "§7Lancer une FFA", "§7avec ce mode", "", "§d&lCliquez pour lancer")
+                    .build());
         }
 
         inv.setItem(22, new ItemBuilder(Material.ARROW).name("§d§lRetour").lore("", "§7Retour à la party").build());

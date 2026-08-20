@@ -30,6 +30,8 @@ public class DuelManager {
     private final Map<UUID, ItemStack[]> savedInventories;
     private final Map<UUID, ItemStack[]> savedArmor;
     private final Map<UUID, Collection<PotionEffect>> savedEffects;
+    private final Set<UUID> frozenPlayers = new HashSet<>();
+    private final Set<UUID> countdownActive = new HashSet<>();
 
     public DuelManager(DuelPlugin plugin) {
         this.plugin = plugin;
@@ -129,17 +131,11 @@ public class DuelManager {
         if (arena != null && arena.getSpawn1() != null && arena.getSpawn2() != null) {
             loc1 = arena.getSpawn1().clone();
             loc2 = arena.getSpawn2().clone();
-            if (loc1.getWorld() == null) {
-                loc1.setWorld(Bukkit.getWorlds().get(0));
-            }
-            if (loc2.getWorld() == null) {
-                loc2.setWorld(Bukkit.getWorlds().get(0));
-            }
+            if (loc1.getWorld() == null) loc1.setWorld(Bukkit.getWorlds().get(0));
+            if (loc2.getWorld() == null) loc2.setWorld(Bukkit.getWorlds().get(0));
         } else {
             Location lobby = plugin.getLobbyManager().getLobbySpawn();
-            if (lobby == null || lobby.getWorld() == null) {
-                lobby = new Location(Bukkit.getWorlds().get(0), 0, 64, 0);
-            }
+            if (lobby == null || lobby.getWorld() == null) lobby = new Location(Bukkit.getWorlds().get(0), 0, 64, 0);
             loc1 = lobby.clone().add(2, 0, 0);
             loc2 = lobby.clone().add(-2, 0, 0);
         }
@@ -151,13 +147,15 @@ public class DuelManager {
         activeDuels.put(player1.getUniqueId(), duel);
         activeDuels.put(player2.getUniqueId(), duel);
 
+        frozenPlayers.add(player1.getUniqueId());
+        frozenPlayers.add(player2.getUniqueId());
+
         player1.teleportAsync(finalLoc1, org.bukkit.event.player.PlayerTeleportEvent.TeleportCause.PLUGIN).thenRun(() -> {
             if (!player1.isOnline()) return;
             applyKit(player1, mode);
             player1.setHealth(20.0);
             player1.setFoodLevel(20);
             player1.setSaturation(20f);
-            player1.sendMessage(plugin.getPrefix() + "§5§lDUEL COMMENCÉ! §dContre §f" + player2.getName() + " §den §f" + mode.getDisplayName());
         });
 
         player2.teleportAsync(finalLoc2, org.bukkit.event.player.PlayerTeleportEvent.TeleportCause.PLUGIN).thenRun(() -> {
@@ -166,19 +164,74 @@ public class DuelManager {
             player2.setHealth(20.0);
             player2.setFoodLevel(20);
             player2.setSaturation(20f);
-            player2.sendMessage(plugin.getPrefix() + "§5§lDUEL COMMENCÉ! §dContre §f" + player1.getName() + " §den §f" + mode.getDisplayName());
         });
 
         plugin.getScoreboardManager().createDuelScoreboard(player1, player2, mode);
         plugin.getScoreboardManager().createDuelScoreboard(player2, player1, mode);
+
+        startCountdown(player1, player2, mode);
+    }
+
+    private void startCountdown(Player player1, Player player2, DuelGameMode mode) {
+        countdownActive.add(player1.getUniqueId());
+        countdownActive.add(player2.getUniqueId());
+
+        new org.bukkit.scheduler.BukkitRunnable() {
+            int count = 3;
+
+            @Override
+            public void run() {
+                if (count > 0) {
+                    String msg = "§d§l" + count + " §7...";
+                    player1.sendActionBar(Component.text(msg));
+                    player2.sendActionBar(Component.text(msg));
+                    count--;
+                } else {
+                    frozenPlayers.remove(player1.getUniqueId());
+                    frozenPlayers.remove(player2.getUniqueId());
+                    countdownActive.remove(player1.getUniqueId());
+                    countdownActive.remove(player2.getUniqueId());
+
+                    player1.sendActionBar(Component.text("§a§lGO! §7Combattez!", NamedTextColor.GREEN));
+                    player2.sendActionBar(Component.text("§a§lGO! §7Combattez!", NamedTextColor.GREEN));
+
+                    player1.sendMessage(plugin.getPrefix() + "§5§lDUEL COMMENCÉ! §dContre §f" + player2.getName() + " §den §f" + mode.getDisplayName());
+                    player2.sendMessage(plugin.getPrefix() + "§5§lDUEL COMMENCÉ! §dContre §f" + player1.getName() + " §den §f" + mode.getDisplayName());
+
+                    cancel();
+                }
+            }
+        }.runTaskTimer(plugin, 20L, 20L);
     }
 
     public void endDuel(UUID uuid, UUID winner, UUID loser) {
         ActiveDuel duel = activeDuels.remove(uuid);
         if (duel == null) return;
 
-        activeDuels.remove(duel.getPlayer1());
-        activeDuels.remove(duel.getPlayer2());
+        if (duel.isFFA() && duel.getFFAParticipants() != null) {
+            for (UUID ffaUuid : duel.getFFAParticipants()) {
+                activeDuels.remove(ffaUuid);
+                frozenPlayers.remove(ffaUuid);
+                countdownActive.remove(ffaUuid);
+                Player ffaPlayer = Bukkit.getPlayer(ffaUuid);
+                if (ffaPlayer != null) {
+                    restoreInventory(ffaPlayer);
+                    ffaPlayer.setGameMode(GameMode.ADVENTURE);
+                    plugin.getScoreboardManager().removeScoreboard(ffaPlayer);
+                    if (plugin.getLobbyManager().isLobbySet()) {
+                        plugin.getLobbyManager().teleportToLobby(ffaPlayer);
+                        PlayerListener.giveLobbyItems(ffaPlayer);
+                    }
+                }
+            }
+        } else {
+            activeDuels.remove(duel.getPlayer1());
+            activeDuels.remove(duel.getPlayer2());
+            frozenPlayers.remove(duel.getPlayer1());
+            frozenPlayers.remove(duel.getPlayer2());
+            countdownActive.remove(duel.getPlayer1());
+            countdownActive.remove(duel.getPlayer2());
+        }
 
         Player w = Bukkit.getPlayer(winner);
         Player l = Bukkit.getPlayer(loser);
@@ -193,10 +246,15 @@ public class DuelManager {
 
         if (w != null) {
             restoreInventory(w);
+            w.setGameMode(GameMode.ADVENTURE);
             w.sendMessage("");
             w.sendMessage("§5§l═══════════════════════════");
             w.sendMessage("§a§l⚔ VICTOIRE!");
-            w.sendMessage("§aVous avez gagné contre §d" + (l != null ? l.getName() : "Unknown"));
+            if (duel.isFFA()) {
+                w.sendMessage("§aVous êtes le dernier en vie de la FFA!");
+            } else {
+                w.sendMessage("§aVous avez gagné contre §d" + (l != null ? l.getName() : "Unknown"));
+            }
             w.sendMessage("§5§l═══════════════════════════");
             w.sendMessage("");
             plugin.getScoreboardManager().removeScoreboard(w);
@@ -207,10 +265,11 @@ public class DuelManager {
         }
         if (l != null) {
             restoreInventory(l);
+            l.setGameMode(GameMode.ADVENTURE);
             l.sendMessage("");
             l.sendMessage("§5§l═══════════════════════════");
-            l.sendMessage("§c§l⚔ DÉFAITE");
-            l.sendMessage("§cVous avez perdu contre §d" + (w != null ? w.getName() : "Unknown"));
+            l.sendMessage("§c§l⚔ ÉLIMINÉ");
+            l.sendMessage("§cVous avez été éliminé de la FFA.");
             l.sendMessage("§5§l═══════════════════════════");
             l.sendMessage("");
             plugin.getScoreboardManager().removeScoreboard(l);
@@ -254,6 +313,10 @@ public class DuelManager {
 
     public boolean isInDuel(UUID uuid) {
         return activeDuels.containsKey(uuid);
+    }
+
+    public boolean isFrozen(Player player) {
+        return frozenPlayers.contains(player.getUniqueId());
     }
 
     private void applyKit(Player player, DuelGameMode mode) {
@@ -331,6 +394,113 @@ public class DuelManager {
         }
         activeDuels.clear();
         pendingRequests.clear();
+        frozenPlayers.clear();
+        countdownActive.clear();
+    }
+
+    public void startPartyFFA(Player leader, DuelGameMode mode) {
+        PartyManager.Party party = plugin.getPartyManager().getParty(leader.getUniqueId());
+        if (party == null) return;
+
+        List<UUID> allPlayers = new ArrayList<>();
+        allPlayers.add(leader.getUniqueId());
+        allPlayers.addAll(party.getMembers());
+
+        List<Player> online = new ArrayList<>();
+        for (UUID uuid : allPlayers) {
+            Player p = Bukkit.getPlayer(uuid);
+            if (p != null && p.isOnline()) online.add(p);
+        }
+        if (online.size() < 2) {
+            leader.sendMessage(plugin.getPrefix() + "§cPas assez de joueurs en ligne pour lancer une FFA.");
+            return;
+        }
+
+        Arena arena = null;
+        if (mode.isArenaRestricted()) {
+            arena = plugin.getArenaManager().getAvailableArena(mode);
+        }
+
+        final Location spawnBase;
+        if (arena != null && arena.getSpawn1() != null) {
+            spawnBase = arena.getSpawn1().clone();
+            if (spawnBase.getWorld() == null) spawnBase.setWorld(Bukkit.getWorlds().get(0));
+        } else {
+            Location lobby = plugin.getLobbyManager().getLobbySpawn();
+            if (lobby == null || lobby.getWorld() == null) lobby = new Location(Bukkit.getWorlds().get(0), 0, 64, 0);
+            spawnBase = lobby.clone();
+        }
+
+        UUID ffaId = UUID.randomUUID();
+        for (Player p : online) {
+            saveInventory(p);
+            frozenPlayers.add(p.getUniqueId());
+
+            int idx = online.indexOf(p);
+            double angle = 2 * Math.PI * idx / online.size();
+            Location spawn = spawnBase.clone().add(Math.cos(angle) * 3, 0, Math.sin(angle) * 3);
+            if (arena == null || arena.getSpawn1() == null) {
+                spawn = spawnBase.clone().add(idx * 2 - online.size(), 0, 0);
+            }
+
+            final Location finalSpawn = spawn;
+            p.teleportAsync(finalSpawn, org.bukkit.event.player.PlayerTeleportEvent.TeleportCause.PLUGIN).thenRun(() -> {
+                if (!p.isOnline()) return;
+                applyKit(p, mode);
+                p.setHealth(20.0);
+                p.setFoodLevel(20);
+                p.setSaturation(20f);
+            });
+        }
+
+        for (UUID uuid : allPlayers) {
+            ActiveDuel ffaDuel = new ActiveDuel(uuid, uuid, mode, arena);
+            ffaDuel.setFFA(ffaId, new HashSet<>(allPlayers));
+            activeDuels.put(uuid, ffaDuel);
+        }
+
+        for (Player p : online) {
+            for (Player other : online) {
+                if (!p.getUniqueId().equals(other.getUniqueId())) {
+                    plugin.getScoreboardManager().createDuelScoreboard(p, other, mode);
+                }
+            }
+        }
+
+        new org.bukkit.scheduler.BukkitRunnable() {
+            int count = 3;
+
+            @Override
+            public void run() {
+                if (count > 0) {
+                    for (Player p : online) {
+                        if (p.isOnline()) p.sendActionBar(Component.text("§d§l" + count + " §7..."));
+                    }
+                    count--;
+                } else {
+                    for (UUID uuid : allPlayers) {
+                        frozenPlayers.remove(uuid);
+                        countdownActive.remove(uuid);
+                    }
+                    for (Player p : online) {
+                        if (p.isOnline()) p.sendActionBar(Component.text("§a§lGO! §7Combattez!", NamedTextColor.GREEN));
+                        if (p.isOnline()) p.sendMessage(plugin.getPrefix() + "§5§lFFA COMMENCÉ! §dMode: §f" + mode.getDisplayName());
+                    }
+                    cancel();
+                }
+            }
+        }.runTaskTimer(plugin, 20L, 20L);
+    }
+
+    public boolean isInFFA(UUID uuid) {
+        ActiveDuel duel = activeDuels.get(uuid);
+        return duel != null && duel.isFFA();
+    }
+
+    public boolean isFFASameTeam(UUID a, UUID b) {
+        ActiveDuel duelA = activeDuels.get(a);
+        if (duelA == null || !duelA.isFFA()) return false;
+        return duelA.getFFAParticipants().contains(a) && duelA.getFFAParticipants().contains(b);
     }
 
     public static class ActiveDuel {
@@ -339,6 +509,8 @@ public class DuelManager {
         private final DuelGameMode mode;
         private final Arena arena;
         private final long startTime;
+        private UUID ffaId;
+        private Set<UUID> ffaParticipants;
 
         public ActiveDuel(UUID player1, UUID player2, DuelGameMode mode, Arena arena) {
             this.player1 = player1;
@@ -356,6 +528,23 @@ public class DuelManager {
 
         public UUID getOpponent(UUID uuid) {
             return uuid.equals(player1) ? player2 : player1;
+        }
+
+        public void setFFA(UUID ffaId, Set<UUID> participants) {
+            this.ffaId = ffaId;
+            this.ffaParticipants = participants;
+        }
+
+        public boolean isFFA() {
+            return ffaId != null;
+        }
+
+        public UUID getFFAId() {
+            return ffaId;
+        }
+
+        public Set<UUID> getFFAParticipants() {
+            return ffaParticipants;
         }
     }
 }

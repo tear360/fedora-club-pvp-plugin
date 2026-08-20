@@ -48,6 +48,7 @@ public class DuelManager {
         if (sender.getUniqueId().equals(receiver.getUniqueId())) return false;
         if (isInDuel(sender) || isInDuel(receiver)) return false;
         if (mode.isArenaRestricted() && arenaManager.getAvailableArena(mode) == null) return false;
+        if (!plugin.getSettingsManager().acceptsDuelRequests(receiver.getUniqueId())) return false;
 
         pendingRequests.put(receiver.getUniqueId(), new DuelRequest(sender.getUniqueId(), receiver.getUniqueId(), mode));
 

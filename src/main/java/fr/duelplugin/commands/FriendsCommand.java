@@ -72,6 +72,11 @@ public class FriendsCommand implements CommandExecutor, TabCompleter {
             return;
         }
 
+        if (!plugin.getSettingsManager().acceptsFriendRequests(target.getUniqueId())) {
+            player.sendMessage(plugin.getPrefix() + "§c" + target.getName() + " a désactivé les demandes d'amis.");
+            return;
+        }
+
         if (pendingRequests.containsValue(player.getUniqueId())) {
             player.sendMessage(plugin.getPrefix() + "§cVous avez déjà une demande en attente.");
             return;

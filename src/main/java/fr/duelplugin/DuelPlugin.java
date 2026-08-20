@@ -7,6 +7,7 @@ import fr.duelplugin.commands.DuelCommand;
 import fr.duelplugin.commands.FriendsCommand;
 import fr.duelplugin.commands.LeaveCommand;
 import fr.duelplugin.commands.PartyCommand;
+import fr.duelplugin.commands.SettingsCommand;
 import fr.duelplugin.commands.SpecCommand;
 import fr.duelplugin.commands.VipCommand;
 import fr.duelplugin.gui.DuelGUI;
@@ -40,6 +41,7 @@ public class DuelPlugin extends JavaPlugin {
     private VIPManager vipManager;
     private FriendsManager friendsManager;
     private PartyManager partyManager;
+    private SettingsManager settingsManager;
 
     @Override
     public void onEnable() {
@@ -61,6 +63,7 @@ public class DuelPlugin extends JavaPlugin {
         vipManager = new VIPManager(this);
         friendsManager = new FriendsManager(this);
         partyManager = new PartyManager(this);
+        settingsManager = new SettingsManager(this);
 
         getCommand("duel").setExecutor(new DuelCommand(this));
         getCommand("duel").setTabCompleter(new DuelCommand(this));
@@ -78,6 +81,8 @@ public class DuelPlugin extends JavaPlugin {
         getCommand("leave").setExecutor(new LeaveCommand(this));
         getCommand("party").setExecutor(new PartyCommand(this));
         getCommand("party").setTabCompleter(new PartyCommand(this));
+        getCommand("settings").setExecutor(new SettingsCommand(this));
+        getCommand("settings").setTabCompleter(new SettingsCommand(this));
 
         getServer().getPluginManager().registerEvents(new GameListener(this), this);
         getServer().getPluginManager().registerEvents(new ArenaListener(this), this);
@@ -116,6 +121,7 @@ public class DuelPlugin extends JavaPlugin {
     public VIPManager getVipManager() { return vipManager; }
     public FriendsManager getFriendsManager() { return friendsManager; }
     public PartyManager getPartyManager() { return partyManager; }
+    public SettingsManager getSettingsManager() { return settingsManager; }
 
     public String getPrefix() {
         return colorize(getConfig().getString("messages.prefix", "&8[&6Fedora &eClub&8] &r"));

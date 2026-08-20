@@ -1,0 +1,72 @@
+package fr.duelplugin.managers;
+
+import fr.duelplugin.DuelPlugin;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
+
+public class SettingsManager {
+
+    private final DuelPlugin plugin;
+    private final File settingsFile;
+    private final FileConfiguration settingsConfig;
+    private final Map<UUID, Boolean> acceptFriendRequests = new HashMap<>();
+    private final Map<UUID, Boolean> acceptDuelRequests = new HashMap<>();
+
+    public SettingsManager(DuelPlugin plugin) {
+        this.plugin = plugin;
+        this.settingsFile = new File(plugin.getDataFolder(), "settings.yml");
+        if (!settingsFile.exists()) {
+            try { settingsFile.createNewFile(); } catch (IOException ignored) {}
+        }
+        this.settingsConfig = YamlConfiguration.loadConfiguration(settingsFile);
+        loadAll();
+    }
+
+    private void loadAll() {
+        acceptFriendRequests.clear();
+        acceptDuelRequests.clear();
+        if (!settingsConfig.contains("players")) return;
+        for (String uuidStr : settingsConfig.getConfigurationSection("players").getKeys(false)) {
+            UUID uuid = UUID.fromString(uuidStr);
+            String path = "players." + uuidStr;
+            if (settingsConfig.contains(path + ".accept-friends")) {
+                acceptFriendRequests.put(uuid, settingsConfig.getBoolean(path + ".accept-friends"));
+            }
+            if (settingsConfig.contains(path + ".accept-duels")) {
+                acceptDuelRequests.put(uuid, settingsConfig.getBoolean(path + ".accept-duels"));
+            }
+        }
+    }
+
+    public boolean acceptsFriendRequests(UUID uuid) {
+        return acceptFriendRequests.getOrDefault(uuid, true);
+    }
+
+    public boolean acceptsDuelRequests(UUID uuid) {
+        return acceptDuelRequests.getOrDefault(uuid, true);
+    }
+
+    public void setAcceptFriendRequests(UUID uuid, boolean accept) {
+        acceptFriendRequests.put(uuid, accept);
+        settingsConfig.set("players." + uuid.toString() + ".accept-friends", accept);
+        save();
+    }
+
+    public void setAcceptDuelRequests(UUID uuid, boolean accept) {
+        acceptDuelRequests.put(uuid, accept);
+        settingsConfig.set("players." + uuid.toString() + ".accept-duels", accept);
+        save();
+    }
+
+    private void save() {
+        try {
+            settingsConfig.save(settingsFile);
+        } catch (IOException e) {
+            plugin.getLogger().warning("Failed to save settings.yml");
+        }
+    }
+}

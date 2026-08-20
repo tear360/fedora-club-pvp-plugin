@@ -41,6 +41,10 @@ commands:
     description: Quitter un duel
     usage: /leave
     aliases: [quitter]
+  settings:
+    description: Paramètres du joueur
+    usage: /settings [friends|duels]
+    aliases: [parametres, options]
 
 permissions:
   duelplugin.admin:

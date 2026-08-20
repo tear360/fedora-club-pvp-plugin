@@ -9,10 +9,14 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.EquipmentSlotGroup;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 public class PlayerListener implements Listener {
 
@@ -83,8 +87,37 @@ public class PlayerListener implements Listener {
         if (event.getClickedInventory() == null) return;
         if (event.getClickedInventory() == player.getInventory()) {
             ItemStack item = event.getCurrentItem();
-            if (isLobbyItem(item)) {
+            if (isLobbyItem(item) || isVipLobbyItem(item)) {
                 event.setCancelled(true);
+            }
+            if (event.getSlot() == 38 && plugin.getVipManager().isVip(player.getUniqueId())) {
+                event.setCancelled(true);
+            }
+            if (event.getSlot() == 40 && plugin.getVipManager().isVip(player.getUniqueId())) {
+                event.setCancelled(true);
+            }
+        }
+        if (event.getSlot() == 38 && plugin.getVipManager().isVip(player.getUniqueId())) {
+            event.setCancelled(true);
+        }
+        if (event.getSlot() == 40 && plugin.getVipManager().isVip(player.getUniqueId())) {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onWindChargeUse(PlayerInteractEvent event) {
+        Player player = event.getPlayer();
+        if (plugin.getDuelManager().isInDuel(player)) return;
+
+        ItemStack offhand = player.getInventory().getItemInOffHand();
+        if (offhand.getType() == Material.WIND_CHARGE && plugin.getVipManager().isVip(player.getUniqueId())) {
+            if (event.getAction() == org.bukkit.event.block.Action.RIGHT_CLICK_AIR || event.getAction() == org.bukkit.event.block.Action.RIGHT_CLICK_BLOCK) {
+                plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+                    if (player.isOnline() && plugin.getLobbyManager().isLobbySet() && !plugin.getDuelManager().isInDuel(player)) {
+                        player.getInventory().setItemInOffHand(new ItemStack(Material.WIND_CHARGE, 64));
+                    }
+                }, 1L);
             }
         }
     }
@@ -98,7 +131,13 @@ public class PlayerListener implements Listener {
             return;
         }
         ItemStack dropped = event.getItemDrop().getItemStack();
-        if (isLobbyItem(dropped)) {
+        if (isLobbyItem(dropped) || isVipLobbyItem(dropped)) {
+            event.setCancelled(true);
+        }
+        if (dropped.getType() == Material.WIND_CHARGE && plugin.getVipManager().isVip(player.getUniqueId())) {
+            event.setCancelled(true);
+        }
+        if (dropped.getType() == Material.ELYTRA && plugin.getVipManager().isVip(player.getUniqueId())) {
             event.setCancelled(true);
         }
     }
@@ -108,6 +147,13 @@ public class PlayerListener implements Listener {
         if (item.getItemMeta() == null || item.getItemMeta().getDisplayName() == null) return false;
         String name = item.getItemMeta().getDisplayName();
         return name.contains("§d§lQueue") || name.contains("§5§lKits") || name.contains("§d§lParty");
+    }
+
+    private boolean isVipLobbyItem(ItemStack item) {
+        if (item == null || item.getType() == Material.AIR) return false;
+        if (item.getType() == Material.WIND_CHARGE) return true;
+        if (item.getType() == Material.ELYTRA) return true;
+        return false;
     }
 
     public static void giveLobbyItems(Player player) {
@@ -126,5 +172,24 @@ public class PlayerListener implements Listener {
         player.getInventory().setItem(8, new ItemBuilder(Material.NETHER_STAR)
                 .name("§d§lParty")
                 .lore("", "§7Gérez votre party", "").build());
+
+        DuelPlugin plugin = DuelPlugin.getInstance();
+        if (plugin != null && plugin.getVipManager().isVip(player.getUniqueId())) {
+            ItemStack windCharge = new ItemStack(Material.WIND_CHARGE, 64);
+            player.getInventory().setItemInOffHand(windCharge);
+
+            ItemStack elytra = new ItemStack(Material.ELYTRA);
+            ItemMeta elytraMeta = elytra.getItemMeta();
+            if (elytraMeta != null) {
+                elytraMeta.displayName(net.kyori.adventure.text.Component.text("§d§lElytra VIP", net.kyori.adventure.text.format.NamedTextColor.LIGHT_PURPLE));
+                elytraMeta.lore(java.util.Arrays.asList(
+                        net.kyori.adventure.text.Component.text("§7Élytra exclusive VIP"),
+                        net.kyori.adventure.text.Component.text("§7Incassable")
+                ));
+                elytraMeta.setUnbreakable(true);
+                elytra.setItemMeta(elytraMeta);
+            }
+            player.getInventory().setChestplate(elytra);
+        }
     }
 }

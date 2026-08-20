@@ -2,6 +2,7 @@ package fr.duelplugin.commands;
 
 import fr.duelplugin.DuelPlugin;
 import fr.duelplugin.managers.DuelManager;
+import fr.duelplugin.managers.LanguageManager;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.command.Command;
@@ -23,10 +24,14 @@ public class SpecCommand implements CommandExecutor, TabCompleter {
         this.plugin = plugin;
     }
 
+    private LanguageManager lang() {
+        return plugin.getLanguageManager();
+    }
+
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage("§5Seuls les joueurs peuvent utiliser cette commande.");
+            sender.sendMessage(lang().msgRaw(null, "command_only_players"));
             return true;
         }
 
@@ -35,7 +40,7 @@ public class SpecCommand implements CommandExecutor, TabCompleter {
                 stopSpectating(player);
                 return true;
             }
-            player.sendMessage(plugin.getPrefix() + "§dUsage: /spec <joueur>");
+            player.sendMessage(lang().msg(player, "spec_usage"));
             return true;
         }
 
@@ -45,17 +50,17 @@ public class SpecCommand implements CommandExecutor, TabCompleter {
 
         Player target = Bukkit.getPlayer(args[0]);
         if (target == null) {
-            player.sendMessage(plugin.getMessage("player-not-found"));
+            player.sendMessage(lang().msg(player, "player_not_found"));
             return true;
         }
 
         if (!plugin.getDuelManager().isInDuel(target)) {
-            player.sendMessage(plugin.getPrefix() + "§cCe joueur n'est pas en duel.");
+            player.sendMessage(lang().msg(player, "spec_target_not_in_duel"));
             return true;
         }
 
         if (plugin.getDuelManager().isInDuel(player)) {
-            player.sendMessage(plugin.getPrefix() + "§cVous êtes déjà en duel.");
+            player.sendMessage(lang().msg(player, "spec_already_in_duel"));
             return true;
         }
 
@@ -72,13 +77,13 @@ public class SpecCommand implements CommandExecutor, TabCompleter {
 
         plugin.getTabManager().addSpectator(duel.getPlayer1(), spectator.getUniqueId());
 
-        spectator.sendMessage(plugin.getPrefix() + "§7Vous spectate §d" + target.getName() + " §7(§d" + duel.getMode().getDisplayName() + "§7)");
-        target.sendMessage(plugin.getPrefix() + "§7§d" + spectator.getName() + " §7vous spectate.");
+        spectator.sendMessage(lang().msg(spectator, "spec_started", "%player%", target.getName(), "%mode%", duel.getMode().getDisplayName()));
+        target.sendMessage(lang().msg(target, "spec_target_notified", "%player%", spectator.getName()));
 
         UUID opponentUuid = duel.getOpponent(target.getUniqueId());
         Player opponent = Bukkit.getPlayer(opponentUuid);
         if (opponent != null) {
-            opponent.sendMessage(plugin.getPrefix() + "§7§d" + spectator.getName() + " §7est maintenant spectateur.");
+            opponent.sendMessage(lang().msg(opponent, "spec_target_broadcast", "%player%", spectator.getName()));
         }
     }
 
@@ -90,7 +95,7 @@ public class SpecCommand implements CommandExecutor, TabCompleter {
             spectator.teleport(plugin.getLobbyManager().getLobbySpawn());
         }
 
-        spectator.sendMessage(plugin.getPrefix() + "§aVous avez arrêté de spectater.");
+        spectator.sendMessage(lang().msg(spectator, "spec_stopped"));
     }
 
     private boolean isSpectating(Player player) {

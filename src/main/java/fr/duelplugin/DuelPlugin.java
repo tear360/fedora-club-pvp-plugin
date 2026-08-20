@@ -42,6 +42,7 @@ public class DuelPlugin extends JavaPlugin {
     private FriendsManager friendsManager;
     private PartyManager partyManager;
     private SettingsManager settingsManager;
+    private LanguageManager languageManager;
 
     @Override
     public void onEnable() {
@@ -64,6 +65,7 @@ public class DuelPlugin extends JavaPlugin {
         friendsManager = new FriendsManager(this);
         partyManager = new PartyManager(this);
         settingsManager = new SettingsManager(this);
+        languageManager = new LanguageManager(this);
 
         getCommand("duel").setExecutor(new DuelCommand(this));
         getCommand("duel").setTabCompleter(new DuelCommand(this));
@@ -83,6 +85,7 @@ public class DuelPlugin extends JavaPlugin {
         getCommand("party").setTabCompleter(new PartyCommand(this));
         getCommand("settings").setExecutor(new SettingsCommand(this));
         getCommand("settings").setTabCompleter(new SettingsCommand(this));
+        getServer().getPluginManager().registerEvents(new SettingsCommand(this), this);
 
         getServer().getPluginManager().registerEvents(new GameListener(this), this);
         getServer().getPluginManager().registerEvents(new ArenaListener(this), this);
@@ -122,6 +125,7 @@ public class DuelPlugin extends JavaPlugin {
     public FriendsManager getFriendsManager() { return friendsManager; }
     public PartyManager getPartyManager() { return partyManager; }
     public SettingsManager getSettingsManager() { return settingsManager; }
+    public LanguageManager getLanguageManager() { return languageManager; }
 
     public String getPrefix() {
         return colorize(getConfig().getString("messages.prefix", "&8[&6Fedora &eClub&8] &r"));

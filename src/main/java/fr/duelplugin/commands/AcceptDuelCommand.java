@@ -1,6 +1,7 @@
 package fr.duelplugin.commands;
 
 import fr.duelplugin.DuelPlugin;
+import fr.duelplugin.managers.LanguageManager;
 import fr.duelplugin.models.DuelRequest;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -21,10 +22,14 @@ public class AcceptDuelCommand implements CommandExecutor, TabCompleter {
         this.plugin = plugin;
     }
 
+    private LanguageManager lang() {
+        return plugin.getLanguageManager();
+    }
+
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage("§5Seuls les joueurs peuvent utiliser cette commande.");
+            sender.sendMessage(lang().msgRaw(null, "command_only_players"));
             return true;
         }
 
@@ -32,7 +37,7 @@ public class AcceptDuelCommand implements CommandExecutor, TabCompleter {
         if (args.length > 0) {
             Player target = Bukkit.getPlayer(args[0]);
             if (target == null) {
-                player.sendMessage(plugin.getMessage("player-not-found"));
+                player.sendMessage(lang().msg(player, "player_not_found"));
                 return true;
             }
             req = plugin.getDuelManager().getRequestFromSender(player.getUniqueId(), target.getUniqueId());
@@ -41,21 +46,21 @@ public class AcceptDuelCommand implements CommandExecutor, TabCompleter {
         }
 
         if (req == null) {
-            player.sendMessage(plugin.getMessage("no-duel-request"));
+            player.sendMessage(lang().msg(player, "duel_not_in"));
             return true;
         }
 
         Player senderPlayer = req.getSenderPlayer();
         if (senderPlayer == null || !senderPlayer.isOnline()) {
             plugin.getDuelManager().removeRequest(player.getUniqueId());
-            player.sendMessage(plugin.getPrefix() + "§cCe joueur n'est plus en ligne.");
+            player.sendMessage(lang().msg(player, "duel_target_online"));
             return true;
         }
 
         if (plugin.getDuelManager().acceptRequest(player)) {
-            senderPlayer.sendMessage(plugin.getPrefix() + "§a" + player.getName() + " §aaccepté votre duel!");
+            senderPlayer.sendMessage(lang().msg(senderPlayer, "duel_accept_success", "%player%", player.getName()));
         } else {
-            player.sendMessage(plugin.getPrefix() + "§cImpossible de démarrer le duel.");
+            player.sendMessage(lang().msg(player, "duel_accept_fail"));
         }
         return true;
     }

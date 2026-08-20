@@ -48,14 +48,14 @@ public class ArenaListener implements Listener {
 
         UUID targetUuid = plugin.getDuelGUI().getPendingTarget(player.getUniqueId());
         if (targetUuid == null) {
-            player.sendMessage(plugin.getPrefix() + "§cErreur: sélection de cible perdue. Réessayez.");
+            player.sendMessage(plugin.getLanguageManager().msg(player, "duel_accept_fail"));
             player.closeInventory();
             return;
         }
 
         Player target = Bukkit.getPlayer(targetUuid);
         if (target == null || !target.isOnline()) {
-            player.sendMessage(plugin.getMessage("player-not-found"));
+            player.sendMessage(plugin.getLanguageManager().msg(player, "player_not_found"));
             player.closeInventory();
             return;
         }
@@ -63,14 +63,14 @@ public class ArenaListener implements Listener {
         player.closeInventory();
 
         if (mode.isArenaRestricted() && plugin.getArenaManager().getAvailableArena(mode) == null) {
-            player.sendMessage(plugin.getPrefix() + "§cAucune arène disponible pour le mode §e" + mode.getDisplayName() + "§c.");
+            player.sendMessage(plugin.getLanguageManager().msg(player, "queue_no_arena", "%mode%", mode.getDisplayName()));
             return;
         }
 
         if (plugin.getDuelManager().sendRequest(player, target, mode)) {
-            player.sendMessage(plugin.getPrefix() + "§aDemande envoyée à §e" + target.getName() + " §a(§f" + mode.getDisplayName() + "§a)");
+            player.sendMessage(plugin.getLanguageManager().msg(player, "duel_sent", "%player%", target.getName()));
         } else {
-            player.sendMessage(plugin.getPrefix() + "§cImpossible d'envoyer cette demande.");
+            player.sendMessage(plugin.getLanguageManager().msg(player, "duel_accept_fail"));
         }
     }
 }

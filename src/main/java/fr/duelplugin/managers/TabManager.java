@@ -71,12 +71,12 @@ public class TabManager {
                 .build();
     }
 
-    private Component buildLobbyFooter(boolean friendMode) {
+    private Component buildLobbyFooter(Player player, boolean friendMode) {
         net.kyori.adventure.text.TextComponent.Builder footer = Component.text();
         footer.append(Component.text("\n"));
 
         if (friendMode) {
-            footer.append(Component.text(" ★ Mode Amis", NamedTextColor.LIGHT_PURPLE, TextDecoration.BOLD));
+            footer.append(Component.text(plugin.getLanguageManager().msgRaw(player, "tab_mode_friends"), NamedTextColor.LIGHT_PURPLE, TextDecoration.BOLD));
         } else {
             footer.append(Component.text(" fedora.free-node.ovh", NamedTextColor.GRAY, TextDecoration.BOLD));
         }
@@ -87,7 +87,7 @@ public class TabManager {
 
     private void updateLobbyTab(Player player) {
         boolean isFriendMode = friendTabActive.contains(player.getUniqueId());
-        player.sendPlayerListHeaderAndFooter(buildHeader(), buildLobbyFooter(isFriendMode));
+        player.sendPlayerListHeaderAndFooter(buildHeader(), buildLobbyFooter(player, isFriendMode));
 
         String prefix = "";
         if (plugin.getPartyManager().isInParty(player.getUniqueId())) {
@@ -132,7 +132,7 @@ public class TabManager {
 
         if (!specs.isEmpty()) {
             footerBuilder.append(Component.text("\n"))
-                    .append(Component.text("  Spectateurs: ", NamedTextColor.DARK_GRAY))
+                    .append(Component.text("  " + plugin.getLanguageManager().msgRaw(player, "tab_spectators") + ": ", NamedTextColor.DARK_GRAY))
                     .append(Component.text(String.valueOf(specs.size()), NamedTextColor.GRAY))
                     .append(Component.text("\n"));
         }
@@ -163,10 +163,10 @@ public class TabManager {
         if (!friendTabActive.add(uuid)) {
             friendTabActive.remove(uuid);
             showAllPlayers(player);
-            player.sendMessage(plugin.getPrefix() + "§7Tab: §fTous les joueurs");
+            player.sendMessage(plugin.getLanguageManager().msg(player, "tab_all_players"));
         } else {
             hideNonFriends(player);
-            player.sendMessage(plugin.getPrefix() + "§dTab: §fAmis uniquement");
+            player.sendMessage(plugin.getLanguageManager().msg(player, "tab_friends_only"));
         }
     }
 

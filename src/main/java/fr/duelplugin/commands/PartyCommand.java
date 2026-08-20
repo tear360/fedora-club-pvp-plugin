@@ -1,6 +1,7 @@
 package fr.duelplugin.commands;
 
 import fr.duelplugin.DuelPlugin;
+import fr.duelplugin.managers.LanguageManager;
 import fr.duelplugin.managers.PartyManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
@@ -25,10 +26,14 @@ public class PartyCommand implements CommandExecutor, TabCompleter {
         this.plugin = plugin;
     }
 
+    private LanguageManager lang() {
+        return plugin.getLanguageManager();
+    }
+
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage("§cCommande réservée aux joueurs.");
+            sender.sendMessage(lang().msgRaw(null, "command_only_players"));
             return true;
         }
 
@@ -56,82 +61,82 @@ public class PartyCommand implements CommandExecutor, TabCompleter {
 
     private void handleCreate(Player player) {
         if (plugin.getPartyManager().isInParty(player.getUniqueId())) {
-            player.sendMessage(plugin.getPrefix() + "§cVous êtes déjà dans une party.");
+            player.sendMessage(lang().msg(player, "party_already_in"));
             return;
         }
         if (plugin.getPartyManager().createParty(player)) {
-            player.sendMessage(plugin.getPrefix() + "§aParty §dcréée! §7Invitez des joueurs avec §d/party invite <joueur>");
+            player.sendMessage(lang().msg(player, "party_created"));
         }
     }
 
     private void handleInvite(Player player, String[] args) {
         if (args.length < 2) {
-            player.sendMessage(plugin.getPrefix() + "§cUsage: /party invite <joueur>");
+            player.sendMessage(lang().msg(player, "party_kick_usage"));
             return;
         }
 
         UUID partyLeader = plugin.getPartyManager().getPartyLeader(player.getUniqueId());
         if (partyLeader == null || !partyLeader.equals(player.getUniqueId())) {
-            player.sendMessage(plugin.getPrefix() + "§cSeul le leader peut inviter.");
+            player.sendMessage(lang().msg(player, "party_leader_only"));
             return;
         }
 
         Player target = Bukkit.getPlayer(args[1]);
         if (target == null) {
-            player.sendMessage(plugin.getPrefix() + "§cJoueur introuvable ou hors ligne.");
+            player.sendMessage(lang().msg(player, "player_not_found"));
             return;
         }
 
         if (target.getUniqueId().equals(player.getUniqueId())) {
-            player.sendMessage(plugin.getPrefix() + "§cVous ne pouvez pas vous inviter.");
+            player.sendMessage(lang().msg(player, "party_cannot_self_invite"));
             return;
         }
 
         if (plugin.getPartyManager().isInParty(target.getUniqueId())) {
-            player.sendMessage(plugin.getPrefix() + "§c" + target.getName() + " est déjà dans une party.");
+            player.sendMessage(lang().msg(player, "party_target_already_in", "%player%", target.getName()));
             return;
         }
 
         if (plugin.getPartyManager().invitePlayer(player, target)) {
             int maxSize = plugin.getPartyManager().getMaxSize(player);
             int count = plugin.getPartyManager().getMemberCount(plugin.getPartyManager().getPartyLeader(player.getUniqueId()));
-            player.sendMessage(plugin.getPrefix() + "§dInvitation envoyée à §f" + target.getName() + " §d(" + count + "/" + maxSize + ")");
-            target.sendMessage(plugin.getPrefix() + "§d" + player.getName() + " §7vous invite dans sa party! §d/party join §7pour accepter.");
+            player.sendMessage(lang().msg(player, "party_invite_sent", "%player%", target.getName(), "%count%", String.valueOf(count), "%max%", String.valueOf(maxSize)));
+            target.sendMessage(lang().msg(target, "party_invite_received", "%player%", player.getName()));
         } else {
-            player.sendMessage(plugin.getPrefix() + "§cLa party est pleine! (" + plugin.getPartyManager().getMaxSize(player) + " max)");
+            player.sendMessage(lang().msg(player, "party_full", "%max%", String.valueOf(plugin.getPartyManager().getMaxSize(player))));
         }
     }
 
     private void handleJoin(Player player) {
         if (plugin.getPartyManager().isInParty(player.getUniqueId())) {
-            player.sendMessage(plugin.getPrefix() + "§cVous êtes déjà dans une party.");
+            player.sendMessage(lang().msg(player, "party_already_in"));
             return;
         }
 
         UUID partyLeader = plugin.getPartyManager().getPendingInvite(player.getUniqueId());
         if (partyLeader == null) {
-            player.sendMessage(plugin.getPrefix() + "§cAucune invitation en attente.");
+            player.sendMessage(lang().msg(player, "party_no_pending_invite"));
             return;
         }
 
         PartyManager.Party party = plugin.getPartyManager().getPartyByLeader(partyLeader);
         if (party == null) {
-            player.sendMessage(plugin.getPrefix() + "§cCette party n'existe plus.");
+            player.sendMessage(lang().msg(player, "party_invite_expired"));
             return;
         }
 
         if (plugin.getPartyManager().acceptInvite(player)) {
             Player leader = Bukkit.getPlayer(partyLeader);
             int maxSize = plugin.getPartyManager().getMaxSize(leader);
-            player.sendMessage(plugin.getPrefix() + "§aVous avez rejoint la party de §d" + (leader != null ? leader.getName() : "???") + "§a! (" + party.getSize() + "/" + maxSize + ")");
+            player.sendMessage(lang().msg(player, "party_joined", "%player%", (leader != null ? leader.getName() : "???"), "%count%", String.valueOf(party.getSize()), "%max%", String.valueOf(maxSize)));
             if (leader != null) {
-                leader.sendMessage(plugin.getPrefix() + "§d" + player.getName() + " §aa rejoint la party!");
+                leader.sendMessage(lang().msg(leader, "party_joined_broadcast", "%player%", player.getName()));
             }
             for (UUID m : party.getMembers()) {
                 if (m.equals(player.getUniqueId()) || m.equals(partyLeader)) continue;
                 Player member = Bukkit.getPlayer(m);
                 if (member != null) {
-                    member.sendMessage(plugin.getPrefix() + "§d" + player.getName() + " §aa rejoint la party!");
+                    member.sendMessage(lang().msg(member, "party_joined_broadcast", "%player%", player.getName()));
                 }
             }
         }
@@ -139,7 +144,7 @@ public class PartyCommand implements CommandExecutor, TabCompleter {
 
     private void handleLeave(Player player) {
         if (!plugin.getPartyManager().isInParty(player.getUniqueId())) {
-            player.sendMessage(plugin.getPrefix() + "§cVous n'êtes pas dans une party.");
+            player.sendMessage(lang().msg(player, "party_not_in"));
             return;
         }
 
@@ -148,19 +153,19 @@ public class PartyCommand implements CommandExecutor, TabCompleter {
         UUID partyLeader = plugin.getPartyManager().getPartyLeader(player.getUniqueId());
 
         plugin.getPartyManager().leaveParty(player);
-        player.sendMessage(plugin.getPrefix() + "§cVous avez quitté la party.");
+        player.sendMessage(lang().msg(player, "party_left"));
 
         if (party != null) {
             for (UUID m : party.getMembers()) {
                 if (m.equals(player.getUniqueId())) continue;
                 Player member = Bukkit.getPlayer(m);
                 if (member != null) {
-                    member.sendMessage(plugin.getPrefix() + "§d" + player.getName() + " §7a quitté la party.");
+                    member.sendMessage(lang().msg(member, "party_member_left", "%player%", player.getName()));
                     if (wasLeader) {
                         UUID newLeader = plugin.getPartyManager().getPartyLeader(m);
                         if (newLeader != null) {
                             Player newLeaderPlayer = Bukkit.getPlayer(newLeader);
-                            member.sendMessage(plugin.getPrefix() + "§d" + (newLeaderPlayer != null ? newLeaderPlayer.getName() : "???") + " §aest maintenant le leader!");
+                            member.sendMessage(lang().msg(member, "party_transfer", "%player%", (newLeaderPlayer != null ? newLeaderPlayer.getName() : "???")));
                         }
                     }
                 }
@@ -170,41 +175,41 @@ public class PartyCommand implements CommandExecutor, TabCompleter {
 
     private void handleKick(Player player, String[] args) {
         if (args.length < 2) {
-            player.sendMessage(plugin.getPrefix() + "§cUsage: /party kick <joueur>");
+            player.sendMessage(lang().msg(player, "party_kick_usage"));
             return;
         }
 
         UUID partyLeader = plugin.getPartyManager().getPartyLeader(player.getUniqueId());
         if (partyLeader == null || !partyLeader.equals(player.getUniqueId())) {
-            player.sendMessage(plugin.getPrefix() + "§cSeul le leader peut kick.");
+            player.sendMessage(lang().msg(player, "party_kick_only_leader"));
             return;
         }
 
         Player target = Bukkit.getPlayer(args[1]);
         if (target == null) {
-            player.sendMessage(plugin.getPrefix() + "§cJoueur introuvable ou hors ligne.");
+            player.sendMessage(lang().msg(player, "player_not_found"));
             return;
         }
 
         if (target.getUniqueId().equals(player.getUniqueId())) {
-            player.sendMessage(plugin.getPrefix() + "§cVous ne pouvez pas vous kick.");
+            player.sendMessage(lang().msg(player, "party_kick_cannot_self"));
             return;
         }
 
         PartyManager.Party party = plugin.getPartyManager().getParty(player.getUniqueId());
         if (party == null || !party.hasMember(target.getUniqueId())) {
-            player.sendMessage(plugin.getPrefix() + "§c" + target.getName() + " n'est pas dans votre party.");
+            player.sendMessage(lang().msg(player, "party_kick_not_member", "%player%", target.getName()));
             return;
         }
 
         if (plugin.getPartyManager().kickPlayer(player, target)) {
-            target.sendMessage(plugin.getPrefix() + "§cVous avez été kick de la party.");
-            player.sendMessage(plugin.getPrefix() + "§d" + target.getName() + " §ckické de la party.");
+            target.sendMessage(lang().msg(target, "party_kick_self"));
+            player.sendMessage(lang().msg(player, "party_kick_target", "%player%", target.getName()));
             for (UUID m : party.getMembers()) {
                 if (m.equals(player.getUniqueId()) || m.equals(target.getUniqueId())) continue;
                 Player member = Bukkit.getPlayer(m);
                 if (member != null) {
-                    member.sendMessage(plugin.getPrefix() + "§d" + target.getName() + " §7a été kick de la party.");
+                    member.sendMessage(lang().msg(member, "party_kicked_broadcast", "%player%", target.getName()));
                 }
             }
         }
@@ -212,31 +217,31 @@ public class PartyCommand implements CommandExecutor, TabCompleter {
 
     private void handleDisband(Player player) {
         if (!plugin.getPartyManager().isLeader(player.getUniqueId())) {
-            player.sendMessage(plugin.getPrefix() + "§cSeul le leader peut disband la party.");
+            player.sendMessage(lang().msg(player, "party_disband_only_leader"));
             return;
         }
 
         PartyManager.Party party = plugin.getPartyManager().getParty(player.getUniqueId());
         if (party == null) {
-            player.sendMessage(plugin.getPrefix() + "§cVous n'êtes pas dans une party.");
+            player.sendMessage(lang().msg(player, "party_not_in"));
             return;
         }
 
         for (UUID m : party.getMembers()) {
             Player member = Bukkit.getPlayer(m);
             if (member != null) {
-                member.sendMessage(plugin.getPrefix() + "§cLa party a été dissoute par le leader.");
+                member.sendMessage(lang().msg(member, "party_disbanded_by_leader"));
             }
         }
 
         plugin.getPartyManager().disbandParty(player);
-        player.sendMessage(plugin.getPrefix() + "§cParty dissoute.");
+        player.sendMessage(lang().msg(player, "party_disbanded"));
     }
 
     private void handleList(Player player) {
         PartyManager.Party party = plugin.getPartyManager().getParty(player.getUniqueId());
         if (party == null) {
-            player.sendMessage(plugin.getPrefix() + "§cVous n'êtes pas dans une party.");
+            player.sendMessage(lang().msg(player, "party_not_in"));
             return;
         }
 
@@ -244,9 +249,9 @@ public class PartyCommand implements CommandExecutor, TabCompleter {
 
         player.sendMessage("");
         player.sendMessage("§5§l═══════════════════════════");
-        player.sendMessage("§d§lParty §7(" + party.getSize() + " joueur" + (party.getSize() > 1 ? "s" : "") + ")");
+        player.sendMessage(lang().msgRaw(player, "party_title_list", "%count%", String.valueOf(party.getSize()), "%s%", party.getSize() > 1 ? "s" : ""));
         player.sendMessage("");
-        player.sendMessage("§6👑 §f" + (leader != null ? leader.getName() : "???") + " §7(Leader)");
+        player.sendMessage(lang().msgRaw(player, "party_leader_display", "%player%", (leader != null ? leader.getName() : "???")));
         for (UUID m : party.getMembers()) {
             Player member = Bukkit.getPlayer(m);
             String name = member != null ? member.getName() : m.toString().substring(0, 8) + "...";
@@ -263,19 +268,19 @@ public class PartyCommand implements CommandExecutor, TabCompleter {
 
     private void handlePub(Player player) {
         if (!plugin.getVipManager().isVip(player.getUniqueId())) {
-            player.sendMessage(plugin.getPrefix() + "§cCette commande est réservée aux VIP.");
+            player.sendMessage(lang().msg(player, "party_vip_only"));
             return;
         }
 
         UUID partyLeader = plugin.getPartyManager().getPartyLeader(player.getUniqueId());
         if (partyLeader == null || !partyLeader.equals(player.getUniqueId())) {
-            player.sendMessage(plugin.getPrefix() + "§cSeul le leader peut publier la party.");
+            player.sendMessage(lang().msg(player, "party_leader_only"));
             return;
         }
 
         if (plugin.getPartyManager().isPubOpen(player.getUniqueId())) {
             plugin.getPartyManager().closePub(player);
-            player.sendMessage(plugin.getPrefix() + "§cPublication de party désactivée.");
+            player.sendMessage(lang().msg(player, "party_invite_disabled"));
             return;
         }
 
@@ -289,11 +294,11 @@ public class PartyCommand implements CommandExecutor, TabCompleter {
         String sizeInfo = count + "/" + maxSize;
 
         Component joinButton = Component.text("[Rejoindre]", NamedTextColor.GREEN, TextDecoration.BOLD)
-                .hoverEvent(HoverEvent.showText(Component.text().append(Component.text("Cliquez pour rejoindre la party de " + playerName + " (" + sizeInfo + ")", NamedTextColor.GREEN)).build()))
+                .hoverEvent(HoverEvent.showText(Component.text().append(Component.text(lang().msgRaw(player, "party_pub_hover", "%player%", playerName, "%count%", sizeInfo), NamedTextColor.GREEN)).build()))
                 .clickEvent(ClickEvent.runCommand("/party pubjoin " + leaderUuid.toString()));
 
         Component message = Component.text()
-                .append(Component.text("Rejoindez la party de ", NamedTextColor.GRAY))
+                .append(Component.text(lang().msgRaw(player, "party_pub_chat") + " ", NamedTextColor.GRAY))
                 .append(Component.text(playerName, NamedTextColor.LIGHT_PURPLE, TextDecoration.BOLD))
                 .append(Component.text(" : ", NamedTextColor.GRAY))
                 .append(joinButton)
@@ -304,13 +309,13 @@ public class PartyCommand implements CommandExecutor, TabCompleter {
             if (online.getWorld() != player.getWorld()) continue;
             online.sendMessage(message);
         }
-        player.sendMessage(plugin.getPrefix() + "§dParty publiée dans le chat!");
+        player.sendMessage(lang().msg(player, "party_pub_success"));
     }
 
     private void handlePubJoin(Player player, String[] args) {
         if (args.length < 2) return;
         if (plugin.getPartyManager().isInParty(player.getUniqueId())) {
-            player.sendMessage(plugin.getPrefix() + "§cVous êtes déjà dans une party.");
+            player.sendMessage(lang().msg(player, "party_already_in"));
             return;
         }
 
@@ -322,7 +327,7 @@ public class PartyCommand implements CommandExecutor, TabCompleter {
         }
 
         if (!plugin.getPartyManager().isPubOpen(leaderUuid)) {
-            player.sendMessage(plugin.getPrefix() + "§cCette party n'est plus disponible.");
+            player.sendMessage(lang().msg(player, "party_no_pub_available"));
             return;
         }
 
@@ -331,37 +336,37 @@ public class PartyCommand implements CommandExecutor, TabCompleter {
             PartyManager.Party party = plugin.getPartyManager().getParty(leaderUuid);
             int maxSize = plugin.getPartyManager().getMaxSize(leader);
             int count = party != null ? party.getSize() : 1;
-            player.sendMessage(plugin.getPrefix() + "§aVous avez rejoint la party de §d" + (leader != null ? leader.getName() : "???") + "§a! (" + count + "/" + maxSize + ")");
+            player.sendMessage(lang().msg(player, "party_joined", "%player%", (leader != null ? leader.getName() : "???"), "%count%", String.valueOf(count), "%max%", String.valueOf(maxSize)));
             if (leader != null) {
-                leader.sendMessage(plugin.getPrefix() + "§d" + player.getName() + " §aa rejoint la party via la publication!");
+                leader.sendMessage(lang().msg(leader, "party_joined_pub_broadcast", "%player%", player.getName()));
             }
             if (party != null) {
                 for (UUID m : party.getMembers()) {
                     if (m.equals(player.getUniqueId()) || m.equals(leaderUuid)) continue;
                     Player member = Bukkit.getPlayer(m);
                     if (member != null) {
-                        member.sendMessage(plugin.getPrefix() + "§d" + player.getName() + " §aa rejoint la party!");
+                        member.sendMessage(lang().msg(member, "party_joined_broadcast", "%player%", player.getName()));
                     }
                 }
             }
         } else {
-            player.sendMessage(plugin.getPrefix() + "§cLa party est pleine ou n'est plus disponible.");
+            player.sendMessage(lang().msg(player, "party_pub_full"));
         }
     }
 
     private void sendHelp(Player player) {
         player.sendMessage("");
         player.sendMessage("§5§l═══════════════════════════");
-        player.sendMessage("§d§lCommandes Party");
+        player.sendMessage(lang().msgRaw(player, "party_help_title"));
         player.sendMessage("");
-        player.sendMessage("§d/party create §7- Créer une party");
-        player.sendMessage("§d/party invite <joueur> §7- Inviter");
-        player.sendMessage("§d/party join §7- Accepter l'invitation");
-        player.sendMessage("§d/party leave §7- Quitter la party");
-        player.sendMessage("§d/party kick <joueur> §7- Kick un membre");
-        player.sendMessage("§d/party disband §7- Dissoudre la party");
-        player.sendMessage("§d/party list §7- Liste des membres");
-        player.sendMessage("§d/party pub §7- §5[VIP] §7Publier la party");
+        player.sendMessage(lang().msgRaw(player, "party_help_create"));
+        player.sendMessage(lang().msgRaw(player, "party_help_invite"));
+        player.sendMessage(lang().msgRaw(player, "party_help_join"));
+        player.sendMessage(lang().msgRaw(player, "party_help_leave"));
+        player.sendMessage(lang().msgRaw(player, "party_help_kick"));
+        player.sendMessage(lang().msgRaw(player, "party_help_disband"));
+        player.sendMessage(lang().msgRaw(player, "party_help_list"));
+        player.sendMessage(lang().msgRaw(player, "party_help_pub"));
         player.sendMessage("§5§l═══════════════════════════");
         player.sendMessage("");
     }

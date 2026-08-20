@@ -1,6 +1,7 @@
 package fr.duelplugin.commands;
 
 import fr.duelplugin.DuelPlugin;
+import fr.duelplugin.managers.LanguageManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
@@ -26,10 +27,14 @@ public class FriendsCommand implements CommandExecutor, TabCompleter {
         this.plugin = plugin;
     }
 
+    private LanguageManager lang() {
+        return plugin.getLanguageManager();
+    }
+
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage("§cCommande réservée aux joueurs.");
+            sender.sendMessage(lang().msgRaw(null, "command_only_players"));
             return true;
         }
 
@@ -52,33 +57,33 @@ public class FriendsCommand implements CommandExecutor, TabCompleter {
 
     private void handleAdd(Player player, String[] args) {
         if (args.length < 2) {
-            player.sendMessage(plugin.getPrefix() + "§cUsage: /f add <joueur>");
+            player.sendMessage(lang().msg(player, "friend_usage_add"));
             return;
         }
 
         Player target = Bukkit.getPlayer(args[1]);
         if (target == null) {
-            player.sendMessage(plugin.getPrefix() + "§cJoueur introuvable ou hors ligne.");
+            player.sendMessage(lang().msg(player, "player_not_found"));
             return;
         }
 
         if (target.getUniqueId().equals(player.getUniqueId())) {
-            player.sendMessage(plugin.getPrefix() + "§cVous ne pouvez pas vous ajouter vous-même.");
+            player.sendMessage(lang().msg(player, "friend_cannot_self"));
             return;
         }
 
         if (plugin.getFriendsManager().isFriend(player.getUniqueId(), target.getUniqueId())) {
-            player.sendMessage(plugin.getPrefix() + "§c" + target.getName() + " est déjà votre ami.");
+            player.sendMessage(lang().msg(player, "friend_already_exists", "%player%", target.getName()));
             return;
         }
 
         if (!plugin.getSettingsManager().acceptsFriendRequests(target.getUniqueId())) {
-            player.sendMessage(plugin.getPrefix() + "§c" + target.getName() + " a désactivé les demandes d'amis.");
+            player.sendMessage(lang().msg(player, "friend_disabled", "%player%", target.getName()));
             return;
         }
 
         if (pendingRequests.containsValue(player.getUniqueId())) {
-            player.sendMessage(plugin.getPrefix() + "§cVous avez déjà une demande en attente.");
+            player.sendMessage(lang().msg(player, "friend_accept_no_requests"));
             return;
         }
 
@@ -86,60 +91,60 @@ public class FriendsCommand implements CommandExecutor, TabCompleter {
 
         target.sendMessage("");
         target.sendMessage("§5§l═══════════════════════════");
-        target.sendMessage("§d" + player.getName() + " §7vous a envoyé une demande d'ami!");
+        target.sendMessage(lang().msg(target, "friend_request_received", "%player%", player.getName()));
 
-        Component acceptButton = Component.text("[ACCEPTER]", NamedTextColor.GREEN, TextDecoration.BOLD)
+        Component acceptButton = Component.text(lang().msgRaw(target, "friend_request_accept"), NamedTextColor.GREEN, TextDecoration.BOLD)
                 .clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, "/f accept"))
-                .hoverEvent(HoverEvent.hoverEvent(HoverEvent.Action.SHOW_TEXT, Component.text("Accepter la demande", NamedTextColor.GREEN)));
+                .hoverEvent(HoverEvent.hoverEvent(HoverEvent.Action.SHOW_TEXT, Component.text(lang().msgRaw(target, "friend_request_hover_accept"), NamedTextColor.GREEN)));
 
-        Component denyButton = Component.text(" [REFUSER]", NamedTextColor.RED, TextDecoration.BOLD)
+        Component denyButton = Component.text(" " + lang().msgRaw(target, "friend_request_deny"), NamedTextColor.RED, TextDecoration.BOLD)
                 .clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, "/f deny"))
-                .hoverEvent(HoverEvent.hoverEvent(HoverEvent.Action.SHOW_TEXT, Component.text("Refuser la demande", NamedTextColor.RED)));
+                .hoverEvent(HoverEvent.hoverEvent(HoverEvent.Action.SHOW_TEXT, Component.text(lang().msgRaw(target, "friend_request_hover_deny"), NamedTextColor.RED)));
 
-        target.sendMessage(Component.text("Action: ", NamedTextColor.LIGHT_PURPLE).append(acceptButton).append(denyButton));
+        target.sendMessage(Component.text(lang().msgRaw(target, "duel_action"), NamedTextColor.LIGHT_PURPLE).append(acceptButton).append(denyButton));
         target.sendMessage("§5§l═══════════════════════════");
         target.sendMessage("");
 
-        player.sendMessage(plugin.getPrefix() + "§dDemande d'ami envoyée à §f" + target.getName() + "§d!");
+        player.sendMessage(lang().msg(player, "friend_request_sent", "%player%", target.getName()));
     }
 
     private void handleAccept(Player player) {
         UUID senderUuid = pendingRequests.remove(player.getUniqueId());
         if (senderUuid == null) {
-            player.sendMessage(plugin.getPrefix() + "§cAucune demande d'ami en attente.");
+            player.sendMessage(lang().msg(player, "friend_accept_no_requests"));
             return;
         }
 
         Player sender = Bukkit.getPlayer(senderUuid);
         if (sender == null || !sender.isOnline()) {
-            player.sendMessage(plugin.getPrefix() + "§cCe joueur n'est plus en ligne.");
+            player.sendMessage(lang().msg(player, "duel_target_online"));
             return;
         }
 
         plugin.getFriendsManager().addFriend(player.getUniqueId(), senderUuid);
         plugin.getFriendsManager().addFriend(senderUuid, player.getUniqueId());
 
-        player.sendMessage(plugin.getPrefix() + "§d" + sender.getName() + " §aajouté(e) en ami!");
-        sender.sendMessage(plugin.getPrefix() + "§d" + player.getName() + " §aaccepté votre demande d'ami!");
+        player.sendMessage(lang().msg(player, "friend_added", "%player%", sender.getName()));
+        sender.sendMessage(lang().msg(sender, "friend_accept_success", "%player%", player.getName()));
     }
 
     private void handleDeny(Player player) {
         UUID senderUuid = pendingRequests.remove(player.getUniqueId());
         if (senderUuid == null) {
-            player.sendMessage(plugin.getPrefix() + "§cAucune demande d'ami en attente.");
+            player.sendMessage(lang().msg(player, "friend_accept_no_requests"));
             return;
         }
 
         Player sender = Bukkit.getPlayer(senderUuid);
         if (sender != null && sender.isOnline()) {
-            sender.sendMessage(plugin.getPrefix() + "§d" + player.getName() + " §ca refusé votre demande d'ami.");
+            sender.sendMessage(lang().msg(sender, "friend_deny_by_target", "%player%", player.getName()));
         }
-        player.sendMessage(plugin.getPrefix() + "§cDemande refusée.");
+        player.sendMessage(lang().msg(player, "friend_deny_refused"));
     }
 
     private void handleRemove(Player player, String[] args) {
         if (args.length < 2) {
-            player.sendMessage(plugin.getPrefix() + "§cUsage: /f remove <joueur>");
+            player.sendMessage(lang().msg(player, "friend_usage_remove"));
             return;
         }
 
@@ -149,18 +154,18 @@ public class FriendsCommand implements CommandExecutor, TabCompleter {
         if (target != null) {
             targetUuid = target.getUniqueId();
         } else {
-            player.sendMessage(plugin.getPrefix() + "§cJoueur introuvable ou hors ligne.");
+            player.sendMessage(lang().msg(player, "player_not_found"));
             return;
         }
 
         if (!plugin.getFriendsManager().isFriend(player.getUniqueId(), targetUuid)) {
-            player.sendMessage(plugin.getPrefix() + "§c" + args[1] + " n'est pas votre ami.");
+            player.sendMessage(lang().msg(player, "friend_not_friend", "%player%", args[1]));
             return;
         }
 
         plugin.getFriendsManager().removeFriend(player.getUniqueId(), targetUuid);
         plugin.getFriendsManager().removeFriend(targetUuid, player.getUniqueId());
-        player.sendMessage(plugin.getPrefix() + "§d" + args[1] + " §cretiré(e) de vos amis.");
+        player.sendMessage(lang().msg(player, "friend_removed", "%player%", args[1]));
     }
 
     private void handleList(Player player) {
@@ -168,17 +173,17 @@ public class FriendsCommand implements CommandExecutor, TabCompleter {
 
         player.sendMessage("");
         player.sendMessage("§5§l═══════════════════════════");
-        player.sendMessage("§d§lVos amis §7(" + friendUuids.size() + ")");
+        player.sendMessage(lang().msgRaw(player, "friend_list_title", "%count%", String.valueOf(friendUuids.size())));
 
         if (friendUuids.isEmpty()) {
-            player.sendMessage("§7Aucun ami. Utilisez §d/f add <joueur>");
+            player.sendMessage(lang().msgRaw(player, "friend_list_empty"));
         } else {
             for (UUID uuid : friendUuids) {
                 Player online = Bukkit.getPlayer(uuid);
                 if (online != null) {
-                    player.sendMessage("§a● §f" + online.getName() + " §7(§aEn ligne§7)");
+                    player.sendMessage(lang().msgRaw(player, "friend_list_online", "%player%", online.getName()));
                 } else {
-                    player.sendMessage("§7● §8" + uuid.toString().substring(0, 8) + "... §7(§cHors ligne§7)");
+                    player.sendMessage(lang().msgRaw(player, "friend_list_offline", "%player%", uuid.toString().substring(0, 8) + "..."));
                 }
             }
         }
@@ -190,14 +195,13 @@ public class FriendsCommand implements CommandExecutor, TabCompleter {
     private void sendHelp(Player player) {
         player.sendMessage("");
         player.sendMessage("§5§l═══════════════════════════");
-        player.sendMessage("§d§lCommandes Amis");
+        player.sendMessage(lang().msgRaw(player, "friend_help_title"));
         player.sendMessage("");
-        player.sendMessage("§d/f add <joueur> §7- Envoyer une demande d'ami");
-        player.sendMessage("§d/f accept §7- Accepter une demande");
-        player.sendMessage("§d/f deny §7- Refuser une demande");
-        player.sendMessage("§d/f remove <joueur> §7- Retirer un ami");
-        player.sendMessage("§d/f list §7- Liste de vos amis");
-        player.sendMessage("§7Sneak en lobby pour voir vos amis");
+        player.sendMessage(lang().msgRaw(player, "friend_help_add"));
+        player.sendMessage(lang().msgRaw(player, "friend_help_accept"));
+        player.sendMessage(lang().msgRaw(player, "friend_help_deny"));
+        player.sendMessage(lang().msgRaw(player, "friend_help_remove"));
+        player.sendMessage(lang().msgRaw(player, "friend_help_list"));
         player.sendMessage("§5§l═══════════════════════════");
         player.sendMessage("");
     }

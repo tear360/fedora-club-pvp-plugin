@@ -45,7 +45,7 @@ public class PlayerListener implements Listener {
 
         giveLobbyItems(player);
 
-        event.setJoinMessage(plugin.colorize("&5+ &d" + player.getName() + " &7a rejoint le serveur"));
+        event.setJoinMessage(plugin.getLanguageManager().msg(player, "lobby_join", "%player%", player.getName()));
     }
 
     @EventHandler
@@ -54,7 +54,7 @@ public class PlayerListener implements Listener {
         plugin.getQueueManager().leaveQueue(player);
         plugin.getDuelManager().handleDisconnect(player);
         plugin.getScoreboardManager().removeScoreboard(player);
-        event.setQuitMessage(plugin.colorize("&5- &d" + player.getName() + " &7a quitté le serveur"));
+        event.setQuitMessage(plugin.getLanguageManager().msgRaw(player, "lobby_quit", "%player%", player.getName()));
     }
 
     @EventHandler
@@ -144,9 +144,7 @@ public class PlayerListener implements Listener {
 
     private boolean isLobbyItem(ItemStack item) {
         if (item == null || item.getType() == Material.AIR) return false;
-        if (item.getItemMeta() == null || item.getItemMeta().getDisplayName() == null) return false;
-        String name = item.getItemMeta().getDisplayName();
-        return name.contains("§d§lQueue") || name.contains("§5§lKits") || name.contains("§d§lParty");
+        return item.getType() == Material.NETHERITE_SWORD || item.getType() == Material.CRAFTING_TABLE || item.getType() == Material.NETHER_STAR;
     }
 
     private boolean isVipLobbyItem(ItemStack item) {
@@ -161,19 +159,20 @@ public class PlayerListener implements Listener {
         player.getInventory().setArmorContents(null);
         player.getInventory().setItemInOffHand(null);
 
+        DuelPlugin plugin = DuelPlugin.getInstance();
+
         player.getInventory().setItem(0, new ItemBuilder(Material.NETHERITE_SWORD)
-                .name("§d§lQueue")
-                .lore("", "§7Rejoindre une queue de duel", "").build());
+                .name(plugin.getLanguageManager().msgRaw(player, "lobby_item_queue"))
+                .lore("", plugin.getLanguageManager().msgRaw(player, "lobby_item_queue_lore"), "").build());
 
         player.getInventory().setItem(4, new ItemBuilder(Material.CRAFTING_TABLE)
-                .name("§5§lKits")
-                .lore("", "§7Éditez vos kits", "").build());
+                .name(plugin.getLanguageManager().msgRaw(player, "lobby_item_kits"))
+                .lore("", plugin.getLanguageManager().msgRaw(player, "lobby_item_kits_lore"), "").build());
 
         player.getInventory().setItem(8, new ItemBuilder(Material.NETHER_STAR)
-                .name("§d§lParty")
-                .lore("", "§7Gérez votre party", "").build());
+                .name(plugin.getLanguageManager().msgRaw(player, "lobby_item_party"))
+                .lore("", plugin.getLanguageManager().msgRaw(player, "lobby_item_party_lore"), "").build());
 
-        DuelPlugin plugin = DuelPlugin.getInstance();
         if (plugin != null && plugin.getVipManager().isVip(player.getUniqueId())) {
             ItemStack windCharge = new ItemStack(Material.WIND_CHARGE, 64);
             player.getInventory().setItemInOffHand(windCharge);
@@ -181,10 +180,10 @@ public class PlayerListener implements Listener {
             ItemStack elytra = new ItemStack(Material.ELYTRA);
             ItemMeta elytraMeta = elytra.getItemMeta();
             if (elytraMeta != null) {
-                elytraMeta.displayName(net.kyori.adventure.text.Component.text("§d§lElytra VIP", net.kyori.adventure.text.format.NamedTextColor.LIGHT_PURPLE));
+                elytraMeta.displayName(net.kyori.adventure.text.Component.text(plugin.getLanguageManager().msgRaw(player, "lobby_item_elysta"), net.kyori.adventure.text.format.NamedTextColor.LIGHT_PURPLE));
                 elytraMeta.lore(java.util.Arrays.asList(
-                        net.kyori.adventure.text.Component.text("§7Élytra exclusive VIP"),
-                        net.kyori.adventure.text.Component.text("§7Incassable")
+                        net.kyori.adventure.text.Component.text(plugin.getLanguageManager().msgRaw(player, "lobby_item_elysta_lore1")),
+                        net.kyori.adventure.text.Component.text(plugin.getLanguageManager().msgRaw(player, "lobby_item_elysta_lore2"))
                 ));
                 elytraMeta.setUnbreakable(true);
                 elytra.setItemMeta(elytraMeta);

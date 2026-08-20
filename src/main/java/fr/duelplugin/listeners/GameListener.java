@@ -36,7 +36,7 @@ public class GameListener implements Listener {
 
         if (!mode.canBreakBlocks()) {
             event.setCancelled(true);
-            player.sendMessage(plugin.getMessage("gamemode-disabled"));
+            player.sendMessage(plugin.getLanguageManager().msg(player, "gamemode_disabled"));
         }
     }
 
@@ -52,7 +52,7 @@ public class GameListener implements Listener {
 
         if (!mode.canPlaceBlocks()) {
             event.setCancelled(true);
-            player.sendMessage(plugin.getMessage("gamemode-disabled"));
+            player.sendMessage(plugin.getLanguageManager().msg(player, "gamemode_disabled"));
         }
     }
 
@@ -96,7 +96,7 @@ public class GameListener implements Listener {
                 Set<UUID> participants = duel.getFFAParticipants();
                 participants.remove(victim.getUniqueId());
 
-                victim.sendMessage(plugin.getPrefix() + "§c§lÉLIMINÉ! §7Vous avez été éliminé de la FFA.");
+                victim.sendMessage(plugin.getLanguageManager().msg(victim, "duel_eliminated_ffa"));
                 victim.setGameMode(GameMode.SPECTATOR);
                 if (plugin.getLobbyManager().isLobbySet()) {
                     plugin.getLobbyManager().teleportToLobby(victim);
@@ -106,7 +106,7 @@ public class GameListener implements Listener {
                     UUID winnerId = participants.iterator().next();
                     Player winner = Bukkit.getPlayer(winnerId);
                     if (winner != null) {
-                        winner.sendMessage(plugin.getPrefix() + "§a§lVICTOIRE! §7Vous êtes le dernier en vie!");
+                        winner.sendMessage(plugin.getLanguageManager().msg(winner, "duel_winner_ffa"));
                     }
                     plugin.getDuelManager().endDuel(attacker.getUniqueId(), winnerId, victim.getUniqueId());
                 }

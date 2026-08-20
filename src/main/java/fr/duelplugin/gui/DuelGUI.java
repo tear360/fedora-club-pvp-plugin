@@ -30,7 +30,7 @@ public class DuelGUI {
         }
 
         Inventory inv = Bukkit.createInventory(null, 45,
-                Component.text(target != null ? "Défi → " + target.getName() : "Sélection de mode",
+                Component.text(target != null ? plugin.getLanguageManager().msgRaw(player, "gui_duel_title", "%target%", target.getName()) : plugin.getLanguageManager().msgRaw(player, "gui_mode_select"),
                         NamedTextColor.DARK_PURPLE, TextDecoration.BOLD));
 
         for (int i = 0; i < 45; i++) {
@@ -55,11 +55,11 @@ public class DuelGUI {
                     .lore(
                             "",
                             mode.isArenaRestricted() ?
-                                    (hasArena ? "&aArènes disponibles" : "&cAucune arène") :
-                                    "&aMode libre",
-                            "&7Blocs: " + (mode.canBreakBlocks() ? "&aCassables" : "&cNon cassables"),
+                                    (hasArena ? plugin.getLanguageManager().msgRaw(player, "gui_arenas_available") : plugin.getLanguageManager().msgRaw(player, "gui_no_arena")) :
+                                    plugin.getLanguageManager().msgRaw(player, "gui_free_mode"),
+                            plugin.getLanguageManager().msgRaw(player, "gui_blocks") + (mode.canBreakBlocks() ? plugin.getLanguageManager().msgRaw(player, "gui_blocks_breakable") : plugin.getLanguageManager().msgRaw(player, "gui_blocks_unbreakable")),
                             "",
-                            "&d&lCliquez pour jouer"
+                            plugin.getLanguageManager().msgRaw(player, "gui_click_to_play")
                     ).build());
         }
 

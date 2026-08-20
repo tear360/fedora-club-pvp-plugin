@@ -1,6 +1,7 @@
 package fr.duelplugin.commands;
 
 import fr.duelplugin.DuelPlugin;
+import fr.duelplugin.managers.LanguageManager;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -21,6 +22,10 @@ public class VipCommand implements CommandExecutor, TabCompleter {
         this.plugin = plugin;
     }
 
+    private LanguageManager lang() {
+        return plugin.getLanguageManager();
+    }
+
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (args.length == 0) {
@@ -34,14 +39,14 @@ public class VipCommand implements CommandExecutor, TabCompleter {
             case "remove" -> handleRemove(sender, args);
             case "color" -> {
                 if (!(sender instanceof Player player)) {
-                    sender.sendMessage("§cCommande réservée aux joueurs.");
+                    sender.sendMessage(lang().msgRaw(null, "command_only_players"));
                     return true;
                 }
                 handleColor(player, args);
             }
             case "info" -> {
                 if (!(sender instanceof Player player)) {
-                    sender.sendMessage("§cCommande réservée aux joueurs.");
+                    sender.sendMessage(lang().msgRaw(null, "command_only_players"));
                     return true;
                 }
                 handleInfo(player);
@@ -57,46 +62,54 @@ public class VipCommand implements CommandExecutor, TabCompleter {
 
     private void handleSet(CommandSender sender, String[] args) {
         if (!sender.hasPermission("duelplugin.admin")) {
-            sender.sendMessage(plugin.getPrefix() + "§cVous n'avez pas la permission.");
+            sender.sendMessage(lang().msgRaw(null, "no_permission"));
             return;
         }
         if (args.length < 2) {
-            sender.sendMessage(plugin.getPrefix() + "§cUsage: /vip set <joueur>");
+            sender.sendMessage("§cUsage: /vip set <joueur>");
             return;
         }
         Player target = Bukkit.getPlayer(args[1]);
         if (target == null) {
-            sender.sendMessage(plugin.getPrefix() + "§cJoueur introuvable.");
+            sender.sendMessage(lang().msgRaw(null, "player_not_found"));
             return;
         }
         plugin.getVipManager().setVip(target.getUniqueId(), true);
-        sender.sendMessage(plugin.getPrefix() + "§d" + target.getName() + " §aest maintenant VIP!");
-        target.sendMessage(plugin.getPrefix() + "§aVous avez reçu le grade §dVIP§a!");
+        if (sender instanceof Player p) {
+            sender.sendMessage(lang().msg(p, "vip_set", "%player%", target.getName()));
+        } else {
+            sender.sendMessage("§d" + target.getName() + " §aest maintenant VIP!");
+        }
+        target.sendMessage(lang().msg(target, "vip_received"));
     }
 
     private void handleRemove(CommandSender sender, String[] args) {
         if (!sender.hasPermission("duelplugin.admin")) {
-            sender.sendMessage(plugin.getPrefix() + "§cVous n'avez pas la permission.");
+            sender.sendMessage(lang().msgRaw(null, "no_permission"));
             return;
         }
         if (args.length < 2) {
-            sender.sendMessage(plugin.getPrefix() + "§cUsage: /vip remove <joueur>");
+            sender.sendMessage("§cUsage: /vip remove <joueur>");
             return;
         }
         Player target = Bukkit.getPlayer(args[1]);
         if (target == null) {
-            sender.sendMessage(plugin.getPrefix() + "§cJoueur introuvable.");
+            sender.sendMessage(lang().msgRaw(null, "player_not_found"));
             return;
         }
         plugin.getVipManager().setVip(target.getUniqueId(), false);
-        sender.sendMessage(plugin.getPrefix() + "§d" + target.getName() + " §c n'est plus VIP.");
-        target.sendMessage(plugin.getPrefix() + "§cVotre grade VIP a été retiré.");
+        if (sender instanceof Player p) {
+            sender.sendMessage(lang().msg(p, "vip_removed", "%player%", target.getName()));
+        } else {
+            sender.sendMessage("§d" + target.getName() + " §c n'est plus VIP.");
+        }
+        target.sendMessage(lang().msg(target, "vip_removed_self"));
     }
 
     private void handleColor(Player player, String[] args) {
         UUID uuid = player.getUniqueId();
         if (!plugin.getVipManager().isVip(uuid)) {
-            player.sendMessage(plugin.getPrefix() + "§cVous n'êtes pas VIP.");
+            player.sendMessage(lang().msg(player, "vip_not_vip"));
             return;
         }
 
@@ -104,11 +117,11 @@ public class VipCommand implements CommandExecutor, TabCompleter {
         List<String> colorNames = plugin.getVipManager().getColorNames();
 
         if (args.length < 2) {
-            player.sendMessage(plugin.getPrefix() + "§dCouleurs disponibles:");
+            player.sendMessage(lang().msg(player, "vip_colors_available"));
             for (int i = 0; i < colors.size(); i++) {
-                player.sendMessage("  " + colors.get(i) + "• " + colorNames.get(i));
+                player.sendMessage("  " + colors.get(i) + "• " + lang().msgRaw(player, "vip_color_" + colorNames.get(i).toLowerCase()));
             }
-            player.sendMessage(plugin.getPrefix() + "§7Utilisez: /vip color <nom>");
+            player.sendMessage("§7Utilisez: /vip color <nom>");
             return;
         }
 
@@ -122,33 +135,34 @@ public class VipCommand implements CommandExecutor, TabCompleter {
         }
 
         if (index == -1) {
-            player.sendMessage(plugin.getPrefix() + "§cCouleur introuvable. Utilisez /vip color pour voir les options.");
+            player.sendMessage(lang().msg(player, "vip_color_invalid"));
             return;
         }
 
         String color = colors.get(index);
         plugin.getVipManager().setNameColor(uuid, color);
-        player.sendMessage(plugin.getPrefix() + "§dCouleur de nom changée en §f" + colorNames.get(index) + "§d!");
+        player.sendMessage(lang().msg(player, "vip_color_changed", "%player%", colorNames.get(index)));
     }
 
     private void handleInfo(Player player) {
         UUID uuid = player.getUniqueId();
         boolean isVip = plugin.getVipManager().isVip(uuid);
         String color = plugin.getVipManager().getNameColor(uuid);
-        player.sendMessage(plugin.getPrefix() + "§dVIP: " + (isVip ? "§aOui" : "§cNon"));
+        player.sendMessage(lang().msg(player, "vip_info_title"));
+        player.sendMessage(lang().msgRaw(player, "vip_info_status", "%status%", isVip ? lang().msgRaw(player, "vip_info_yes") : lang().msgRaw(player, "vip_info_no")));
         if (isVip && color != null) {
-            player.sendMessage(plugin.getPrefix() + "§dCouleur: " + color + "•");
+            player.sendMessage(lang().msgRaw(player, "vip_info_color", "%color%", color));
         }
     }
 
     private void sendHelp(Player player) {
-        player.sendMessage(plugin.getPrefix() + "§d§l--- VIP ---");
+        player.sendMessage(lang().msgRaw(player, "vip_info_title"));
         if (player.hasPermission("duelplugin.admin")) {
-            player.sendMessage("§d/vip set <joueur> §7- Donner le VIP");
-            player.sendMessage("§d/vip remove <joueur> §7- Retirer le VIP");
+            player.sendMessage(lang().msgRaw(player, "vip_help_set"));
+            player.sendMessage(lang().msgRaw(player, "vip_help_remove"));
         }
-        player.sendMessage("§d/vip color §7- Changer la couleur de nom");
-        player.sendMessage("§d/vip info §7- Infos VIP");
+        player.sendMessage(lang().msgRaw(player, "vip_help_color"));
+        player.sendMessage(lang().msgRaw(player, "vip_help_info"));
     }
 
     @Override

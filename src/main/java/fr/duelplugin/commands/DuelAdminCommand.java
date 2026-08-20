@@ -1,6 +1,7 @@
 package fr.duelplugin.commands;
 
 import fr.duelplugin.DuelPlugin;
+import fr.duelplugin.managers.LanguageManager;
 import fr.duelplugin.models.Arena;
 import fr.duelplugin.models.DuelGameMode;
 import org.bukkit.Location;
@@ -23,15 +24,19 @@ public class DuelAdminCommand implements CommandExecutor, TabCompleter {
         this.plugin = plugin;
     }
 
+    private LanguageManager lang() {
+        return plugin.getLanguageManager();
+    }
+
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage("§5Seuls les joueurs peuvent utiliser cette commande.");
+            sender.sendMessage(lang().msgRaw(null, "command_only_players"));
             return true;
         }
 
         if (!player.hasPermission("duelplugin.admin")) {
-            player.sendMessage(plugin.getMessage("no-permission"));
+            player.sendMessage(lang().msg(player, "no_permission"));
             return true;
         }
 
@@ -45,11 +50,11 @@ public class DuelAdminCommand implements CommandExecutor, TabCompleter {
                 plugin.reloadConfig();
                 plugin.getArenaManager().loadArenas();
                 plugin.getLobbyManager().loadLobby();
-                player.sendMessage(plugin.getPrefix() + "§aConfiguration rechargée.");
+                player.sendMessage(lang().msg(player, "arena_config_reloaded"));
             }
             case "setlobby" -> {
                 plugin.getLobbyManager().setLobby(player.getLocation());
-                player.sendMessage(plugin.getMessage("lobby-set"));
+                player.sendMessage(lang().msg(player, "arena_config_reloaded"));
             }
             case "arena" -> handleArenaCommand(player, args);
             default -> sendHelp(player);
@@ -66,48 +71,48 @@ public class DuelAdminCommand implements CommandExecutor, TabCompleter {
         switch (args[1].toLowerCase()) {
             case "create" -> {
                 if (args.length < 4) {
-                    player.sendMessage(plugin.getPrefix() + "§dUsage: /da arena create <nom> <mode>");
+                    player.sendMessage(lang().msg(player, "arena_usage_create"));
                     return;
                 }
                 String name = args[2];
                 DuelGameMode mode = DuelGameMode.fromName(args[3]);
                 if (mode == null) {
-                    player.sendMessage(plugin.getPrefix() + "§cMode inconnu. Modes: " +
+                    player.sendMessage(lang().msg(player, "arena_unknown_mode") +
                             Arrays.stream(DuelGameMode.values()).map(DuelGameMode::getDisplayName).collect(Collectors.joining(", ")));
                     return;
                 }
                 if (plugin.getArenaManager().createArena(name, mode)) {
-                    player.sendMessage(plugin.getPrefix() + "§aArène §d" + name + " §acréée! Mode: " + mode.getColoredName());
+                    player.sendMessage(lang().msg(player, "arena_created", "%name%", name, "%mode%", mode.getColoredName()));
                 } else {
-                    player.sendMessage(plugin.getPrefix() + "§cCette arène existe déjà.");
+                    player.sendMessage(lang().msg(player, "arena_already_exists"));
                 }
             }
             case "delete" -> {
                 if (args.length < 3) {
-                    player.sendMessage(plugin.getPrefix() + "§dUsage: /da arena delete <nom>");
+                    player.sendMessage(lang().msg(player, "arena_usage_delete"));
                     return;
                 }
                 if (plugin.getArenaManager().deleteArena(args[2])) {
-                    player.sendMessage(plugin.getPrefix() + "§aArène §d" + args[2] + " §asupprimée.");
+                    player.sendMessage(lang().msg(player, "arena_deleted", "%name%", args[2]));
                 } else {
-                    player.sendMessage(plugin.getMessage("arena-not-found"));
+                    player.sendMessage(lang().msg(player, "arena_not_found"));
                 }
             }
             case "setspawn" -> {
                 if (args.length < 4) {
-                    player.sendMessage(plugin.getPrefix() + "§dUsage: /da arena setspawn <nom> <1|2>");
+                    player.sendMessage(lang().msg(player, "arena_usage_setspawn"));
                     return;
                 }
                 Arena arena = plugin.getArenaManager().getArena(args[2]);
                 if (arena == null) {
-                    player.sendMessage(plugin.getMessage("arena-not-found"));
+                    player.sendMessage(lang().msg(player, "arena_not_found"));
                     return;
                 }
                 int slot;
                 try {
                     slot = Integer.parseInt(args[3]);
                 } catch (NumberFormatException e) {
-                    player.sendMessage(plugin.getPrefix() + "§cSlot invalide. Utilisez 1 ou 2.");
+                    player.sendMessage(lang().msg(player, "arena_invalid_slot"));
                     return;
                 }
                 Location loc = player.getLocation();
@@ -116,71 +121,70 @@ public class DuelAdminCommand implements CommandExecutor, TabCompleter {
                 } else if (slot == 2) {
                     arena.setSpawn2(loc);
                 } else {
-                    player.sendMessage(plugin.getPrefix() + "§cSlot invalide. Utilisez 1 ou 2.");
+                    player.sendMessage(lang().msg(player, "arena_invalid_slot"));
                     return;
                 }
                 plugin.getArenaManager().saveArenas();
-                player.sendMessage(plugin.getPrefix() + "§aPoint d'apparition §d" + slot + " §adéfini pour §d" + arena.getName());
+                player.sendMessage(lang().msg(player, "arena_spawn_set", "%slot%", String.valueOf(slot), "%name%", arena.getName()));
             }
             case "setmin" -> {
                 if (args.length < 3) {
-                    player.sendMessage(plugin.getPrefix() + "§dUsage: /da arena setmin <nom>");
+                    player.sendMessage(lang().msg(player, "arena_usage_setmin"));
                     return;
                 }
                 Arena arena = plugin.getArenaManager().getArena(args[2]);
                 if (arena == null) {
-                    player.sendMessage(plugin.getMessage("arena-not-found"));
+                    player.sendMessage(lang().msg(player, "arena_not_found"));
                     return;
                 }
                 arena.setMinCorner(player.getLocation());
                 plugin.getArenaManager().saveArenas();
-                player.sendMessage(plugin.getPrefix() + "§aCoin minimum défini pour §d" + arena.getName());
+                player.sendMessage(lang().msg(player, "arena_min_set", "%name%", arena.getName()));
             }
             case "setmax" -> {
                 if (args.length < 3) {
-                    player.sendMessage(plugin.getPrefix() + "§dUsage: /da arena setmax <nom>");
+                    player.sendMessage(lang().msg(player, "arena_usage_setmax"));
                     return;
                 }
                 Arena arena = plugin.getArenaManager().getArena(args[2]);
                 if (arena == null) {
-                    player.sendMessage(plugin.getMessage("arena-not-found"));
+                    player.sendMessage(lang().msg(player, "arena_not_found"));
                     return;
                 }
                 arena.setMaxCorner(player.getLocation());
                 plugin.getArenaManager().saveArenas();
-                player.sendMessage(plugin.getPrefix() + "§aCoin maximum défini pour §d" + arena.getName());
+                player.sendMessage(lang().msg(player, "arena_max_set", "%name%", arena.getName()));
             }
             case "info" -> {
                 if (args.length < 3) {
-                    player.sendMessage(plugin.getPrefix() + "§dUsage: /da arena info <nom>");
+                    player.sendMessage(lang().msg(player, "arena_usage_info"));
                     return;
                 }
                 Arena arena = plugin.getArenaManager().getArena(args[2]);
                 if (arena == null) {
-                    player.sendMessage(plugin.getMessage("arena-not-found"));
+                    player.sendMessage(lang().msg(player, "arena_not_found"));
                     return;
                 }
                 player.sendMessage("§5═══════════════════════");
-                player.sendMessage("§dArène: §f" + arena.getName());
+                player.sendMessage(lang().msgRaw(player, "arena_info_name", "%name%", arena.getName()));
                 player.sendMessage("§dMode: " + arena.getGameMode().getColoredName());
                 player.sendMessage("§dSpawn 1: " + formatLoc(arena.getSpawn1()));
                 player.sendMessage("§dSpawn 2: " + formatLoc(arena.getSpawn2()));
                 player.sendMessage("§dMin: " + formatLoc(arena.getMinCorner()));
                 player.sendMessage("§dMax: " + formatLoc(arena.getMaxCorner()));
-                player.sendMessage("§dConfigurée: " + (arena.isSetup() ? "§aOui" : "§cNon"));
+                player.sendMessage("§dConfigurée: " + (arena.isSetup() ? lang().msgRaw(player, "arena_configured") : lang().msgRaw(player, "arena_not_configured")));
                 player.sendMessage("§5═══════════════════════");
             }
             case "list" -> {
                 var arenas = plugin.getArenaManager().getAllArenas();
                 if (arenas.isEmpty()) {
-                    player.sendMessage(plugin.getPrefix() + "§cAucune arène configurée.");
+                    player.sendMessage(lang().msg(player, "arena_list_empty"));
                     return;
                 }
                 player.sendMessage("§5═══════════════════════");
-                player.sendMessage("§dListe des arènes:");
+                player.sendMessage(lang().msgRaw(player, "arena_list_header"));
                 for (Arena arena : arenas) {
-                    player.sendMessage("§7- §f" + arena.getName() + " §7(" + arena.getGameMode().getColoredName() + "§7) " +
-                            (arena.isSetup() ? "§aPrête" : "§cIncomplète"));
+                    player.sendMessage(lang().msgRaw(player, "arena_list_entry", "%name%", arena.getName(), "%mode%", arena.getGameMode().getColoredName()));
                 }
                 player.sendMessage("§5═══════════════════════");
             }

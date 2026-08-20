@@ -81,10 +81,10 @@ public class QueueManager {
                 Player p = Bukkit.getPlayer(uuid);
                 if (p == null || !p.isOnline()) continue;
                 p.sendActionBar(Component.text()
-                        .append(Component.text("En queue pour ", NamedTextColor.LIGHT_PURPLE))
+                        .append(Component.text(plugin.getLanguageManager().msgRaw(p, "queue_action_bar"), NamedTextColor.LIGHT_PURPLE))
                         .append(Component.text(mode.getDisplayName(), NamedTextColor.WHITE))
                         .append(Component.text(" ... ", NamedTextColor.LIGHT_PURPLE))
-                        .append(Component.text("(" + count + " joueur" + (count > 1 ? "s" : "") + ")", NamedTextColor.GRAY))
+                        .append(Component.text(plugin.getLanguageManager().msgRaw(p, "queue_action_bar_count", "%count%", String.valueOf(count), "%s%", count > 1 ? "s" : ""), NamedTextColor.GRAY))
                         .build());
             }
         }

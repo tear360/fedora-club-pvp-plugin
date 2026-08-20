@@ -1,6 +1,7 @@
 package fr.duelplugin.commands;
 
 import fr.duelplugin.DuelPlugin;
+import fr.duelplugin.managers.LanguageManager;
 import fr.duelplugin.models.DuelRequest;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -21,10 +22,14 @@ public class DenyDuelCommand implements CommandExecutor, TabCompleter {
         this.plugin = plugin;
     }
 
+    private LanguageManager lang() {
+        return plugin.getLanguageManager();
+    }
+
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage("§5Seuls les joueurs peuvent utiliser cette commande.");
+            sender.sendMessage(lang().msgRaw(null, "command_only_players"));
             return true;
         }
 
@@ -32,7 +37,7 @@ public class DenyDuelCommand implements CommandExecutor, TabCompleter {
         if (args.length > 0) {
             Player target = Bukkit.getPlayer(args[0]);
             if (target == null) {
-                player.sendMessage(plugin.getMessage("player-not-found"));
+                player.sendMessage(lang().msg(player, "player_not_found"));
                 return true;
             }
             req = plugin.getDuelManager().getRequestFromSender(player.getUniqueId(), target.getUniqueId());
@@ -41,15 +46,15 @@ public class DenyDuelCommand implements CommandExecutor, TabCompleter {
         }
 
         if (req == null) {
-            player.sendMessage(plugin.getMessage("no-duel-request"));
+            player.sendMessage(lang().msg(player, "duel_not_in"));
             return true;
         }
 
         Player senderPlayer = req.getSenderPlayer();
         plugin.getDuelManager().removeRequest(player.getUniqueId());
-        player.sendMessage(plugin.getMessage("duel-declined"));
+        player.sendMessage(lang().msg(player, "friend_deny_refused"));
         if (senderPlayer != null && senderPlayer.isOnline()) {
-            senderPlayer.sendMessage(plugin.getPrefix() + "§c" + player.getName() + " §ca refusé votre duel.");
+            senderPlayer.sendMessage(lang().msg(senderPlayer, "duel_deny_broadcast", "%player%", player.getName()));
         }
         return true;
     }

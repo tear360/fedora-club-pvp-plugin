@@ -54,20 +54,20 @@ public class DuelManager {
 
         receiver.sendMessage("");
         receiver.sendMessage("§5§l═══════════════════════════");
-        receiver.sendMessage("§d⚔ §5Demande de duel!");
-        receiver.sendMessage("§dJoueur: §f" + sender.getName());
-        receiver.sendMessage("§dMode: §f" + mode.getDisplayName());
+        receiver.sendMessage(plugin.getLanguageManager().msgRaw(receiver, "duel_received_title"));
+        receiver.sendMessage(plugin.getLanguageManager().msgRaw(receiver, "duel_received_player", "%player%", sender.getName()));
+        receiver.sendMessage(plugin.getLanguageManager().msgRaw(receiver, "duel_received_mode", "%mode%", mode.getDisplayName()));
         receiver.sendMessage("");
 
-        Component acceptButton = Component.text("[ACCEPTER]", NamedTextColor.GREEN, TextDecoration.BOLD)
+        Component acceptButton = Component.text(plugin.getLanguageManager().msgRaw(receiver, "duel_accept_button"), NamedTextColor.GREEN, TextDecoration.BOLD)
                 .clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, "/acceptduel " + sender.getName()))
-                .hoverEvent(HoverEvent.hoverEvent(HoverEvent.Action.SHOW_TEXT, Component.text("Cliquez pour accepter le duel", NamedTextColor.GREEN)));
+                .hoverEvent(HoverEvent.hoverEvent(HoverEvent.Action.SHOW_TEXT, Component.text(plugin.getLanguageManager().msgRaw(receiver, "duel_accept_hover"), NamedTextColor.GREEN)));
 
-        Component denyButton = Component.text(" [REFUSER]", NamedTextColor.RED, TextDecoration.BOLD)
+        Component denyButton = Component.text(plugin.getLanguageManager().msgRaw(receiver, "duel_deny_button"), NamedTextColor.RED, TextDecoration.BOLD)
                 .clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, "/denyduel " + sender.getName()))
-                .hoverEvent(HoverEvent.hoverEvent(HoverEvent.Action.SHOW_TEXT, Component.text("Cliquez pour refuser le duel", NamedTextColor.RED)));
+                .hoverEvent(HoverEvent.hoverEvent(HoverEvent.Action.SHOW_TEXT, Component.text(plugin.getLanguageManager().msgRaw(receiver, "duel_deny_hover"), NamedTextColor.RED)));
 
-        receiver.sendMessage(Component.text("Action: ", NamedTextColor.LIGHT_PURPLE).append(acceptButton).append(denyButton));
+        receiver.sendMessage(Component.text(plugin.getLanguageManager().msgRaw(receiver, "duel_action"), NamedTextColor.LIGHT_PURPLE).append(acceptButton).append(denyButton));
         receiver.sendMessage("");
         receiver.sendMessage("§5§l═══════════════════════════");
 
@@ -157,7 +157,7 @@ public class DuelManager {
             player1.setHealth(20.0);
             player1.setFoodLevel(20);
             player1.setSaturation(20f);
-            player1.sendActionBar(Component.text("§d§l3 §7..."));
+            player1.sendActionBar(Component.text(plugin.getLanguageManager().msgRaw(player1, "duel_countdown", "%count%", "3")));
         });
 
         player2.teleportAsync(finalLoc2, org.bukkit.event.player.PlayerTeleportEvent.TeleportCause.PLUGIN).thenAccept(success -> {
@@ -166,7 +166,7 @@ public class DuelManager {
             player2.setHealth(20.0);
             player2.setFoodLevel(20);
             player2.setSaturation(20f);
-            player2.sendActionBar(Component.text("§d§l3 §7..."));
+            player2.sendActionBar(Component.text(plugin.getLanguageManager().msgRaw(player2, "duel_countdown", "%count%", "3")));
         });
 
         plugin.getScoreboardManager().createDuelScoreboard(player1, player2, mode);
@@ -185,7 +185,7 @@ public class DuelManager {
             @Override
             public void run() {
                 if (count > 0) {
-                    String msg = "§d§l" + count + " §7...";
+                    String msg = plugin.getLanguageManager().msgRaw(player1, "duel_countdown", "%count%", String.valueOf(count));
                     player1.sendActionBar(Component.text(msg));
                     player2.sendActionBar(Component.text(msg));
                     count--;
@@ -195,11 +195,11 @@ public class DuelManager {
                     countdownActive.remove(player1.getUniqueId());
                     countdownActive.remove(player2.getUniqueId());
 
-                    player1.sendActionBar(Component.text("§a§lGO! §7Combattez!", NamedTextColor.GREEN));
-                    player2.sendActionBar(Component.text("§a§lGO! §7Combattez!", NamedTextColor.GREEN));
+                    player1.sendActionBar(Component.text(plugin.getLanguageManager().msgRaw(player1, "duel_go")));
+                    player2.sendActionBar(Component.text(plugin.getLanguageManager().msgRaw(player2, "duel_go")));
 
-                    player1.sendMessage(plugin.getPrefix() + "§5§lDUEL COMMENCÉ! §dContre §f" + player2.getName() + " §den §f" + mode.getDisplayName());
-                    player2.sendMessage(plugin.getPrefix() + "§5§lDUEL COMMENCÉ! §dContre §f" + player1.getName() + " §den §f" + mode.getDisplayName());
+                    player1.sendMessage(plugin.getLanguageManager().msg(player1, "duel_started", "%player%", player2.getName(), "%mode%", mode.getDisplayName()));
+                    player2.sendMessage(plugin.getLanguageManager().msg(player2, "duel_started", "%player%", player1.getName(), "%mode%", mode.getDisplayName()));
 
                     cancel();
                 }
@@ -252,11 +252,11 @@ public class DuelManager {
             w.setGameMode(GameMode.ADVENTURE);
             w.sendMessage("");
             w.sendMessage("§5§l═══════════════════════════");
-            w.sendMessage("§a§l⚔ VICTOIRE!");
+            w.sendMessage(plugin.getLanguageManager().msg(w, "duel_winner"));
             if (duel.isFFA()) {
-                w.sendMessage("§aVous êtes le dernier en vie de la FFA!");
+                w.sendMessage(plugin.getLanguageManager().msg(w, "duel_winner_ffa"));
             } else {
-                w.sendMessage("§aVous avez gagné contre §d" + (l != null ? l.getName() : "Unknown"));
+                w.sendMessage(plugin.getLanguageManager().msg(w, "duel_winner_against", "%player%", (l != null ? l.getName() : "Unknown")));
             }
             w.sendMessage("§5§l═══════════════════════════");
             w.sendMessage("");
@@ -271,11 +271,11 @@ public class DuelManager {
             l.setGameMode(GameMode.ADVENTURE);
             l.sendMessage("");
             l.sendMessage("§5§l═══════════════════════════");
-            l.sendMessage("§c§l⚔ ÉLIMINÉ");
+            l.sendMessage(plugin.getLanguageManager().msg(l, "duel_eliminated"));
             if (duel.isFFA()) {
-                l.sendMessage("§cVous avez été éliminé de la FFA.");
+                l.sendMessage(plugin.getLanguageManager().msg(l, "duel_eliminated_ffa"));
             } else {
-                l.sendMessage("§cVous avez perdu contre §d" + (w != null ? w.getName() : "Unknown"));
+                l.sendMessage(plugin.getLanguageManager().msg(l, "duel_eliminated_against", "%player%", (w != null ? w.getName() : "Unknown")));
             }
             l.sendMessage("§5§l═══════════════════════════");
             l.sendMessage("");
@@ -294,7 +294,7 @@ public class DuelManager {
                     plugin.getLobbyManager().teleportToLobby(spec);
                     PlayerListener.giveLobbyItems(spec);
                 }
-                spec.sendMessage(plugin.getPrefix() + "§7Le duel est terminé.");
+                spec.sendMessage(plugin.getLanguageManager().msg(spec, "duel_ended"));
             }
         }
         plugin.getTabManager().clearSpectators(duel.getPlayer1());
@@ -419,7 +419,7 @@ public class DuelManager {
             if (p != null && p.isOnline()) online.add(p);
         }
         if (online.size() < 2) {
-            leader.sendMessage(plugin.getPrefix() + "§cPas assez de joueurs en ligne pour lancer une FFA.");
+            leader.sendMessage(plugin.getLanguageManager().msg(leader, "party_ffa_not_enough"));
             return;
         }
 
@@ -457,7 +457,7 @@ public class DuelManager {
                 p.setHealth(20.0);
                 p.setFoodLevel(20);
                 p.setSaturation(20f);
-                p.sendActionBar(Component.text("§d§l3 §7..."));
+                p.sendActionBar(Component.text(plugin.getLanguageManager().msgRaw(p, "duel_countdown", "%count%", "3")));
             });
         }
 
@@ -482,7 +482,7 @@ public class DuelManager {
             public void run() {
                 if (count > 0) {
                     for (Player p : online) {
-                        if (p.isOnline()) p.sendActionBar(Component.text("§d§l" + count + " §7..."));
+                        if (p.isOnline()) p.sendActionBar(Component.text(plugin.getLanguageManager().msgRaw(p, "duel_countdown", "%count%", String.valueOf(count))));
                     }
                     count--;
                 } else {
@@ -491,8 +491,8 @@ public class DuelManager {
                         countdownActive.remove(uuid);
                     }
                     for (Player p : online) {
-                        if (p.isOnline()) p.sendActionBar(Component.text("§a§lGO! §7Combattez!", NamedTextColor.GREEN));
-                        if (p.isOnline()) p.sendMessage(plugin.getPrefix() + "§5§lFFA COMMENCÉ! §dMode: §f" + mode.getDisplayName());
+                        if (p.isOnline()) p.sendActionBar(Component.text(plugin.getLanguageManager().msgRaw(p, "duel_go")));
+                        if (p.isOnline()) p.sendMessage(plugin.getLanguageManager().msg(p, "party_ffa_started", "%mode%", mode.getDisplayName()));
                     }
                     cancel();
                 }

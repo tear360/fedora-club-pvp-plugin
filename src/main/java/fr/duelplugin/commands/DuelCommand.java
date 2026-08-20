@@ -31,21 +31,21 @@ public class DuelCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage("§5Seuls les joueurs peuvent utiliser cette commande.");
+            sender.sendMessage("§5" + plugin.getLanguageManager().msgRaw(null, "command_only_players"));
             return true;
         }
 
         if (args.length == 0) {
-            player.sendMessage(plugin.getPrefix() + "§dUsage: /duel <joueur> §7ou §d/duel leave");
+            player.sendMessage(plugin.getLanguageManager().msg(player, "duel_usage"));
             return true;
         }
 
         if (args[0].equalsIgnoreCase("leave")) {
             if (plugin.getQueueManager().isInAnyQueue(player)) {
                 plugin.getQueueManager().leaveQueue(player);
-                player.sendMessage(plugin.getPrefix() + "§cQueue quittée.");
+                player.sendMessage(plugin.getLanguageManager().msg(player, "duel_queue_left"));
             } else {
-                player.sendMessage(plugin.getPrefix() + "§cVous n'êtes pas en queue.");
+                player.sendMessage(plugin.getLanguageManager().msg(player, "duel_queue_not_in"));
             }
             return true;
         }
@@ -54,7 +54,7 @@ public class DuelCommand implements CommandExecutor, TabCompleter {
         if (target != null) {
             plugin.getDuelGUI().openModeSelector(player, target);
         } else {
-            player.sendMessage(plugin.getMessage("player-not-found"));
+            player.sendMessage(plugin.getLanguageManager().msg(player, "player_not_found"));
         }
         return true;
     }

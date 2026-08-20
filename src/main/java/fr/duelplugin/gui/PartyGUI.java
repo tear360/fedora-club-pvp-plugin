@@ -49,8 +49,8 @@ public class PartyGUI {
         fillGlass(inv, 27);
 
         inv.setItem(13, new ItemBuilder(Material.NETHER_STAR)
-                .name("§a§lCréer une party")
-                .lore("", "§7Créez votre propre party", "§7pour jouer avec vos amis.", "", "§a&lCliquez pour créer")
+                .name(plugin.getLanguageManager().msgRaw(player, "gui_party_create"))
+                .lore("", plugin.getLanguageManager().msgRaw(player, "gui_party_create_lore1"), plugin.getLanguageManager().msgRaw(player, "gui_party_create_lore2"), "", plugin.getLanguageManager().msgRaw(player, "gui_party_create_click"))
                 .build());
 
         UUID pendingInvite = plugin.getPartyManager().getPendingInvite(player.getUniqueId());
@@ -60,12 +60,12 @@ public class PartyGUI {
                 Player leader = Bukkit.getPlayer(pendingInvite);
                 String leaderName = leader != null ? leader.getName() : "???";
                 inv.setItem(11, new ItemBuilder(Material.GREEN_WOOL)
-                        .name("§a§lRejoindre la party")
-                        .lore("", "§7Invité par §d" + leaderName, "§7Membres: §f" + party.getSize(), "", "§a&lCliquez pour accepter")
+                        .name(plugin.getLanguageManager().msgRaw(player, "gui_party_join"))
+                        .lore("", plugin.getLanguageManager().msgRaw(player, "gui_party_join_lore1") + " §d" + leaderName, plugin.getLanguageManager().msgRaw(player, "gui_party_join_lore2") + " §f" + party.getSize(), "", plugin.getLanguageManager().msgRaw(player, "gui_party_join_click"))
                         .build());
                 inv.setItem(15, new ItemBuilder(Material.RED_WOOL)
-                        .name("§c§lRefuser l'invitation")
-                        .lore("", "§7Refuser l'invitation de §d" + leaderName, "", "§c&lCliquez pour refuser")
+                        .name(plugin.getLanguageManager().msgRaw(player, "gui_party_decline"))
+                        .lore("", plugin.getLanguageManager().msgRaw(player, "gui_party_decline_lore1") + " §d" + leaderName, "", plugin.getLanguageManager().msgRaw(player, "gui_party_decline_click"))
                         .build());
             }
         }
@@ -80,28 +80,28 @@ public class PartyGUI {
         fillGlass(inv, 54);
 
         inv.setItem(10, new ItemBuilder(Material.PLAYER_HEAD)
-                .name("§d§lInviter un joueur")
-                .lore("", "§7Invitez un joueur en ligne", "§7dans votre party", "", "§d&lCliquez pour inviter")
+                .name(plugin.getLanguageManager().msgRaw(player, "gui_party_leader_invite"))
+                .lore("", plugin.getLanguageManager().msgRaw(player, "gui_party_leader_invite_lore1"), plugin.getLanguageManager().msgRaw(player, "gui_party_leader_invite_lore2"), "", plugin.getLanguageManager().msgRaw(player, "gui_party_leader_invite_click"))
                 .build());
 
         inv.setItem(11, new ItemBuilder(Material.NETHERITE_SWORD)
-                .name("§d§lLancer une FFA")
-                .lore("", "§7Lancez un combat libre", "§7avec tous les membres", "§7de la party", "", "§d&lCliquez pour lancer")
+                .name(plugin.getLanguageManager().msgRaw(player, "gui_party_leader_ffa"))
+                .lore("", plugin.getLanguageManager().msgRaw(player, "gui_party_leader_ffa_lore1"), plugin.getLanguageManager().msgRaw(player, "gui_party_leader_ffa_lore2"), plugin.getLanguageManager().msgRaw(player, "gui_party_leader_ffa_lore3"), "", plugin.getLanguageManager().msgRaw(player, "gui_party_leader_ffa_click"))
                 .build());
 
         inv.setItem(12, new ItemBuilder(Material.TRIDENT)
-                .name("§d§lTransférer le leadership")
-                .lore("", "§7Transférez la direction", "§7de la party à un membre", "", "§d&lCliquez pour transférer")
+                .name(plugin.getLanguageManager().msgRaw(player, "gui_party_leader_transfer"))
+                .lore("", plugin.getLanguageManager().msgRaw(player, "gui_party_leader_transfer_lore1"), plugin.getLanguageManager().msgRaw(player, "gui_party_leader_transfer_lore2"), "", plugin.getLanguageManager().msgRaw(player, "gui_party_leader_transfer_click"))
                 .build());
 
         inv.setItem(14, new ItemBuilder(Material.RED_WOOL)
-                .name("§c§lDissoudre la party")
-                .lore("", "§7Dissout la party et", "§7expulse tous les membres", "", "§c&lCliquez pour dissoudre")
+                .name(plugin.getLanguageManager().msgRaw(player, "gui_party_leader_disband"))
+                .lore("", plugin.getLanguageManager().msgRaw(player, "gui_party_leader_disband_lore1"), plugin.getLanguageManager().msgRaw(player, "gui_party_leader_disband_lore2"), "", plugin.getLanguageManager().msgRaw(player, "gui_party_leader_disband_click"))
                 .build());
 
         inv.setItem(16, new ItemBuilder(Material.BARRIER)
-                .name("§c§lQuitter la party")
-                .lore("", "§7Quittez votre propre party", "§7(Transfert au 1er membre)", "", "§c&lCliquez pour quitter")
+                .name(plugin.getLanguageManager().msgRaw(player, "gui_party_leader_leave"))
+                .lore("", plugin.getLanguageManager().msgRaw(player, "gui_party_leader_leave_lore1"), plugin.getLanguageManager().msgRaw(player, "gui_party_leader_leave_lore2"), "", plugin.getLanguageManager().msgRaw(player, "gui_party_leader_leave_click"))
                 .build());
 
         int memberSlot = 28;
@@ -118,7 +118,7 @@ public class PartyGUI {
             }
         }
 
-        inv.setItem(49, new ItemBuilder(Material.ARROW).name("§d§lRetour").lore("", "§7Retour au lobby").build());
+        inv.setItem(49, new ItemBuilder(Material.ARROW).name(plugin.getLanguageManager().msgRaw(player, "gui_back")).lore("", plugin.getLanguageManager().msgRaw(player, "gui_back_lobby")).build());
 
         player.openInventory(inv);
     }
@@ -130,8 +130,8 @@ public class PartyGUI {
         fillGlass(inv, 45);
 
         inv.setItem(13, new ItemBuilder(Material.BARRIER)
-                .name("§c§lQuitter la party")
-                .lore("", "§7Quittez la party", "", "§c&lCliquez pour quitter")
+                .name(plugin.getLanguageManager().msgRaw(player, "gui_party_member_leave"))
+                .lore("", plugin.getLanguageManager().msgRaw(player, "gui_party_member_leave_lore"), "", plugin.getLanguageManager().msgRaw(player, "gui_party_member_leave_click"))
                 .build());
 
         Player leader = Bukkit.getPlayer(party.getLeader());
@@ -149,7 +149,7 @@ public class PartyGUI {
             }
         }
 
-        inv.setItem(40, new ItemBuilder(Material.ARROW).name("§d§lRetour").lore("", "§7Retour au lobby").build());
+        inv.setItem(40, new ItemBuilder(Material.ARROW).name(plugin.getLanguageManager().msgRaw(player, "gui_back")).lore("", plugin.getLanguageManager().msgRaw(player, "gui_back_lobby")).build());
 
         player.openInventory(inv);
     }
@@ -173,7 +173,7 @@ public class PartyGUI {
             }
         }
 
-        inv.setItem(22, new ItemBuilder(Material.ARROW).name("§d§lRetour").lore("", "§7Retour à la party").build());
+        inv.setItem(22, new ItemBuilder(Material.ARROW).name(plugin.getLanguageManager().msgRaw(player, "gui_back")).lore("", plugin.getLanguageManager().msgRaw(player, "gui_back_party")).build());
 
         player.openInventory(inv);
     }
@@ -205,15 +205,15 @@ public class PartyGUI {
                     .name(mode.getColoredName())
                     .lore("",
                             mode.isArenaRestricted() ?
-                                    (hasArena ? "&aArènes disponibles" : "&cAucune arène") :
-                                    "&aMode libre",
-                            "§7Lancer une FFA",
-                            "§7avec ce mode", "",
-                            hasArena ? "§d&lCliquez pour lancer" : "§c&lIndisponible")
+                                    (hasArena ? plugin.getLanguageManager().msgRaw(player, "gui_arenas_available") : plugin.getLanguageManager().msgRaw(player, "gui_no_arena")) :
+                                    plugin.getLanguageManager().msgRaw(player, "gui_free_mode"),
+                            plugin.getLanguageManager().msgRaw(player, "gui_ffa_launch"),
+                            plugin.getLanguageManager().msgRaw(player, "gui_ffa_with_mode"), "",
+                            hasArena ? plugin.getLanguageManager().msgRaw(player, "gui_ffa_click_launch") : plugin.getLanguageManager().msgRaw(player, "gui_unavailable"))
                     .build());
         }
 
-        inv.setItem(22, new ItemBuilder(Material.ARROW).name("§d§lRetour").lore("", "§7Retour à la party").build());
+        inv.setItem(22, new ItemBuilder(Material.ARROW).name(plugin.getLanguageManager().msgRaw(player, "gui_back")).lore("", plugin.getLanguageManager().msgRaw(player, "gui_back_party")).build());
 
         player.openInventory(inv);
     }
@@ -232,12 +232,12 @@ public class PartyGUI {
             if (slot >= 17) break;
             Player member = Bukkit.getPlayer(m);
             if (member != null) {
-                inv.setItem(slot, createPlayerHead(member, "§d§lTransférer à §f" + member.getName()));
+                inv.setItem(slot, createPlayerHead(member, plugin.getLanguageManager().msgRaw(player, "gui_party_transfer_to") + " §f" + member.getName()));
                 slot++;
             }
         }
 
-        inv.setItem(22, new ItemBuilder(Material.ARROW).name("§d§lRetour").lore("", "§7Retour à la party").build());
+        inv.setItem(22, new ItemBuilder(Material.ARROW).name(plugin.getLanguageManager().msgRaw(player, "gui_back")).lore("", plugin.getLanguageManager().msgRaw(player, "gui_back_party")).build());
 
         player.openInventory(inv);
     }

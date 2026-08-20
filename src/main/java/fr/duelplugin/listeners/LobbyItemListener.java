@@ -43,17 +43,14 @@ public class LobbyItemListener implements Listener {
 
         ItemStack item = player.getInventory().getItemInMainHand();
         if (item == null || item.getType() == Material.AIR) return;
-        if (item.getItemMeta() == null || item.getItemMeta().getDisplayName() == null) return;
 
-        String name = item.getItemMeta().getDisplayName();
-
-        if (name.contains("§d§lQueue")) {
+        if (item.getType() == Material.NETHERITE_SWORD) {
             event.setCancelled(true);
             openQueueGUI(player);
-        } else if (name.contains("§5§lKits")) {
+        } else if (item.getType() == Material.CRAFTING_TABLE) {
             event.setCancelled(true);
             plugin.getKitEditorGUI().openModeSelector(player);
-        } else if (name.contains("§d§lParty")) {
+        } else if (item.getType() == Material.NETHER_STAR) {
             event.setCancelled(true);
             plugin.getPartyGUI().openPartyMenu(player);
         }
@@ -61,7 +58,7 @@ public class LobbyItemListener implements Listener {
 
     private void openQueueGUI(Player player) {
         Inventory inv = Bukkit.createInventory(null, 45,
-                net.kyori.adventure.text.Component.text("Rejoindre une queue",
+                net.kyori.adventure.text.Component.text(plugin.getLanguageManager().msgRaw(player, "queue_title"),
                         net.kyori.adventure.text.format.NamedTextColor.DARK_PURPLE, net.kyori.adventure.text.format.TextDecoration.BOLD));
 
         for (int i = 0; i < 45; i++) {
@@ -88,12 +85,12 @@ public class LobbyItemListener implements Listener {
                     .lore(
                             "",
                             mode.isArenaRestricted() ?
-                                    (hasArena ? "&aArènes disponibles" : "&cAucune arène") :
-                                    "&aMode libre",
-                            "&7Blocs: " + (mode.canBreakBlocks() ? "&aCassables" : "&cNon cassables"),
+                                    (hasArena ? plugin.getLanguageManager().msgRaw(player, "gui_arenas_available") : plugin.getLanguageManager().msgRaw(player, "gui_no_arena")) :
+                                    plugin.getLanguageManager().msgRaw(player, "gui_free_mode"),
+                            plugin.getLanguageManager().msgRaw(player, "gui_blocks") + (mode.canBreakBlocks() ? plugin.getLanguageManager().msgRaw(player, "gui_blocks_breakable") : plugin.getLanguageManager().msgRaw(player, "gui_blocks_unbreakable")),
                             "&dQueue: &f" + queueSize + " joueur" + (queueSize != 1 ? "s" : ""),
                             "",
-                            "&d&lCliquez pour rejoindre"
+                            plugin.getLanguageManager().msgRaw(player, "gui_click_to_play")
                     ).build());
         }
 
@@ -118,19 +115,19 @@ public class LobbyItemListener implements Listener {
                 if (name.contains(mode.getDisplayName())) {
                     if (plugin.getQueueManager().isInQueue(player, mode)) {
                         plugin.getQueueManager().leaveQueue(player, mode);
-                        player.sendMessage(plugin.getPrefix() + "§cQueue §f" + mode.getDisplayName() + " §cquittée.");
+                        player.sendMessage(plugin.getLanguageManager().msg(player, "queue_left", "%mode%", mode.getDisplayName()));
                         openQueueGUI(player);
                         return;
                     }
                     if (mode.isArenaRestricted() && plugin.getArenaManager().getAvailableArena(mode) == null) {
-                        player.sendMessage(plugin.getPrefix() + "§cAucune arène disponible pour §f" + mode.getDisplayName() + "§c!");
+                        player.sendMessage(plugin.getLanguageManager().msg(player, "queue_no_arena", "%mode%", mode.getDisplayName()));
                         return;
                     }
                     if (plugin.getQueueManager().isInAnyQueue(player)) {
                         plugin.getQueueManager().leaveQueue(player);
                     }
                     plugin.getQueueManager().joinQueue(player, mode);
-                    player.sendMessage(plugin.getPrefix() + "§dQueue rejoinue pour §f" + mode.getDisplayName() + "§d! §7En attente d'un adversaire...");
+                    player.sendMessage(plugin.getLanguageManager().msg(player, "queue_joined", "%mode%", mode.getDisplayName()));
                     player.closeInventory();
                     return;
                 }
@@ -154,22 +151,22 @@ public class LobbyItemListener implements Listener {
                             if (target != null) {
                                 plugin.getDuelGUI().getPendingTarget(player.getUniqueId());
                                 if (mode.isArenaRestricted() && plugin.getArenaManager().getAvailableArena(mode) == null) {
-                                    player.sendMessage(plugin.getPrefix() + "§cAucune arène disponible pour §f" + mode.getDisplayName() + "§c!");
+                                    player.sendMessage(plugin.getLanguageManager().msg(player, "queue_no_arena", "%mode%", mode.getDisplayName()));
                                     player.closeInventory();
                                     return;
                                 }
                                 if (plugin.getDuelManager().isInDuel(player) || plugin.getDuelManager().isInDuel(target)) {
-                                    player.sendMessage(plugin.getPrefix() + "§cUn des joueurs est déjà en duel!");
+                                    player.sendMessage(plugin.getLanguageManager().msg(player, "duel_both_in_duel"));
                                     player.closeInventory();
                                     return;
                                 }
                                 if (plugin.getDuelManager().sendRequest(player, target, mode)) {
-                                    player.sendMessage(plugin.getPrefix() + "§dDemande de duel envoyée à §f" + target.getName() + " §d[" + mode.getDisplayName() + "§d]");
+                                    player.sendMessage(plugin.getLanguageManager().msg(player, "duel_sent", "%player%", target.getName()));
                                 } else {
-                                    player.sendMessage(plugin.getPrefix() + "§cImpossible d'envoyer la demande.");
+                                    player.sendMessage(plugin.getLanguageManager().msg(player, "duel_accept_fail"));
                                 }
                             } else {
-                                player.sendMessage(plugin.getPrefix() + "§cCe joueur n'est plus en ligne.");
+                                player.sendMessage(plugin.getLanguageManager().msg(player, "duel_target_online"));
                             }
                         }
                         player.closeInventory();
@@ -237,7 +234,7 @@ public class LobbyItemListener implements Listener {
 
             if (name.contains("Trims VIP")) {
                 if (!plugin.getVipManager().isVip(player.getUniqueId())) {
-                    player.sendMessage(plugin.getPrefix() + "§cFonctionnalité VIP uniquement!");
+                    player.sendMessage(plugin.getLanguageManager().msg(player, "party_vip_only"));
                     return;
                 }
                 plugin.getKitEditorGUI().openArmorPieceSelector(player);
@@ -339,7 +336,7 @@ public class LobbyItemListener implements Listener {
                             case 3 -> "Casque";
                             default -> "???";
                         };
-                        player.sendMessage(plugin.getPrefix() + "§dTrim appliqué sur §f" + slotName + "§d: §f" + formatTrimName(pattern.getKey().getKey()) + " §7/ §f" + matName);
+                        player.sendMessage(plugin.getLanguageManager().msg(player, "gui_trim_applied", "%slot%", slotName, "%pattern%", formatTrimName(pattern.getKey().getKey()), "%material%", matName));
                     }
                     plugin.getKitEditorGUI().openArmorPieceSelector(player);
                     return;
@@ -359,9 +356,9 @@ public class LobbyItemListener implements Listener {
                 if (itemName.contains("Créer une party")) {
                     if (plugin.getPartyManager().createParty(player)) {
                         player.closeInventory();
-                        player.sendMessage(plugin.getPrefix() + "§aParty créée! §7Invitez des joueurs avec §d/party invite <joueur>");
+                        player.sendMessage(plugin.getLanguageManager().msg(player, "party_created"));
                     } else {
-                        player.sendMessage(plugin.getPrefix() + "§cImpossible de créer la party.");
+                        player.sendMessage(plugin.getLanguageManager().msg(player, "party_invite_expired"));
                     }
                     return;
                 }
@@ -370,20 +367,20 @@ public class LobbyItemListener implements Listener {
                     if (leaderUuid != null) {
                         plugin.getPartyManager().acceptInvite(player);
                         player.closeInventory();
-                        player.sendMessage(plugin.getPrefix() + "§aParty rejointe!");
+                        player.sendMessage(plugin.getLanguageManager().msg(player, "party_joined_broadcast", "%player%", player.getName()));
                     }
                     return;
                 }
                 if (itemName.contains("Refuser l'invitation")) {
                     plugin.getPartyManager().declineInvite(player);
                     player.closeInventory();
-                    player.sendMessage(plugin.getPrefix() + "§cInvitation refusée.");
+                    player.sendMessage(plugin.getLanguageManager().msg(player, "friend_deny_refused"));
                     return;
                 }
                 if (itemName.contains("Quitter la party")) {
                     plugin.getPartyManager().leaveParty(player);
                     player.closeInventory();
-                    player.sendMessage(plugin.getPrefix() + "§cVous avez quitté la party.");
+                    player.sendMessage(plugin.getLanguageManager().msg(player, "party_left"));
                     return;
                 }
                 if (itemName.contains("Retour")) {
@@ -395,7 +392,7 @@ public class LobbyItemListener implements Listener {
             if (cleanTitle.equals("Party (Leader)")) {
                 if (itemName.contains("Inviter un joueur")) {
                     player.closeInventory();
-                    player.sendMessage(plugin.getPrefix() + "§dUtilisez §f/party invite <joueur> §dpour inviter.");
+                    player.sendMessage(plugin.getLanguageManager().msg(player, "party_help_invite"));
                     return;
                 }
                 if (itemName.contains("Lancer une FFA")) {
@@ -409,13 +406,13 @@ public class LobbyItemListener implements Listener {
                 if (itemName.contains("Dissoudre")) {
                     plugin.getPartyManager().disbandParty(player);
                     player.closeInventory();
-                    player.sendMessage(plugin.getPrefix() + "§cParty dissoute.");
+                    player.sendMessage(plugin.getLanguageManager().msg(player, "party_disbanded"));
                     return;
                 }
                 if (itemName.contains("Quitter la party")) {
                     plugin.getPartyManager().leaveParty(player);
                     player.closeInventory();
-                    player.sendMessage(plugin.getPrefix() + "§cVous avez quitté la party.");
+                    player.sendMessage(plugin.getLanguageManager().msg(player, "party_left"));
                     return;
                 }
                 if (itemName.contains("Retour")) {
@@ -434,7 +431,7 @@ public class LobbyItemListener implements Listener {
                         Player member = org.bukkit.Bukkit.getPlayer(m);
                         if (member != null && itemName.contains(member.getName())) {
                             plugin.getPartyManager().kickPlayer(player, member);
-                            player.sendMessage(plugin.getPrefix() + "§c" + member.getName() + " §7a été kické.");
+                            player.sendMessage(plugin.getLanguageManager().msg(player, "party_kicked_broadcast", "%player%", member.getName()));
                             plugin.getPartyGUI().openPartyMenu(player);
                             return;
                         }
@@ -454,7 +451,7 @@ public class LobbyItemListener implements Listener {
                         if (member != null && itemName.contains(member.getName())) {
                             plugin.getPartyManager().transferLeadership(player, member);
                             player.closeInventory();
-                            player.sendMessage(plugin.getPrefix() + "§dLeadership transféré à §f" + member.getName() + "§d!");
+                            player.sendMessage(plugin.getLanguageManager().msg(player, "party_transfer", "%player%", member.getName()));
                             return;
                         }
                     }
@@ -470,7 +467,7 @@ public class LobbyItemListener implements Listener {
                 for (DuelGameMode mode : DuelGameMode.values()) {
                     if (itemName.contains(mode.getDisplayName())) {
                         if (mode.isArenaRestricted() && plugin.getArenaManager().getAvailableArena(mode) == null) {
-                            player.sendMessage(plugin.getPrefix() + "§cAucune arène disponible pour §f" + mode.getDisplayName() + "§c!");
+                            player.sendMessage(plugin.getLanguageManager().msg(player, "queue_no_arena", "%mode%", mode.getDisplayName()));
                             return;
                         }
                         plugin.getDuelManager().startPartyFFA(player, mode);
@@ -531,9 +528,7 @@ public class LobbyItemListener implements Listener {
 
     private boolean isLobbyItem(ItemStack item) {
         if (item == null || item.getType() == Material.AIR) return false;
-        if (item.getItemMeta() == null || item.getItemMeta().getDisplayName() == null) return false;
-        String name = item.getItemMeta().getDisplayName();
-        return name.contains("§d§lQueue") || name.contains("§5§lKits") || name.contains("§d§lParty");
+        return item.getType() == Material.NETHERITE_SWORD || item.getType() == Material.CRAFTING_TABLE || item.getType() == Material.NETHER_STAR;
     }
 
     private Material getModeIcon(DuelGameMode mode) {

@@ -41,12 +41,12 @@ public class ScoreboardManager {
         addLine(obj, line--, "");
         addLine(obj, line--, "+" + player.getName());
         addLine(obj, line--, "");
-        addLine(obj, line--, "Use §b⚔§7 to queue");
-        addLine(obj, line--, "or §b/duel§7 to duel.");
+        addLine(obj, line--, plugin.getLanguageManager().msgRaw(player, "sb_use_queue"));
+        addLine(obj, line--, plugin.getLanguageManager().msgRaw(player, "sb_use_duel"));
         addLine(obj, line--, "");
         addLine(obj, line--, "§7" + date);
         addLine(obj, line--, "");
-        addLine(obj, line--, "§6fedora.free-node.ovh");
+        addLine(obj, line--, plugin.getLanguageManager().msgRaw(player, "sb_ip"));
 
         player.setScoreboard(board);
         scoreboards.put(player.getUniqueId(), board);
@@ -69,12 +69,12 @@ public class ScoreboardManager {
         addLine(obj, line--, "§c⚔ " + player.getName());
         addLine(obj, line--, "§7vs §c" + opponent.getName());
         addLine(obj, line--, "");
-        addLine(obj, line--, "§dMode: §f" + mode.getDisplayName());
+        addLine(obj, line--, plugin.getLanguageManager().msgRaw(player, "sb_mode", "%mode%", mode.getDisplayName()));
         addLine(obj, line--, "§dKills: §f0");
         addLine(obj, line--, "");
         addLine(obj, line--, "§7" + date);
         addLine(obj, line--, "");
-        addLine(obj, line--, "§6fedora.free-node.ovh");
+        addLine(obj, line--, plugin.getLanguageManager().msgRaw(player, "sb_ip"));
 
         player.setScoreboard(board);
         scoreboards.put(player.getUniqueId(), board);

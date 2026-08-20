@@ -34,7 +34,7 @@ public class KitEditorGUI {
 
     public void openModeSelector(Player player) {
         Inventory inv = Bukkit.createInventory(null, 45,
-                Component.text("Éditeur de kits", NamedTextColor.DARK_PURPLE, TextDecoration.BOLD));
+                Component.text(plugin.getLanguageManager().msgRaw(player, "gui_kit_editor_title"), NamedTextColor.DARK_PURPLE, TextDecoration.BOLD));
 
         fillGlass(inv, 45);
 
@@ -50,9 +50,9 @@ public class KitEditorGUI {
                     .name(mode.getColoredName())
                     .lore(
                             "",
-                            hasCustom ? "&a&lKit personnalisé" : "&7Kit par défaut",
+                            hasCustom ? plugin.getLanguageManager().msgRaw(player, "gui_kit_custom") : plugin.getLanguageManager().msgRaw(player, "gui_kit_default"),
                             "",
-                            "&d&lCliquez pour éditer"
+                            plugin.getLanguageManager().msgRaw(player, "gui_kit_click_edit")
                     ).build());
         }
 
@@ -96,10 +96,10 @@ public class KitEditorGUI {
             fillDefaultKit(player, mode, inv);
         }
 
-        inv.setItem(45, new ItemBuilder(Material.LIME_STAINED_GLASS_PANE).name("§a§lSauvegarder").lore("", "§7Cliquez pour sauvegarder").build());
-        inv.setItem(46, new ItemBuilder(Material.RED_STAINED_GLASS_PANE).name("§c§lRéinitialiser").lore("", "§7Cliquez pour réinitialiser").build());
-        inv.setItem(47, new ItemBuilder(Material.ARMOR_STAND).name("§5§lTrims VIP").lore("", "§7Personnalisez les trims", "§7de votre armure", "").build());
-        inv.setItem(49, new ItemBuilder(Material.ARROW).name("§d§lRetour").lore("", "§7Retour au menu").build());
+        inv.setItem(45, new ItemBuilder(Material.LIME_STAINED_GLASS_PANE).name(plugin.getLanguageManager().msgRaw(player, "gui_kit_save")).lore("", plugin.getLanguageManager().msgRaw(player, "gui_kit_save_lore")).build());
+        inv.setItem(46, new ItemBuilder(Material.RED_STAINED_GLASS_PANE).name(plugin.getLanguageManager().msgRaw(player, "gui_kit_reset")).lore("", plugin.getLanguageManager().msgRaw(player, "gui_kit_reset_lore")).build());
+        inv.setItem(47, new ItemBuilder(Material.ARMOR_STAND).name(plugin.getLanguageManager().msgRaw(player, "gui_kit_trims")).lore("", plugin.getLanguageManager().msgRaw(player, "gui_kit_trims_lore1"), plugin.getLanguageManager().msgRaw(player, "gui_kit_trims_lore2"), "").build());
+        inv.setItem(49, new ItemBuilder(Material.ARROW).name(plugin.getLanguageManager().msgRaw(player, "gui_back")).lore("", plugin.getLanguageManager().msgRaw(player, "gui_back_menu")).build());
 
         player.openInventory(inv);
     }
@@ -110,7 +110,7 @@ public class KitEditorGUI {
         if (mode == null) return;
 
         Inventory inv = Bukkit.createInventory(null, 27,
-                Component.text("Choisir une pièce d'armure", NamedTextColor.DARK_PURPLE, TextDecoration.BOLD));
+                Component.text(plugin.getLanguageManager().msgRaw(player, "gui_kit_armor_select"), NamedTextColor.DARK_PURPLE, TextDecoration.BOLD));
 
         fillGlass(inv, 27);
 
@@ -133,7 +133,7 @@ public class KitEditorGUI {
 
         Map<Integer, ArmorTrim> trims = editingTrims.getOrDefault(uuid, new HashMap<>());
 
-        String[] slotNames = {"Bottes", "Jambières", "Plastron", "Casque"};
+        String[] slotNames = {plugin.getLanguageManager().msgRaw(player, "gui_slot_boots"), plugin.getLanguageManager().msgRaw(player, "gui_slot_leggings"), plugin.getLanguageManager().msgRaw(player, "gui_slot_chestplate"), plugin.getLanguageManager().msgRaw(player, "gui_slot_helmet")};
         int[] invSlots = {16, 14, 12, 10};
         int[] armorIndices = {0, 1, 2, 3};
 
@@ -154,17 +154,17 @@ public class KitEditorGUI {
                         "§d" + formatTrimName(trim.getPattern().getKey().getKey()) + " §7/ §d" + formatTrimName(trim.getMaterial().getKey().getKey()) :
                         "§7Aucun";
                 builder.name("§d" + slotNames[armorIdx]);
-                builder.lore("", "§7Type: §f" + formatMaterialName(display.getType()), "§7Trim: " + trimInfo, "", "§d&lCliquez pour éditer");
+                builder.lore("", plugin.getLanguageManager().msgRaw(player, "gui_kit_armor_type") + " §f" + formatMaterialName(display.getType()), plugin.getLanguageManager().msgRaw(player, "gui_kit_armor_trim") + " " + trimInfo, "", plugin.getLanguageManager().msgRaw(player, "gui_kit_click_edit"));
                 inv.setItem(invSlots[i], builder.build());
             } else {
                 inv.setItem(invSlots[i], new ItemBuilder(Material.BARRIER)
                         .name("§c" + slotNames[armorIdx])
-                        .lore("", "§7Aucune armure dans ce slot", "", "§d&lCliquez pour ajouter")
+                        .lore("", plugin.getLanguageManager().msgRaw(player, "gui_kit_no_armor"), "", plugin.getLanguageManager().msgRaw(player, "gui_kit_click_add"))
                         .build());
             }
         }
 
-        inv.setItem(22, new ItemBuilder(Material.ARROW).name("§d§lRetour").lore("", "§7Retour à l'éditeur").build());
+        inv.setItem(22, new ItemBuilder(Material.ARROW).name(plugin.getLanguageManager().msgRaw(player, "gui_back")).lore("", plugin.getLanguageManager().msgRaw(player, "gui_back_editor")).build());
 
         player.openInventory(inv);
     }
@@ -176,7 +176,7 @@ public class KitEditorGUI {
         ArmorTrim current = currentTrims.get(armorSlot);
 
         Inventory inv = Bukkit.createInventory(null, 54,
-                Component.text("Choisir un pattern", NamedTextColor.DARK_PURPLE, TextDecoration.BOLD));
+                Component.text(plugin.getLanguageManager().msgRaw(player, "gui_kit_pattern_select"), NamedTextColor.DARK_PURPLE, TextDecoration.BOLD));
 
         fillGlass(inv, 54);
 
@@ -214,11 +214,11 @@ public class KitEditorGUI {
             boolean isSelected = current != null && current.getPattern().getKey().equals(p.getKey());
             inv.setItem(slots[i], new ItemBuilder(patternIcons[i])
                     .name((isSelected ? "§a✓ " : "§d") + formatTrimName(p.getKey().getKey()))
-                    .lore("", "§7Pattern de trim", isSelected ? "§aSélectionné actuellement" : "", "", "§d&lCliquez pour sélectionner")
+                    .lore("", plugin.getLanguageManager().msgRaw(player, "gui_kit_pattern_info"), isSelected ? plugin.getLanguageManager().msgRaw(player, "gui_kit_pattern_selected") : "", "", plugin.getLanguageManager().msgRaw(player, "gui_kit_click_select"))
                     .build());
         }
 
-        inv.setItem(49, new ItemBuilder(Material.ARROW).name("§d§lRetour").lore("", "§7Retour à la sélection de pièce").build());
+        inv.setItem(49, new ItemBuilder(Material.ARROW).name(plugin.getLanguageManager().msgRaw(player, "gui_back")).lore("", plugin.getLanguageManager().msgRaw(player, "gui_back_armor_select")).build());
 
         player.openInventory(inv);
     }
@@ -231,7 +231,7 @@ public class KitEditorGUI {
         ArmorTrim current = currentTrims.get(armorSlot);
 
         Inventory inv = Bukkit.createInventory(null, 27,
-                Component.text("Choisir un matériau", NamedTextColor.DARK_PURPLE, TextDecoration.BOLD));
+                Component.text(plugin.getLanguageManager().msgRaw(player, "gui_kit_material_select"), NamedTextColor.DARK_PURPLE, TextDecoration.BOLD));
 
         fillGlass(inv, 27);
 
@@ -252,11 +252,11 @@ public class KitEditorGUI {
             boolean isSelected = current != null && current.getMaterial().getKey().equals(m.getKey());
             inv.setItem(slots[i], new ItemBuilder(materialIcons[i])
                     .name((isSelected ? "§a✓ " : "§d") + formatTrimName(m.getKey().getKey()))
-                    .lore("", "§7Matériau de trim", isSelected ? "§aSélectionné actuellement" : "", "", "§d&lCliquez pour sélectionner")
+                    .lore("", plugin.getLanguageManager().msgRaw(player, "gui_kit_material_info"), isSelected ? plugin.getLanguageManager().msgRaw(player, "gui_kit_material_selected") : "", "", plugin.getLanguageManager().msgRaw(player, "gui_kit_click_select"))
                     .build());
         }
 
-        inv.setItem(22, new ItemBuilder(Material.ARROW).name("§d§lRetour").lore("", "§7Retour à la sélection de pattern").build());
+        inv.setItem(22, new ItemBuilder(Material.ARROW).name(plugin.getLanguageManager().msgRaw(player, "gui_back")).lore("", plugin.getLanguageManager().msgRaw(player, "gui_back_pattern_select")).build());
 
         player.openInventory(inv);
     }
@@ -373,13 +373,13 @@ public class KitEditorGUI {
             plugin.getKitManager().saveKitTrims(player.getUniqueId(), mode, trims);
         }
 
-        player.sendMessage(plugin.getPrefix() + "§aKit §d" + mode.getDisplayName() + " §asauvegardé!");
+        player.sendMessage(plugin.getLanguageManager().msg(player, "gui_kit_saved", "%mode%", mode.getDisplayName()));
     }
 
     public void resetKit(Player player, DuelGameMode mode) {
         plugin.getKitManager().deleteKit(player.getUniqueId(), mode);
         editingTrims.remove(player.getUniqueId());
-        player.sendMessage(plugin.getPrefix() + "§dKit réinitialisé aux valeurs par défaut.");
+        player.sendMessage(plugin.getLanguageManager().msg(player, "gui_kit_reset_done"));
     }
 
     public DuelGameMode getEditingMode(UUID uuid) {

@@ -21,13 +21,13 @@ public class LeaveCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage("§cCommande réservée aux joueurs.");
+            sender.sendMessage(plugin.getLanguageManager().msgRaw(null, "command_only_players"));
             return true;
         }
 
         DuelManager.ActiveDuel duel = plugin.getDuelManager().getDuel(player.getUniqueId());
         if (duel == null) {
-            player.sendMessage(plugin.getPrefix() + "§cVous n'êtes pas en duel.");
+            player.sendMessage(plugin.getLanguageManager().msg(player, "leave_not_in_duel"));
             return true;
         }
 
@@ -36,9 +36,9 @@ public class LeaveCommand implements CommandExecutor {
 
         plugin.getDuelManager().endDuel(player.getUniqueId(), opponent, player.getUniqueId());
 
-        player.sendMessage(plugin.getPrefix() + "§cVous avez quitté le duel.");
+        player.sendMessage(plugin.getLanguageManager().msg(player, "duel_leave_success"));
         if (opponentPlayer != null) {
-            opponentPlayer.sendMessage(plugin.getPrefix() + "§d" + player.getName() + " §ca quitté le duel. §aVictoire!");
+            opponentPlayer.sendMessage(plugin.getLanguageManager().msg(opponentPlayer, "duel_leave_opponent_won", "%player%", player.getName()));
         }
 
         return true;

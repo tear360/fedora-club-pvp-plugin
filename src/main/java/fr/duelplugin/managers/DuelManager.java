@@ -150,20 +150,22 @@ public class DuelManager {
         frozenPlayers.add(player1.getUniqueId());
         frozenPlayers.add(player2.getUniqueId());
 
-        player1.teleportAsync(finalLoc1, org.bukkit.event.player.PlayerTeleportEvent.TeleportCause.PLUGIN).thenRun(() -> {
-            if (!player1.isOnline()) return;
+        player1.teleportAsync(finalLoc1, org.bukkit.event.player.PlayerTeleportEvent.TeleportCause.PLUGIN).thenAccept(success -> {
+            if (!success || !player1.isOnline()) return;
             applyKit(player1, mode);
             player1.setHealth(20.0);
             player1.setFoodLevel(20);
             player1.setSaturation(20f);
+            player1.sendActionBar(Component.text("§d§l3 §7..."));
         });
 
-        player2.teleportAsync(finalLoc2, org.bukkit.event.player.PlayerTeleportEvent.TeleportCause.PLUGIN).thenRun(() -> {
-            if (!player2.isOnline()) return;
+        player2.teleportAsync(finalLoc2, org.bukkit.event.player.PlayerTeleportEvent.TeleportCause.PLUGIN).thenAccept(success -> {
+            if (!success || !player2.isOnline()) return;
             applyKit(player2, mode);
             player2.setHealth(20.0);
             player2.setFoodLevel(20);
             player2.setSaturation(20f);
+            player2.sendActionBar(Component.text("§d§l3 §7..."));
         });
 
         plugin.getScoreboardManager().createDuelScoreboard(player1, player2, mode);
@@ -269,7 +271,11 @@ public class DuelManager {
             l.sendMessage("");
             l.sendMessage("§5§l═══════════════════════════");
             l.sendMessage("§c§l⚔ ÉLIMINÉ");
-            l.sendMessage("§cVous avez été éliminé de la FFA.");
+            if (duel.isFFA()) {
+                l.sendMessage("§cVous avez été éliminé de la FFA.");
+            } else {
+                l.sendMessage("§cVous avez perdu contre §d" + (w != null ? w.getName() : "Unknown"));
+            }
             l.sendMessage("§5§l═══════════════════════════");
             l.sendMessage("");
             plugin.getScoreboardManager().removeScoreboard(l);
@@ -444,12 +450,13 @@ public class DuelManager {
             }
 
             final Location finalSpawn = spawn;
-            p.teleportAsync(finalSpawn, org.bukkit.event.player.PlayerTeleportEvent.TeleportCause.PLUGIN).thenRun(() -> {
-                if (!p.isOnline()) return;
+            p.teleportAsync(finalSpawn, org.bukkit.event.player.PlayerTeleportEvent.TeleportCause.PLUGIN).thenAccept(success -> {
+                if (!success || !p.isOnline()) return;
                 applyKit(p, mode);
                 p.setHealth(20.0);
                 p.setFoodLevel(20);
                 p.setSaturation(20f);
+                p.sendActionBar(Component.text("§d§l3 §7..."));
             });
         }
 

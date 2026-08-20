@@ -190,6 +190,7 @@ public class PartyGUI {
 
         for (int i = 0; i < modes.length && i < slots.length; i++) {
             DuelGameMode mode = modes[i];
+            boolean hasArena = !mode.isArenaRestricted() || plugin.getArenaManager().getAvailableArena(mode) != null;
             Material icon = switch (mode) {
                 case SWORD -> Material.DIAMOND_SWORD;
                 case AXE -> Material.DIAMOND_AXE;
@@ -202,7 +203,13 @@ public class PartyGUI {
             };
             inv.setItem(slots[i], new ItemBuilder(icon)
                     .name(mode.getColoredName())
-                    .lore("", "§7Lancer une FFA", "§7avec ce mode", "", "§d&lCliquez pour lancer")
+                    .lore("",
+                            mode.isArenaRestricted() ?
+                                    (hasArena ? "&aArènes disponibles" : "&cAucune arène") :
+                                    "&aMode libre",
+                            "§7Lancer une FFA",
+                            "§7avec ce mode", "",
+                            hasArena ? "§d&lCliquez pour lancer" : "§c&lIndisponible")
                     .build());
         }
 

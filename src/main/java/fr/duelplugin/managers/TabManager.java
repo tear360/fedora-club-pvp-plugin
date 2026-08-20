@@ -119,7 +119,7 @@ public class TabManager {
 
         net.kyori.adventure.text.TextComponent.Builder footerBuilder = Component.text();
         footerBuilder.append(Component.text("\n"))
-                .append(Component.text("▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", NamedTextColor.DARK_PURPLE))
+                .append(Component.text("    ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", NamedTextColor.DARK_PURPLE))
                 .append(Component.text("\n\n"))
                 .append(Component.text("  ⚔ ", NamedTextColor.LIGHT_PURPLE))
                 .append(Component.text(player.getName(), NamedTextColor.WHITE))
@@ -131,23 +131,22 @@ public class TabManager {
                 .append(Component.text("\n"));
 
         if (!specs.isEmpty()) {
-            footerBuilder.append(Component.text("  Spectateurs: ", NamedTextColor.DARK_GRAY))
+            footerBuilder.append(Component.text("\n"))
+                    .append(Component.text("  Spectateurs: ", NamedTextColor.DARK_GRAY))
                     .append(Component.text(String.valueOf(specs.size()), NamedTextColor.GRAY))
                     .append(Component.text("\n"));
         }
 
         footerBuilder.append(Component.text("\n"))
-                .append(Component.text("▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", NamedTextColor.DARK_PURPLE))
+                .append(Component.text("    ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", NamedTextColor.DARK_PURPLE))
                 .append(Component.text("\n"));
 
-        Component footer = footerBuilder.build();
+        player.sendPlayerListHeaderAndFooter(buildHeader(), footerBuilder.build());
 
-        player.sendPlayerListHeaderAndFooter(buildHeader(), footer);
-
-        player.playerListName(Component.text().append(Component.text("⚔ ", NamedTextColor.RED)).append(Component.text(player.getName(), NamedTextColor.RED)).build());
+        player.playerListName(Component.text().append(Component.text("⚔ ", NamedTextColor.DARK_PURPLE)).append(Component.text(player.getName(), NamedTextColor.LIGHT_PURPLE, TextDecoration.BOLD)).build());
 
         if (opponent != null) {
-            opponent.playerListName(Component.text().append(Component.text("⚔ ", NamedTextColor.RED)).append(Component.text(opponent.getName(), NamedTextColor.RED)).build());
+            opponent.playerListName(Component.text().append(Component.text("⚔ ", NamedTextColor.DARK_PURPLE)).append(Component.text(opponent.getName(), NamedTextColor.LIGHT_PURPLE, TextDecoration.BOLD)).build());
         }
 
         for (UUID specUuid : specs) {

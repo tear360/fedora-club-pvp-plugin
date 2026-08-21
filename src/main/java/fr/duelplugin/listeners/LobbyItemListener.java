@@ -122,6 +122,11 @@ public class LobbyItemListener implements Listener {
         String cleanTitle = event.getView().getTitle().replaceAll("§[0-9a-fk-or]", "");
         Material clickedType = event.getCurrentItem() != null ? event.getCurrentItem().getType() : Material.AIR;
 
+        if (cleanTitle.startsWith("Kit ") && !cleanTitle.contains("Kit Editor") && !cleanTitle.contains("Éditeur de kits")) {
+            handleKitEditorClick(event, player);
+            return;
+        }
+
         if (isPluginGUI(cleanTitle, event)) {
             event.setCancelled(true);
             if (clickedType == Material.AIR) return;
@@ -156,11 +161,6 @@ public class LobbyItemListener implements Listener {
 
         if (cleanTitle.contains("Badge VIP") || cleanTitle.contains("VIP Badge")) {
             handleBadgeClick(event, player);
-            return;
-        }
-
-        if (cleanTitle.contains("Kit ") && !cleanTitle.contains("Kit Editor") && !cleanTitle.contains("Éditeur de kits")) {
-            handleKitEditorClick(event, player);
             return;
         }
 

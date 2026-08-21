@@ -76,9 +76,6 @@ public class TabManager {
         footer.append(Component.text("\n"));
 
         if (friendMode) {
-            footer.append(Component.text(plugin.getLanguageManager().msgRaw(player, "tab_mode_friends"), NamedTextColor.LIGHT_PURPLE, TextDecoration.BOLD));
-            footer.append(Component.text("\n"));
-
             Set<UUID> friends = plugin.getFriendsManager().getFriends(player.getUniqueId());
             List<String> offlineNames = new ArrayList<>();
             for (UUID friendUuid : friends) {
@@ -94,6 +91,9 @@ public class TabManager {
                     footer.append(Component.text("  " + name + "\n", NamedTextColor.GRAY));
                 }
             }
+
+            footer.append(Component.text("\n"));
+            footer.append(Component.text(plugin.getLanguageManager().msgRaw(player, "tab_mode_friends"), NamedTextColor.LIGHT_PURPLE, TextDecoration.BOLD));
         } else {
             footer.append(Component.text(" fedora.free-node.ovh", NamedTextColor.GRAY, TextDecoration.BOLD));
         }

@@ -123,7 +123,7 @@ public class PlayerListener implements Listener {
                     if (player.isOnline() && plugin.getLobbyManager().isLobbySet() && !plugin.getDuelManager().isInDuel(player)) {
                         player.getInventory().setItemInOffHand(new ItemStack(Material.WIND_CHARGE, 64));
                     }
-                }, 1L);
+                }, 15L);
             }
         }
 

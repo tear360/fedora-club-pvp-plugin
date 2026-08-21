@@ -167,10 +167,10 @@ public class DuelAdminCommand implements CommandExecutor, TabCompleter {
                 player.sendMessage("§5═══════════════════════");
                 player.sendMessage(lang().msgRaw(player, "arena_info_name", "%name%", arena.getName()));
                 player.sendMessage("§dMode: " + arena.getGameMode().getColoredName());
-                player.sendMessage("§dSpawn 1: " + formatLoc(arena.getSpawn1()));
-                player.sendMessage("§dSpawn 2: " + formatLoc(arena.getSpawn2()));
-                player.sendMessage("§dMin: " + formatLoc(arena.getMinCorner()));
-                player.sendMessage("§dMax: " + formatLoc(arena.getMaxCorner()));
+                player.sendMessage("§dSpawn 1: " + formatLoc(arena.resolveSpawn1()));
+                player.sendMessage("§dSpawn 2: " + formatLoc(arena.resolveSpawn2()));
+                player.sendMessage("§dMin: " + formatLoc(arena.resolveMinCorner()));
+                player.sendMessage("§dMax: " + formatLoc(arena.resolveMaxCorner()));
                 player.sendMessage("§dConfigurée: " + (arena.isSetup() ? lang().msgRaw(player, "arena_configured") : lang().msgRaw(player, "arena_not_configured")));
                 player.sendMessage("§5═══════════════════════");
             }
@@ -184,11 +184,12 @@ public class DuelAdminCommand implements CommandExecutor, TabCompleter {
                     player.sendMessage(lang().msg(player, "arena_not_found"));
                     return;
                 }
-                if (arena.getSpawn1() == null) {
+                Location spawn = arena.resolveSpawn1();
+                if (spawn == null) {
                     player.sendMessage(lang().msg(player, "arena_no_spawn", "%name%", arena.getName()));
                     return;
                 }
-                player.teleport(arena.getSpawn1());
+                player.teleport(spawn);
                 player.sendMessage(lang().msg(player, "arena_teleported", "%name%", arena.getName()));
             }
             case "list" -> {

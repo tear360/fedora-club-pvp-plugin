@@ -92,7 +92,7 @@ public class SpecCommand implements CommandExecutor, TabCompleter {
         spectator.setGameMode(GameMode.ADVENTURE);
 
         if (plugin.getLobbyManager().isLobbySet()) {
-            spectator.teleport(plugin.getLobbyManager().getLobbySpawn());
+            spectator.teleport(plugin.getLobbyManager().resolveLobby());
         }
 
         spectator.sendMessage(lang().msg(spectator, "spec_stopped"));

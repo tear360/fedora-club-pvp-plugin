@@ -76,6 +76,19 @@ public class LobbyManager {
         return loc;
     }
 
+    public Location resolveLobby() {
+        if (lobbySpawn == null) return null;
+        Location loc = lobbySpawn.clone();
+        String worldName = lobbyConfig.getString("lobby.world", "world");
+        if (worldName != null) {
+            World w = Bukkit.getWorld(worldName);
+            if (w != null) {
+                loc.setWorld(w);
+            }
+        }
+        return loc;
+    }
+
     public boolean isLobbySet() {
         return explicitlySet && lobbySpawn != null;
     }
@@ -86,7 +99,7 @@ public class LobbyManager {
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
             if (!player.isOnline()) return;
 
-            Location target = getLobbySpawn();
+            Location target = resolveLobby();
             if (target == null || target.getWorld() == null) return;
 
             player.teleportAsync(target, org.bukkit.event.player.PlayerTeleportEvent.TeleportCause.PLUGIN);

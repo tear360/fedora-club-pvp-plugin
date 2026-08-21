@@ -129,14 +129,12 @@ public class DuelManager {
         }
 
         Location loc1, loc2;
-        if (arena != null && arena.getSpawn1() != null && arena.getSpawn2() != null) {
-            loc1 = arena.getSpawn1().clone();
-            loc2 = arena.getSpawn2().clone();
-            if (loc1.getWorld() == null) loc1.setWorld(Bukkit.getWorlds().get(0));
-            if (loc2.getWorld() == null) loc2.setWorld(Bukkit.getWorlds().get(0));
+        if (arena != null && arena.isSetup()) {
+            loc1 = arena.resolveSpawn1();
+            loc2 = arena.resolveSpawn2();
         } else {
-            Location lobby = plugin.getLobbyManager().getLobbySpawn();
-            if (lobby == null || lobby.getWorld() == null) lobby = new Location(Bukkit.getWorlds().get(0), 0, 64, 0);
+            Location lobby = plugin.getLobbyManager().resolveLobby();
+            if (lobby == null) lobby = new Location(Bukkit.getWorlds().get(0), 0, 64, 0);
             loc1 = lobby.clone().add(2, 0, 0);
             loc2 = lobby.clone().add(-2, 0, 0);
         }
@@ -429,12 +427,11 @@ public class DuelManager {
         }
 
         final Location spawnBase;
-        if (arena != null && arena.getSpawn1() != null) {
-            spawnBase = arena.getSpawn1().clone();
-            if (spawnBase.getWorld() == null) spawnBase.setWorld(Bukkit.getWorlds().get(0));
+        if (arena != null && arena.isSetup()) {
+            spawnBase = arena.resolveSpawn1();
         } else {
-            Location lobby = plugin.getLobbyManager().getLobbySpawn();
-            if (lobby == null || lobby.getWorld() == null) lobby = new Location(Bukkit.getWorlds().get(0), 0, 64, 0);
+            Location lobby = plugin.getLobbyManager().resolveLobby();
+            if (lobby == null) lobby = new Location(Bukkit.getWorlds().get(0), 0, 64, 0);
             spawnBase = lobby.clone();
         }
 
@@ -446,7 +443,7 @@ public class DuelManager {
             int idx = online.indexOf(p);
             double angle = 2 * Math.PI * idx / online.size();
             Location spawn = spawnBase.clone().add(Math.cos(angle) * 3, 0, Math.sin(angle) * 3);
-            if (arena == null || arena.getSpawn1() == null) {
+            if (!arena.isSetup()) {
                 spawn = spawnBase.clone().add(idx * 2 - online.size(), 0, 0);
             }
 

@@ -5,13 +5,10 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
 import org.bukkit.configuration.ConfigurationSection;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class Arena {
 
@@ -21,6 +18,10 @@ public class Arena {
     private Location spawn2;
     private Location minCorner;
     private Location maxCorner;
+    private String spawn1WorldName;
+    private String spawn2WorldName;
+    private String minWorldName;
+    private String maxWorldName;
     private final List<BlockSnapshot> originalBlocks;
     private boolean snapshotActive;
 
@@ -37,31 +38,63 @@ public class Arena {
     public void setGameMode(DuelGameMode gameMode) { this.gameMode = gameMode; }
 
     public Location getSpawn1() { return spawn1; }
-    public void setSpawn1(Location spawn1) { this.spawn1 = spawn1; }
+    public void setSpawn1(Location spawn1) {
+        this.spawn1 = spawn1;
+        this.spawn1WorldName = spawn1 != null && spawn1.getWorld() != null ? spawn1.getWorld().getName() : null;
+    }
 
     public Location getSpawn2() { return spawn2; }
-    public void setSpawn2(Location spawn2) { this.spawn2 = spawn2; }
+    public void setSpawn2(Location spawn2) {
+        this.spawn2 = spawn2;
+        this.spawn2WorldName = spawn2 != null && spawn2.getWorld() != null ? spawn2.getWorld().getName() : null;
+    }
 
     public Location getMinCorner() { return minCorner; }
-    public void setMinCorner(Location minCorner) { this.minCorner = minCorner; }
+    public void setMinCorner(Location minCorner) {
+        this.minCorner = minCorner;
+        this.minWorldName = minCorner != null && minCorner.getWorld() != null ? minCorner.getWorld().getName() : null;
+    }
 
     public Location getMaxCorner() { return maxCorner; }
-    public void setMaxCorner(Location maxCorner) { this.maxCorner = maxCorner; }
+    public void setMaxCorner(Location maxCorner) {
+        this.maxCorner = maxCorner;
+        this.maxWorldName = maxCorner != null && maxCorner.getWorld() != null ? maxCorner.getWorld().getName() : null;
+    }
+
+    public Location resolveSpawn1() { return resolveLocation(spawn1, spawn1WorldName); }
+    public Location resolveSpawn2() { return resolveLocation(spawn2, spawn2WorldName); }
+    public Location resolveMinCorner() { return resolveLocation(minCorner, minWorldName); }
+    public Location resolveMaxCorner() { return resolveLocation(maxCorner, maxWorldName); }
+
+    private static Location resolveLocation(Location loc, String worldName) {
+        if (loc == null) return null;
+        if (worldName != null) {
+            World world = Bukkit.getWorld(worldName);
+            if (world != null && (loc.getWorld() == null || !loc.getWorld().equals(world))) {
+                Location resolved = loc.clone();
+                resolved.setWorld(world);
+                return resolved;
+            }
+        }
+        return loc.clone();
+    }
 
     public boolean isSetup() {
         return spawn1 != null && spawn2 != null;
     }
 
     public boolean isInArena(Location loc) {
-        if (minCorner == null || maxCorner == null || loc.getWorld() == null) return false;
-        if (!loc.getWorld().equals(minCorner.getWorld())) return false;
+        Location min = resolveMinCorner();
+        Location max = resolveMaxCorner();
+        if (min == null || max == null || loc.getWorld() == null) return false;
+        if (!loc.getWorld().equals(min.getWorld())) return false;
         double x = loc.getX(), y = loc.getY(), z = loc.getZ();
-        double minX = Math.min(minCorner.getX(), maxCorner.getX());
-        double minY = Math.min(minCorner.getY(), maxCorner.getY());
-        double minZ = Math.min(minCorner.getZ(), maxCorner.getZ());
-        double maxX = Math.max(minCorner.getX(), maxCorner.getX());
-        double maxY = Math.max(minCorner.getY(), maxCorner.getY());
-        double maxZ = Math.max(minCorner.getZ(), maxCorner.getZ());
+        double minX = Math.min(min.getX(), max.getX());
+        double minY = Math.min(min.getY(), max.getY());
+        double minZ = Math.min(min.getZ(), max.getZ());
+        double maxX = Math.max(min.getX(), max.getX());
+        double maxY = Math.max(min.getY(), max.getY());
+        double maxZ = Math.max(min.getZ(), max.getZ());
         return x >= minX && x <= maxX && y >= minY && y <= maxY && z >= minZ && z <= maxZ;
     }
 
@@ -71,16 +104,18 @@ public class Arena {
 
     public void takeSnapshot() {
         originalBlocks.clear();
-        if (minCorner == null || maxCorner == null) return;
-        World world = minCorner.getWorld();
+        Location min = resolveMinCorner();
+        Location max = resolveMaxCorner();
+        if (min == null || max == null) return;
+        World world = min.getWorld();
         if (world == null) return;
 
-        int minX = (int) Math.min(minCorner.getX(), maxCorner.getX());
-        int minY = (int) Math.min(minCorner.getY(), maxCorner.getY());
-        int minZ = (int) Math.min(minCorner.getZ(), maxCorner.getZ());
-        int maxX = (int) Math.max(minCorner.getX(), maxCorner.getX());
-        int maxY = (int) Math.max(minCorner.getY(), maxCorner.getY());
-        int maxZ = (int) Math.max(minCorner.getZ(), maxCorner.getZ());
+        int minX = (int) Math.min(min.getX(), max.getX());
+        int minY = (int) Math.min(min.getY(), max.getY());
+        int minZ = (int) Math.min(min.getZ(), max.getZ());
+        int maxX = (int) Math.max(min.getX(), max.getX());
+        int maxY = (int) Math.max(min.getY(), max.getY());
+        int maxZ = (int) Math.max(min.getZ(), max.getZ());
 
         for (int x = minX; x <= maxX; x++) {
             for (int y = minY; y <= maxY; y++) {
@@ -100,9 +135,10 @@ public class Arena {
 
     public void restoreFromSnapshot() {
         if (!snapshotActive) return;
+        Location min = resolveMinCorner();
         World world = Bukkit.getWorlds().get(0);
-        if (minCorner != null && minCorner.getWorld() != null) {
-            world = minCorner.getWorld();
+        if (min != null && min.getWorld() != null) {
+            world = min.getWorld();
         }
 
         for (BlockSnapshot snap : originalBlocks) {
@@ -117,12 +153,16 @@ public class Arena {
             }
         }
 
-        int minX = (int) Math.min(minCorner.getX(), maxCorner.getX());
-        int minY = (int) Math.min(minCorner.getY(), maxCorner.getY());
-        int minZ = (int) Math.min(minCorner.getZ(), maxCorner.getZ());
-        int maxX = (int) Math.max(minCorner.getX(), maxCorner.getX());
-        int maxY = (int) Math.max(minCorner.getY(), maxCorner.getY());
-        int maxZ = (int) Math.max(minCorner.getZ(), maxCorner.getZ());
+        if (min == null) return;
+        Location max = resolveMaxCorner();
+        if (max == null) return;
+
+        int minX = (int) Math.min(min.getX(), max.getX());
+        int minY = (int) Math.min(min.getY(), max.getY());
+        int minZ = (int) Math.min(min.getZ(), max.getZ());
+        int maxX = (int) Math.max(min.getX(), max.getX());
+        int maxY = (int) Math.max(min.getY(), max.getY());
+        int maxZ = (int) Math.max(min.getZ(), max.getZ());
 
         for (int x = minX; x <= maxX; x++) {
             for (int y = minY; y <= maxY; y++) {
@@ -175,8 +215,8 @@ public class Arena {
     }
 
     private static Location loadLocation(ConfigurationSection section) {
-        World world = Bukkit.getWorld(section.getString("world", "world"));
-        if (world == null) world = Bukkit.getWorlds().get(0);
+        String worldName = section.getString("world", "world");
+        World world = Bukkit.getWorld(worldName);
         return new Location(world, section.getDouble("x"), section.getDouble("y"), section.getDouble("z"),
                 (float) section.getDouble("yaw"), (float) section.getDouble("pitch"));
     }

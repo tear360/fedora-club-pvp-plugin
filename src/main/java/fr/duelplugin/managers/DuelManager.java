@@ -435,6 +435,10 @@ public class DuelManager {
             arena = plugin.getArenaManager().getAvailableArena(mode);
         }
 
+        if (arena != null && arena.canInteractBlocks()) {
+            arena.takeSnapshot();
+        }
+
         final Location spawnBase;
         if (arena != null && arena.isSetup()) {
             spawnBase = arena.resolveSpawn1();
@@ -525,6 +529,7 @@ public class DuelManager {
         private final long startTime;
         private UUID ffaId;
         private Set<UUID> ffaParticipants;
+        private final Set<String> placedBlocks = new HashSet<>();
 
         public ActiveDuel(UUID player1, UUID player2, DuelGameMode mode, Arena arena) {
             this.player1 = player1;
@@ -559,6 +564,14 @@ public class DuelManager {
 
         public Set<UUID> getFFAParticipants() {
             return ffaParticipants;
+        }
+
+        public void addPlacedBlock(Location loc) {
+            placedBlocks.add(loc.getWorld().getName() + ":" + loc.getBlockX() + ":" + loc.getBlockY() + ":" + loc.getBlockZ());
+        }
+
+        public boolean isPlayerPlacedBlock(Location loc) {
+            return placedBlocks.contains(loc.getWorld().getName() + ":" + loc.getBlockX() + ":" + loc.getBlockY() + ":" + loc.getBlockZ());
         }
     }
 }

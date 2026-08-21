@@ -11,6 +11,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -28,6 +29,19 @@ public class LobbyItemListener implements Listener {
 
     private final DuelPlugin plugin;
     private final Map<UUID, Inventory> queueGUIs = new HashMap<>();
+
+    private static final Map<String, net.kyori.adventure.text.format.TextColor> COLOR_MAP = Map.of(
+            "§c", net.kyori.adventure.text.format.NamedTextColor.RED,
+            "§6", net.kyori.adventure.text.format.NamedTextColor.GOLD,
+            "§e", net.kyori.adventure.text.format.NamedTextColor.YELLOW,
+            "§a", net.kyori.adventure.text.format.NamedTextColor.GREEN,
+            "§b", net.kyori.adventure.text.format.NamedTextColor.AQUA,
+            "§d", net.kyori.adventure.text.format.NamedTextColor.LIGHT_PURPLE,
+            "§5", net.kyori.adventure.text.format.NamedTextColor.DARK_PURPLE,
+            "§f", net.kyori.adventure.text.format.NamedTextColor.WHITE,
+            "§7", net.kyori.adventure.text.format.NamedTextColor.GRAY,
+            "§0", net.kyori.adventure.text.format.NamedTextColor.BLACK
+    );
 
     public LobbyItemListener(DuelPlugin plugin) {
         this.plugin = plugin;
@@ -184,6 +198,7 @@ public class LobbyItemListener implements Listener {
         if (cleanTitle.equals("Choisir un mode FFA")) return true;
         if (cleanTitle.contains("Badge VIP") || cleanTitle.contains("VIP Badge")) return true;
         if (cleanTitle.contains("Kit Editor") || cleanTitle.contains("Éditeur de kits")) return true;
+        if (cleanTitle.startsWith("Kit ")) return true;
         if (cleanTitle.contains("Choisir une pièce") || cleanTitle.contains("Select Armor Piece")) return true;
         if (cleanTitle.equals("Choisir un pattern") || cleanTitle.equals("Select Pattern")) return true;
         if (cleanTitle.equals("Choisir un matériau") || cleanTitle.equals("Select Material")) return true;
@@ -424,7 +439,9 @@ public class LobbyItemListener implements Listener {
         if (item.getType() == Material.BLACK_STAINED_GLASS_PANE || item.getType() == Material.LIME_STAINED_GLASS_PANE) return;
         if (item.getType() != Material.PAPER) return;
 
-        String badge = item.getItemMeta() != null ? item.getItemMeta().getDisplayName() : "";
+        String rawName = item.getItemMeta() != null ? item.getItemMeta().getDisplayName() : "";
+        if (rawName.isEmpty()) return;
+        String badge = rawName.replaceAll("§[0-9a-fk-or]", "");
         if (badge.isEmpty()) return;
 
         String currentBadge = plugin.getVipManager().getBadge(player.getUniqueId());
@@ -440,6 +457,10 @@ public class LobbyItemListener implements Listener {
         UUID uuid = player.getUniqueId();
         String currentBadge = plugin.getVipManager().getBadge(uuid);
         java.util.List<String> badges = plugin.getVipManager().getAvailableBadges();
+
+        String colorCode = plugin.getVipManager().getNameColor(uuid);
+        if (colorCode == null) colorCode = "§d";
+        net.kyori.adventure.text.format.TextColor badgeColor = COLOR_MAP.getOrDefault(colorCode, net.kyori.adventure.text.format.NamedTextColor.LIGHT_PURPLE);
 
         Inventory gui = Bukkit.createInventory(null, 27, net.kyori.adventure.text.Component.text(
                 plugin.getLanguageManager().msgRaw(player, "vip_badges_title"),
@@ -457,7 +478,7 @@ public class LobbyItemListener implements Listener {
             ItemMeta meta = paper.getItemMeta();
             if (meta != null) {
                 boolean isSelected = badge.equals(currentBadge);
-                meta.displayName(net.kyori.adventure.text.Component.text(badge, net.kyori.adventure.text.format.NamedTextColor.WHITE, net.kyori.adventure.text.format.TextDecoration.BOLD));
+                meta.displayName(net.kyori.adventure.text.Component.text(badge, badgeColor, net.kyori.adventure.text.format.TextDecoration.BOLD));
                 if (isSelected) {
                     meta.lore(java.util.List.of(
                         net.kyori.adventure.text.Component.text(plugin.getLanguageManager().msgRaw(player, "vip_badge_selected"), net.kyori.adventure.text.format.NamedTextColor.GREEN)
@@ -676,6 +697,20 @@ public class LobbyItemListener implements Listener {
             sb.append(Character.toUpperCase(part.charAt(0))).append(part.substring(1));
         }
         return sb.toString();
+    }
+
+    @EventHandler
+    public void onInventoryClose(InventoryCloseEvent event) {
+        if (!(event.getPlayer() instanceof Player player)) return;
+        UUID uuid = player.getUniqueId();
+        String cleanTitle = event.getView().getTitle().replaceAll("§[0-9a-fk-or]", "");
+        if (cleanTitle.startsWith("Kit ") && !cleanTitle.contains("Kit Editor") && !cleanTitle.contains("Éditeur de kits")) {
+            DuelGameMode mode = plugin.getKitEditorGUI().getEditingMode(uuid);
+            if (mode != null) {
+                plugin.getKitEditorGUI().saveKit(player, mode, event.getInventory());
+            }
+            plugin.getKitEditorGUI().removeEditingMode(uuid);
+        }
     }
 
     @EventHandler

@@ -40,6 +40,12 @@ public class GameListener implements Listener {
         if (!mode.canBreakBlocks()) {
             event.setCancelled(true);
             player.sendMessage(plugin.getLanguageManager().msg(player, "gamemode_disabled"));
+            return;
+        }
+
+        if (!duel.isPlayerPlacedBlock(event.getBlock().getLocation())) {
+            event.setCancelled(true);
+            player.sendMessage(plugin.getLanguageManager().msg(player, "gamemode_disabled"));
         }
     }
 
@@ -56,7 +62,10 @@ public class GameListener implements Listener {
         if (!mode.canPlaceBlocks()) {
             event.setCancelled(true);
             player.sendMessage(plugin.getLanguageManager().msg(player, "gamemode_disabled"));
+            return;
         }
+
+        duel.addPlacedBlock(event.getBlock().getLocation());
     }
 
     @EventHandler

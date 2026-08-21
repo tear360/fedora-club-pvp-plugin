@@ -54,6 +54,8 @@ public class VIPManager {
     public void setVip(UUID uuid, boolean vip) {
         if (vip) {
             vips.add(uuid);
+            vipConfig.set("players." + uuid.toString(), true);
+            save();
         } else {
             vips.remove(uuid);
             nameColors.remove(uuid);

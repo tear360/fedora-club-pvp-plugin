@@ -39,23 +39,22 @@ public class LobbyItemListener implements Listener {
         if (plugin.getDuelManager().isInDuel(player)) return;
         if (event.getAction() != Action.RIGHT_CLICK_AIR && event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
 
-        ItemStack offhand = player.getInventory().getItemInOffHand();
-        if (offhand.getType() == Material.WIND_CHARGE && plugin.getVipManager().isVip(player.getUniqueId())) {
+        ItemStack item = player.getInventory().getItemInMainHand();
+        if (item != null && isLobbyItem(item)) {
+            event.setCancelled(true);
+            if (item.getType() == Material.NETHERITE_SWORD) {
+                openQueueGUI(player);
+            } else if (item.getType() == Material.CRAFTING_TABLE) {
+                plugin.getKitEditorGUI().openModeSelector(player);
+            } else if (item.getType() == Material.NETHER_STAR) {
+                plugin.getPartyGUI().openPartyMenu(player);
+            }
             return;
         }
 
-        ItemStack item = player.getInventory().getItemInMainHand();
-        if (item == null || item.getType() == Material.AIR) return;
-
-        if (item.getType() == Material.NETHERITE_SWORD) {
-            event.setCancelled(true);
-            openQueueGUI(player);
-        } else if (item.getType() == Material.CRAFTING_TABLE) {
-            event.setCancelled(true);
-            plugin.getKitEditorGUI().openModeSelector(player);
-        } else if (item.getType() == Material.NETHER_STAR) {
-            event.setCancelled(true);
-            plugin.getPartyGUI().openPartyMenu(player);
+        ItemStack offhand = player.getInventory().getItemInOffHand();
+        if (offhand.getType() == Material.WIND_CHARGE && plugin.getVipManager().isVip(player.getUniqueId())) {
+            return;
         }
     }
 

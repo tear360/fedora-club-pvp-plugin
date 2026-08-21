@@ -207,9 +207,9 @@ public class PartyGUI {
                             mode.isArenaRestricted() ?
                                     (hasArena ? plugin.getLanguageManager().msgRaw(player, "gui_arenas_available") : plugin.getLanguageManager().msgRaw(player, "gui_no_arena")) :
                                     plugin.getLanguageManager().msgRaw(player, "gui_free_mode"),
-                            plugin.getLanguageManager().msgRaw(player, "gui_ffa_launch"),
-                            plugin.getLanguageManager().msgRaw(player, "gui_ffa_with_mode"), "",
-                            hasArena ? plugin.getLanguageManager().msgRaw(player, "gui_ffa_click_launch") : plugin.getLanguageManager().msgRaw(player, "gui_unavailable"))
+                            plugin.getLanguageManager().msgRaw(player, "gui_party_ffa_launch"),
+                            plugin.getLanguageManager().msgRaw(player, "gui_party_ffa_with_mode"), "",
+                            hasArena ? plugin.getLanguageManager().msgRaw(player, "gui_party_ffa_click_launch") : plugin.getLanguageManager().msgRaw(player, "gui_unavailable"))
                     .build());
         }
 

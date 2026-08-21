@@ -418,7 +418,7 @@ public class DuelManager {
             Player p = Bukkit.getPlayer(uuid);
             if (p != null && p.isOnline()) online.add(p);
         }
-        if (online.size() < 2) {
+        if (online.size() < 3) {
             leader.sendMessage(plugin.getLanguageManager().msg(leader, "party_ffa_not_enough"));
             return;
         }

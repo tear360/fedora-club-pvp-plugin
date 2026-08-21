@@ -305,8 +305,8 @@ public class LanguageManager {
             "&5&lFFA COMMENCÉ! &dMode: &f%mode%",
             "&5&lFFA STARTED! &dMode: &f%mode%");
         tBoth("party_ffa_not_enough",
-            "&cPas assez de joueurs en ligne pour lancer une FFA.",
-            "&cNot enough online players to start an FFA.");
+            "&cIl faut au moins 3 joueurs pour lancer un FFA.",
+            "&cYou need at least 3 players to start an FFA.");
         tBoth("party_help_title",
             "&d&lCommandes Party",
             "&d&lParty Commands");
@@ -894,7 +894,7 @@ public class LanguageManager {
             "&d&lCliquez pour inviter",
             "&d&lClick to invite");
         tBoth("gui_party_leader_ffa",
-            "&d&lLancer une FFA",
+            "&d&lLancer un FFA",
             "&d&lStart FFA");
         tBoth("gui_party_leader_ffa_lore1",
             "&7Lancez un combat libre",
@@ -975,7 +975,7 @@ public class LanguageManager {
             "Choisir un mode FFA",
             "Select FFA Mode");
         tBoth("gui_party_ffa_launch",
-            "&7Lancer une FFA",
+            "&7Lancer un FFA",
             "&7Start an FFA");
         tBoth("gui_party_ffa_with_mode",
             "&7avec ce mode",

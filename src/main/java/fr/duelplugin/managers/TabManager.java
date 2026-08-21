@@ -48,10 +48,77 @@ public class TabManager {
         for (Player player : Bukkit.getOnlinePlayers()) {
             if (plugin.getDuelManager().isInDuel(player)) {
                 updateDuelTab(player);
+            } else if (isSpectating(player.getUniqueId())) {
+                updateSpectatorTab(player);
             } else {
                 updateLobbyTab(player);
             }
         }
+
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            boolean playerInDuel = plugin.getDuelManager().isInDuel(player) || isSpectating(player.getUniqueId());
+
+            for (Player other : Bukkit.getOnlinePlayers()) {
+                if (player.getUniqueId().equals(other.getUniqueId())) continue;
+
+                boolean otherInDuel = plugin.getDuelManager().isInDuel(other) || isSpectating(other.getUniqueId());
+
+                if (playerInDuel && !otherInDuel) {
+                    player.hidePlayer(plugin, other);
+                } else if (!playerInDuel && otherInDuel) {
+                    player.hidePlayer(plugin, other);
+                } else if (playerInDuel && otherInDuel) {
+                    DuelManager.ActiveDuel playerDuel = plugin.getDuelManager().getDuel(player.getUniqueId());
+                    DuelManager.ActiveDuel otherDuel = plugin.getDuelManager().getDuel(other.getUniqueId());
+
+                    if (playerDuel != null && otherDuel != null && playerDuel == otherDuel) {
+                        player.showPlayer(plugin, other);
+                    } else if (playerDuel != null && otherDuel == null && plugin.getTabManager().getSpectators(playerDuel.getPlayer1()).contains(other.getUniqueId())) {
+                        player.showPlayer(plugin, other);
+                    } else {
+                        player.hidePlayer(plugin, other);
+                    }
+                } else {
+                    if (friendTabActive.contains(player.getUniqueId())) {
+                        Set<UUID> friends = plugin.getFriendsManager().getFriends(player.getUniqueId());
+                        if (friends.contains(other.getUniqueId())) {
+                            player.showPlayer(plugin, other);
+                        } else {
+                            player.hidePlayer(plugin, other);
+                        }
+                    } else {
+                        player.showPlayer(plugin, other);
+                    }
+                }
+            }
+        }
+    }
+
+    private void updateSpectatorTab(Player player) {
+        DuelManager.ActiveDuel duel = plugin.getDuelManager().getDuelOfSpectator(player.getUniqueId());
+        if (duel == null) return;
+
+        UUID opponentUuid = duel.getOpponent(duel.getPlayer1());
+        Player p1 = Bukkit.getPlayer(duel.getPlayer1());
+        Player p2 = Bukkit.getPlayer(opponentUuid);
+
+        net.kyori.adventure.text.TextComponent.Builder footerBuilder = Component.text();
+        footerBuilder.append(Component.text("\n"))
+                .append(Component.text("    ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", NamedTextColor.DARK_PURPLE))
+                .append(Component.text("\n\n"))
+                .append(Component.text("  👁 ", NamedTextColor.GRAY))
+                .append(Component.text(p1 != null ? p1.getName() : "???", NamedTextColor.WHITE))
+                .append(Component.text(" vs ", NamedTextColor.GRAY))
+                .append(Component.text(p2 != null ? p2.getName() : "???", NamedTextColor.LIGHT_PURPLE))
+                .append(Component.text("\n"))
+                .append(Component.text("  Mode: ", NamedTextColor.GRAY))
+                .append(Component.text(duel.getMode().getDisplayName(), NamedTextColor.LIGHT_PURPLE))
+                .append(Component.text("\n"))
+                .append(Component.text("\n    ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", NamedTextColor.DARK_PURPLE))
+                .append(Component.text("\n"));
+
+        player.sendPlayerListHeaderAndFooter(buildHeader(), footerBuilder.build());
+        player.playerListName(Component.text().append(Component.text("👁 ", NamedTextColor.GRAY)).append(Component.text(player.getName(), NamedTextColor.GRAY)).build());
     }
 
     private Component buildHeader() {
@@ -230,6 +297,13 @@ public class TabManager {
 
     public Set<UUID> getSpectators(UUID duelOwner) {
         return spectators.getOrDefault(duelOwner, new HashSet<>());
+    }
+
+    public boolean isSpectating(UUID player) {
+        for (Set<UUID> specs : spectators.values()) {
+            if (specs.contains(player)) return true;
+        }
+        return false;
     }
 
     public void clearSpectators(UUID duelOwner) {

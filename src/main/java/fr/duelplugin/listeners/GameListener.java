@@ -1,9 +1,11 @@
 package fr.duelplugin.listeners;
 
 import fr.duelplugin.DuelPlugin;
+import fr.duelplugin.managers.DuelManager;
 import fr.duelplugin.models.DuelGameMode;
 import org.bukkit.GameMode;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -19,6 +21,7 @@ import java.util.Set;
 public class GameListener implements Listener {
 
     private final DuelPlugin plugin;
+    private static final double SPEC_RADIUS = 100.0;
 
     public GameListener(DuelPlugin plugin) {
         this.plugin = plugin;
@@ -97,7 +100,9 @@ public class GameListener implements Listener {
                 participants.remove(victim.getUniqueId());
 
                 victim.sendMessage(plugin.getLanguageManager().msg(victim, "duel_eliminated_ffa"));
-                victim.setGameMode(GameMode.SPECTATOR);
+                plugin.getDuelManager().restoreInventory(victim);
+                PlayerListener.giveLobbyItems(victim);
+                victim.setGameMode(GameMode.ADVENTURE);
                 if (plugin.getLobbyManager().isLobbySet()) {
                     plugin.getLobbyManager().teleportToLobby(victim);
                 }
@@ -147,6 +152,29 @@ public class GameListener implements Listener {
             return;
         }
 
+        if (plugin.getTabManager().isSpectating(player.getUniqueId())) {
+            if (player.getGameMode() != GameMode.SPECTATOR) {
+                player.setGameMode(GameMode.SPECTATOR);
+            }
+
+            DuelManager.ActiveDuel specDuel = plugin.getDuelManager().getDuelOfSpectator(player.getUniqueId());
+            if (specDuel != null) {
+                Location center = getDuelCenter(specDuel);
+                if (center != null && player.getWorld().equals(center.getWorld())) {
+                    double dist = player.getLocation().distance(center);
+                    if (dist > SPEC_RADIUS) {
+                        Player target = Bukkit.getPlayer(specDuel.getPlayer1());
+                        if (target != null) {
+                            player.teleport(target.getLocation());
+                        } else {
+                            player.teleport(center);
+                        }
+                    }
+                }
+            }
+            return;
+        }
+
         if (!plugin.getDuelManager().isInDuel(player)) return;
 
         var duel = plugin.getDuelManager().getDuel(player.getUniqueId());
@@ -157,5 +185,23 @@ public class GameListener implements Listener {
                 player.teleport(event.getFrom());
             }
         }
+    }
+
+    private Location getDuelCenter(DuelManager.ActiveDuel duel) {
+        if (duel.getArena() != null) {
+            Location min = duel.getArena().resolveMinCorner();
+            Location max = duel.getArena().resolveMaxCorner();
+            if (min != null && max != null && min.getWorld() != null) {
+                return new Location(min.getWorld(),
+                        (min.getX() + max.getX()) / 2,
+                        (min.getY() + max.getY()) / 2,
+                        (min.getZ() + max.getZ()) / 2);
+            }
+        }
+        Player p1 = Bukkit.getPlayer(duel.getPlayer1());
+        if (p1 != null) return p1.getLocation();
+        Player p2 = Bukkit.getPlayer(duel.getPlayer2());
+        if (p2 != null) return p2.getLocation();
+        return null;
     }
 }

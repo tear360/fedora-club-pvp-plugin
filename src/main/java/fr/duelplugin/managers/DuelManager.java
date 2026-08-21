@@ -366,6 +366,15 @@ public class DuelManager {
         return activeDuels.get(uuid);
     }
 
+    public ActiveDuel getDuelOfSpectator(UUID spectatorUuid) {
+        for (ActiveDuel duel : activeDuels.values()) {
+            if (plugin.getTabManager().getSpectators(duel.getPlayer1()).contains(spectatorUuid)) {
+                return duel;
+            }
+        }
+        return null;
+    }
+
     public void saveInventory(Player player) {
         savedInventories.put(player.getUniqueId(), player.getInventory().getContents().clone());
         savedArmor.put(player.getUniqueId(), player.getInventory().getArmorContents().clone());

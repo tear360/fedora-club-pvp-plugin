@@ -103,25 +103,21 @@ public class LobbyItemListener implements Listener {
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
         if (!(event.getWhoClicked() instanceof Player player)) return;
-        if (event.getCurrentItem() == null || event.getCurrentItem().getType() == Material.AIR) return;
-        Material clickedType = event.getCurrentItem().getType();
-        if (clickedType == Material.BLACK_STAINED_GLASS_PANE || clickedType == Material.PURPLE_STAINED_GLASS_PANE) return;
 
-        Material topIcon = null;
-        if (event.getView().getTopInventory() != null && event.getView().getTopInventory().getItem(10) != null) {
-            topIcon = event.getView().getTopInventory().getItem(10).getType();
+        String cleanTitle = event.getView().getTitle().replaceAll("§[0-9a-fk-or]", "");
+        Material clickedType = event.getCurrentItem() != null ? event.getCurrentItem().getType() : Material.AIR;
+
+        if (isPluginGUI(cleanTitle, event)) {
+            event.setCancelled(true);
+            if (clickedType == Material.AIR) return;
+        } else {
+            return;
         }
-
-        boolean isQueueGUI = topIcon != null && isModeIcon(topIcon);
-        boolean isDuelGUI = plugin.getDuelGUI().peekPendingTarget(player.getUniqueId()) != null || hasDuelGUITitle(event);
-        boolean isKitEditorModeSelect = !isQueueGUI && !isDuelGUI && clickedType != Material.AIR && isModeIcon(clickedType);
 
         if (queueGUIs.containsKey(player.getUniqueId()) && event.getView().getTopInventory() == queueGUIs.get(player.getUniqueId())) {
             handleQueueClick(event, player);
             return;
         }
-
-        String cleanTitle = event.getView().getTitle().replaceAll("§[0-9a-fk-or]", "");
 
         if (cleanTitle.equals("Party") || cleanTitle.contains("Party (Leader)") || cleanTitle.equals("Party")) {
             handlePartyClick(event, player, cleanTitle);
@@ -178,6 +174,25 @@ public class LobbyItemListener implements Listener {
             handleDuelGUIClick(event, player, cleanTitle);
             return;
         }
+    }
+
+    private boolean isPluginGUI(String cleanTitle, InventoryClickEvent event) {
+        if (cleanTitle.equals("Party") || cleanTitle.contains("Party (Leader)")) return true;
+        if (cleanTitle.equals("Kick un membre")) return true;
+        if (cleanTitle.equals("Transférer le leadership")) return true;
+        if (cleanTitle.equals("Choisir un mode FFA")) return true;
+        if (cleanTitle.contains("Badge VIP") || cleanTitle.contains("VIP Badge")) return true;
+        if (cleanTitle.contains("Kit Editor") || cleanTitle.contains("Éditeur de kits")) return true;
+        if (cleanTitle.contains("Kit ")) return true;
+        if (cleanTitle.contains("Choisir une pièce") || cleanTitle.contains("Select Armor Piece")) return true;
+        if (cleanTitle.equals("Choisir un pattern") || cleanTitle.equals("Select Pattern")) return true;
+        if (cleanTitle.equals("Choisir un matériau") || cleanTitle.equals("Select Material")) return true;
+        if (cleanTitle.contains("Sélection de mode") || cleanTitle.contains("Mode Selection")
+                || cleanTitle.contains("Défi →") || cleanTitle.contains("Challenge →")) return true;
+        if (queueGUIs.containsKey(event.getWhoClicked().getUniqueId())) return true;
+        if (event.getView().getTopInventory() != null && event.getView().getTopInventory().getItem(10) != null
+                && isModeIcon(event.getView().getTopInventory().getItem(10).getType())) return true;
+        return false;
     }
 
     private void handleDuelGUIClick(InventoryClickEvent event, Player player, String cleanTitle) {

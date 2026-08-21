@@ -588,6 +588,9 @@ public class LanguageManager {
         tBoth("vip_help_color",
             "&d/vip color &7- Changer la couleur de nom",
             "&d/vip color &7- Change name color");
+        tBoth("vip_help_badges",
+            "&d/vip badges &7- Choisir votre badge",
+            "&d/vip badges &7- Choose your badge");
         tBoth("vip_help_info",
             "&d/vip info &7- Infos VIP",
             "&d/vip info &7- VIP Info");
@@ -604,6 +607,15 @@ public class LanguageManager {
         tBoth("vip_colors_available",
             "&dCouleurs disponibles:",
             "&dAvailable colors:");
+        tBoth("vip_badges_title",
+            "&5Badge VIP",
+            "&5VIP Badge");
+        tBoth("vip_badge_selected",
+            "&aSelectionné",
+            "&aSelected");
+        tBoth("vip_badge_click",
+            "&7Cliquez pour sélectionner",
+            "&7Click to select");
 
         // ───────────── SPEC ─────────────
         tBoth("spec_usage",

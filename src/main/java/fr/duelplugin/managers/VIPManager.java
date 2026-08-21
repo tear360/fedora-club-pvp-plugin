@@ -14,7 +14,12 @@ public class VIPManager {
     private final File vipFile;
     private final FileConfiguration vipConfig;
     private final Map<UUID, String> nameColors = new HashMap<>();
+    private final Map<UUID, String> badges = new HashMap<>();
     private final Set<UUID> vips = new HashSet<>();
+
+    private static final String DEFAULT_BADGE = "★";
+    private static final List<String> AVAILABLE_BADGES = List.of("★", "❤", "✦", "⚡", "🏆");
+    private static final List<String> BADGE_NAMES = List.of("Etoile", "Coeur", "Diamant", "Eclair", "Trophee");
 
     public VIPManager(DuelPlugin plugin) {
         this.plugin = plugin;
@@ -35,6 +40,10 @@ public class VIPManager {
             if (color != null) {
                 nameColors.put(uuid, color);
             }
+            String badge = vipConfig.getString("players." + uuidStr + ".badge");
+            if (badge != null && AVAILABLE_BADGES.contains(badge)) {
+                badges.put(uuid, badge);
+            }
         }
     }
 
@@ -48,6 +57,7 @@ public class VIPManager {
         } else {
             vips.remove(uuid);
             nameColors.remove(uuid);
+            badges.remove(uuid);
             vipConfig.set("players." + uuid.toString(), null);
             save();
         }
@@ -80,6 +90,33 @@ public class VIPManager {
         return Arrays.asList(
                 "Rouge", "Or", "Jaune", "Vert", "Aqua", "Rose", "Violet", "Blanc", "Gris", "Noir"
         );
+    }
+
+    public String getBadge(UUID uuid) {
+        return badges.getOrDefault(uuid, DEFAULT_BADGE);
+    }
+
+    public void setBadge(UUID uuid, String badge) {
+        if (badge == null || badge.equals(DEFAULT_BADGE)) {
+            badges.remove(uuid);
+            vipConfig.set("players." + uuid.toString() + ".badge", null);
+        } else {
+            badges.put(uuid, badge);
+            vipConfig.set("players." + uuid.toString() + ".badge", badge);
+        }
+        save();
+    }
+
+    public String getDefaultBadge() {
+        return DEFAULT_BADGE;
+    }
+
+    public List<String> getAvailableBadges() {
+        return AVAILABLE_BADGES;
+    }
+
+    public List<String> getBadgeNames() {
+        return BADGE_NAMES;
     }
 
     private void save() {

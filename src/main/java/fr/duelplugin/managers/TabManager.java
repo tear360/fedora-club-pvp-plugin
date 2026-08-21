@@ -119,7 +119,7 @@ public class TabManager {
             String colorCode = plugin.getVipManager().getNameColor(player.getUniqueId());
             if (colorCode == null) colorCode = "§d";
             TextColor color = COLOR_MAP.getOrDefault(colorCode, NamedTextColor.LIGHT_PURPLE);
-            player.playerListName(Component.text().append(Component.text(prefix + "★ ", color)).append(Component.text(player.getName(), color)).build());
+            player.playerListName(Component.text().append(Component.text(prefix + plugin.getVipManager().getBadge(player.getUniqueId()) + " ", color)).append(Component.text(player.getName(), color)).build());
         } else {
             player.playerListName(Component.text(prefix + player.getName(), NamedTextColor.WHITE));
         }

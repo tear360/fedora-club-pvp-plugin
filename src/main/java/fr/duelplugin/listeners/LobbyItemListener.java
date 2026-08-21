@@ -16,6 +16,7 @@ import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.trim.TrimMaterial;
 import org.bukkit.inventory.meta.trim.TrimPattern;
 
@@ -135,6 +136,11 @@ public class LobbyItemListener implements Listener {
 
         if (cleanTitle.equals("Choisir un mode FFA")) {
             handleFFAClick(event, player);
+            return;
+        }
+
+        if (cleanTitle.contains("Badge VIP") || cleanTitle.contains("VIP Badge")) {
+            handleBadgeClick(event, player);
             return;
         }
 
@@ -390,6 +396,65 @@ public class LobbyItemListener implements Listener {
                 return;
             }
         }
+    }
+
+    private void handleBadgeClick(InventoryClickEvent event, Player player) {
+        event.setCancelled(true);
+        ItemStack item = event.getCurrentItem();
+        if (item == null || item.getType() == Material.AIR) return;
+        if (item.getType() == Material.BLACK_STAINED_GLASS_PANE || item.getType() == Material.LIME_STAINED_GLASS_PANE) return;
+        if (item.getType() != Material.PAPER) return;
+
+        String badge = item.getItemMeta() != null ? item.getItemMeta().getDisplayName() : "";
+        if (badge.isEmpty()) return;
+
+        String currentBadge = plugin.getVipManager().getBadge(player.getUniqueId());
+        if (badge.equals(currentBadge)) {
+            plugin.getVipManager().setBadge(player.getUniqueId(), plugin.getVipManager().getDefaultBadge());
+        } else {
+            plugin.getVipManager().setBadge(player.getUniqueId(), badge);
+        }
+        openBadgeGUI(player);
+    }
+
+    private void openBadgeGUI(Player player) {
+        UUID uuid = player.getUniqueId();
+        String currentBadge = plugin.getVipManager().getBadge(uuid);
+        java.util.List<String> badges = plugin.getVipManager().getAvailableBadges();
+
+        Inventory gui = Bukkit.createInventory(null, 27, net.kyori.adventure.text.Component.text(
+                plugin.getLanguageManager().msgRaw(player, "vip_badges_title"),
+                net.kyori.adventure.text.format.NamedTextColor.DARK_PURPLE,
+                net.kyori.adventure.text.format.TextDecoration.BOLD));
+
+        for (int i = 0; i < 27; i++) {
+            gui.setItem(i, new ItemStack(Material.BLACK_STAINED_GLASS_PANE));
+        }
+
+        int slot = 10;
+        for (String badge : badges) {
+            gui.setItem(slot - 1, new ItemStack(Material.LIME_STAINED_GLASS_PANE));
+            ItemStack paper = new ItemStack(Material.PAPER);
+            ItemMeta meta = paper.getItemMeta();
+            if (meta != null) {
+                boolean isSelected = badge.equals(currentBadge);
+                meta.displayName(net.kyori.adventure.text.Component.text(badge, net.kyori.adventure.text.format.NamedTextColor.WHITE, net.kyori.adventure.text.format.TextDecoration.BOLD));
+                if (isSelected) {
+                    meta.lore(java.util.List.of(
+                        net.kyori.adventure.text.Component.text(plugin.getLanguageManager().msgRaw(player, "vip_badge_selected"), net.kyori.adventure.text.format.NamedTextColor.GREEN)
+                    ));
+                } else {
+                    meta.lore(java.util.List.of(
+                        net.kyori.adventure.text.Component.text(plugin.getLanguageManager().msgRaw(player, "vip_badge_click"), net.kyori.adventure.text.format.NamedTextColor.GRAY)
+                    ));
+                }
+                paper.setItemMeta(meta);
+            }
+            gui.setItem(slot, paper);
+            slot += 2;
+        }
+
+        player.openInventory(gui);
     }
 
     private void handleKitEditorModeSelect(InventoryClickEvent event, Player player) {

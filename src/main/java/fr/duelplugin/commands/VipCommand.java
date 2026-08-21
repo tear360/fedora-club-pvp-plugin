@@ -2,12 +2,19 @@ package fr.duelplugin.commands;
 
 import fr.duelplugin.DuelPlugin;
 import fr.duelplugin.managers.LanguageManager;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -50,6 +57,13 @@ public class VipCommand implements CommandExecutor, TabCompleter {
                     return true;
                 }
                 handleInfo(player);
+            }
+            case "badges" -> {
+                if (!(sender instanceof Player player)) {
+                    sender.sendMessage(lang().msgRaw(null, "command_only_players"));
+                    return true;
+                }
+                handleBadges(player);
             }
             default -> {
                 if (sender instanceof Player p) sendHelp(p);
@@ -155,6 +169,47 @@ public class VipCommand implements CommandExecutor, TabCompleter {
         }
     }
 
+    private void handleBadges(Player player) {
+        UUID uuid = player.getUniqueId();
+        if (!plugin.getVipManager().isVip(uuid)) {
+            player.sendMessage(lang().msg(player, "vip_not_vip"));
+            return;
+        }
+
+        Inventory gui = Bukkit.createInventory(null, 27, Component.text(lang().msgRaw(player, "vip_badges_title"), NamedTextColor.DARK_PURPLE, TextDecoration.BOLD));
+        String currentBadge = plugin.getVipManager().getBadge(uuid);
+        java.util.List<String> badges = plugin.getVipManager().getAvailableBadges();
+
+        for (int i = 0; i < 27; i++) {
+            gui.setItem(i, new ItemStack(Material.BLACK_STAINED_GLASS_PANE));
+        }
+
+        int slot = 10;
+        for (String badge : badges) {
+            ItemStack item = new ItemStack(Material.PAPER);
+            ItemMeta meta = item.getItemMeta();
+            if (meta != null) {
+                boolean isSelected = badge.equals(currentBadge);
+                meta.displayName(Component.text(badge, NamedTextColor.WHITE, TextDecoration.BOLD));
+                if (isSelected) {
+                    gui.setItem(slot - 1, new ItemStack(Material.LIME_STAINED_GLASS_PANE));
+                    meta.lore(java.util.List.of(
+                        Component.text(lang().msgRaw(player, "vip_badge_selected"), NamedTextColor.GREEN)
+                    ));
+                } else {
+                    meta.lore(java.util.List.of(
+                        Component.text(lang().msgRaw(player, "vip_badge_click"), NamedTextColor.GRAY)
+                    ));
+                }
+                item.setItemMeta(meta);
+            }
+            gui.setItem(slot, item);
+            slot += 2;
+        }
+
+        player.openInventory(gui);
+    }
+
     private void sendHelp(Player player) {
         player.sendMessage(lang().msgRaw(player, "vip_info_title"));
         if (player.hasPermission("duelplugin.admin")) {
@@ -162,6 +217,7 @@ public class VipCommand implements CommandExecutor, TabCompleter {
             player.sendMessage(lang().msgRaw(player, "vip_help_remove"));
         }
         player.sendMessage(lang().msgRaw(player, "vip_help_color"));
+        player.sendMessage(lang().msgRaw(player, "vip_help_badges"));
         player.sendMessage(lang().msgRaw(player, "vip_help_info"));
     }
 
@@ -169,7 +225,7 @@ public class VipCommand implements CommandExecutor, TabCompleter {
     public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
         List<String> completions = new ArrayList<>();
         if (args.length == 1) {
-            List<String> subs = new ArrayList<>(Arrays.asList("color", "info"));
+            List<String> subs = new ArrayList<>(Arrays.asList("color", "badges", "info"));
             if (sender.hasPermission("duelplugin.admin")) {
                 subs.addAll(Arrays.asList("set", "remove"));
             }

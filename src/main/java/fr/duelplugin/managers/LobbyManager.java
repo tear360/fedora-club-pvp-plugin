@@ -5,25 +5,36 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+
+import java.io.File;
+import java.io.IOException;
 
 public class LobbyManager {
 
     private final DuelPlugin plugin;
     private Location lobbySpawn;
     private boolean explicitlySet = false;
+    private final File lobbyFile;
+    private FileConfiguration lobbyConfig;
 
     public LobbyManager(DuelPlugin plugin) {
         this.plugin = plugin;
+        this.lobbyFile = new File(plugin.getDataFolder(), "lobby.yml");
         loadLobby();
     }
 
     public void loadLobby() {
-        FileConfiguration config = plugin.getConfig();
-        String world = config.getString("lobby.world", "world");
-        double x = config.getDouble("lobby.spawn-x", 0);
-        double y = config.getDouble("lobby.spawn-y", 64);
-        double z = config.getDouble("lobby.spawn-z", 0);
+        if (!lobbyFile.exists()) {
+            try { lobbyFile.createNewFile(); } catch (IOException ignored) {}
+        }
+        lobbyConfig = YamlConfiguration.loadConfiguration(lobbyFile);
+
+        String world = lobbyConfig.getString("lobby.world", "world");
+        double x = lobbyConfig.getDouble("lobby.spawn-x", 0);
+        double y = lobbyConfig.getDouble("lobby.spawn-y", 64);
+        double z = lobbyConfig.getDouble("lobby.spawn-z", 0);
 
         if (x == 0 && y == 64 && z == 0 && "world".equals(world)) {
             lobbySpawn = null;
@@ -42,19 +53,22 @@ public class LobbyManager {
     public void setLobby(Location loc) {
         this.lobbySpawn = loc.clone();
         this.explicitlySet = true;
-        FileConfiguration config = plugin.getConfig();
-        config.set("lobby.world", loc.getWorld().getName());
-        config.set("lobby.spawn-x", loc.getX());
-        config.set("lobby.spawn-y", loc.getY());
-        config.set("lobby.spawn-z", loc.getZ());
-        plugin.saveConfig();
+        lobbyConfig.set("lobby.world", loc.getWorld().getName());
+        lobbyConfig.set("lobby.spawn-x", loc.getX());
+        lobbyConfig.set("lobby.spawn-y", loc.getY());
+        lobbyConfig.set("lobby.spawn-z", loc.getZ());
+        try {
+            lobbyConfig.save(lobbyFile);
+        } catch (IOException e) {
+            plugin.getLogger().warning("Failed to save lobby.yml");
+        }
     }
 
     public Location getLobbySpawn() {
         if (lobbySpawn == null) return null;
 
         Location loc = lobbySpawn.clone();
-        String worldName = lobbySpawn.getWorld() != null ? lobbySpawn.getWorld().getName() : plugin.getConfig().getString("lobby.world", "world");
+        String worldName = lobbySpawn.getWorld() != null ? lobbySpawn.getWorld().getName() : lobbyConfig.getString("lobby.world", "world");
         World w = Bukkit.getWorld(worldName);
         if (w != null) {
             loc.setWorld(w);

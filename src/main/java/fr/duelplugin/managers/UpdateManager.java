@@ -65,8 +65,10 @@ public class UpdateManager {
 
     private String fetchJson(String urlString) throws IOException {
         String token = plugin.getConfig().getString("github-token", "");
+        plugin.getLogger().info("§5[Update] §dToken configuré: " + (token != null && !token.isEmpty() ? "oui (" + token.substring(0, Math.min(4, token.length())) + "...)" : "non"));
 
         URL url = new URL(urlString);
+        plugin.getLogger().info("§5[Update] §dRequête vers: " + urlString);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("GET");
         conn.setRequestProperty("Accept", "application/vnd.github.v3+json");
@@ -78,6 +80,7 @@ public class UpdateManager {
         conn.setReadTimeout(10000);
 
         int code = conn.getResponseCode();
+        plugin.getLogger().info("§5[Update] §dRéponse GitHub: HTTP " + code);
         if (code != 200) {
             plugin.getLogger().warning("§5[Update] §cGitHub a répondu avec le code: " + code);
             if (code == 404) {
@@ -86,7 +89,7 @@ public class UpdateManager {
                 if (token == null || token.isEmpty()) {
                     plugin.getLogger().warning("§5[Update] §cDépôt privé. Ajoutez un token dans config.yml (github-token).");
                 } else {
-                    plugin.getLogger().warning("§5[Update] §cToken invalide ou sans permission sur le dépôt.");
+                    plugin.getLogger().warning("§5[Update] §cToken invalide ou sans permission.");
                 }
             }
             return null;

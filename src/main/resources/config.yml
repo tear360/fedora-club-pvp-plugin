@@ -61,15 +61,5 @@ scoreboard:
 
 scoreboard-update-interval: 20
 
-# Lobby settings
-lobby:
-  spawn-x: 0
-  spawn-y: 64
-  spawn-z: 0
-  world: world
-
-# Arenas
-arenas: {}
-
 # Auto-update (GitHub token for private repo)
 github-token: ""

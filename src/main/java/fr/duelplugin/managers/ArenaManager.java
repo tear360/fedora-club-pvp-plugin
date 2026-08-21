@@ -5,7 +5,10 @@ import fr.duelplugin.models.Arena;
 import fr.duelplugin.models.DuelGameMode;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -15,17 +18,27 @@ public class ArenaManager {
 
     private final DuelPlugin plugin;
     private final Map<String, Arena> arenas;
+    private final File arenasFile;
+    private FileConfiguration arenasConfig;
 
     public ArenaManager(DuelPlugin plugin) {
         this.plugin = plugin;
         this.arenas = new HashMap<>();
+        this.arenasFile = new File(plugin.getDataFolder(), "arenas.yml");
         loadArenas();
+    }
+
+    private void loadConfig() {
+        if (!arenasFile.exists()) {
+            try { arenasFile.createNewFile(); } catch (IOException ignored) {}
+        }
+        arenasConfig = YamlConfiguration.loadConfiguration(arenasFile);
     }
 
     public void loadArenas() {
         arenas.clear();
-        FileConfiguration config = plugin.getConfig();
-        ConfigurationSection section = config.getConfigurationSection("arenas");
+        loadConfig();
+        ConfigurationSection section = arenasConfig.getConfigurationSection("arenas");
         if (section == null) return;
         for (String key : section.getKeys(false)) {
             ConfigurationSection arenaSection = section.getConfigurationSection(key);
@@ -38,13 +51,16 @@ public class ArenaManager {
     }
 
     public void saveArenas() {
-        FileConfiguration config = plugin.getConfig();
-        config.set("arenas", null);
+        arenasConfig.set("arenas", null);
         for (Map.Entry<String, Arena> entry : arenas.entrySet()) {
             Arena arena = entry.getValue();
-            arena.saveToConfig(config.createSection("arenas." + entry.getKey()));
+            arena.saveToConfig(arenasConfig.createSection("arenas." + entry.getKey()));
         }
-        plugin.saveConfig();
+        try {
+            arenasConfig.save(arenasFile);
+        } catch (IOException e) {
+            plugin.getLogger().warning("Failed to save arenas.yml");
+        }
     }
 
     public boolean createArena(String name, DuelGameMode mode) {

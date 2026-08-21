@@ -103,6 +103,7 @@ public class LobbyItemListener implements Listener {
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
         if (!(event.getWhoClicked() instanceof Player player)) return;
+        if (plugin.getDuelManager().isInDuel(player)) return;
 
         String cleanTitle = event.getView().getTitle().replaceAll("§[0-9a-fk-or]", "");
         Material clickedType = event.getCurrentItem() != null ? event.getCurrentItem().getType() : Material.AIR;
@@ -680,6 +681,7 @@ public class LobbyItemListener implements Listener {
     @EventHandler
     public void onInventoryDrag(InventoryDragEvent event) {
         if (!(event.getWhoClicked() instanceof Player player)) return;
+        if (plugin.getDuelManager().isInDuel(player)) return;
         if (event.getView().getTitle() == null) return;
         event.setCancelled(true);
     }

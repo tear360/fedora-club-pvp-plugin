@@ -50,9 +50,11 @@ public class UpdateManager {
                         plugin.getLogger().info("§5[Update] §dNouvelle version disponible: §f" + latestVersion + " §d(Vous: §f" + currentVersion + "§d)");
                         plugin.getLogger().info("§5[Update] §dTéléchargement en cours...");
 
-                        downloadUpdate(downloadUrl, currentVersion);
+                        boolean downloaded = downloadUpdate(downloadUrl, currentVersion);
 
-                        plugin.getLogger().info("§5[Update] §aMise à jour téléchargée! Redémarrez le serveur pour appliquer.");
+                        if (downloaded) {
+                            plugin.getLogger().info("§5[Update] §aMise à jour téléchargée! Redémarrez le serveur pour appliquer.");
+                        }
                     } else {
                         plugin.getLogger().info("§5[Update] §aVous êtes à jour (§f" + currentVersion + "§a).");
                     }
@@ -138,7 +140,7 @@ public class UpdateManager {
         return false;
     }
 
-    private void downloadUpdate(String urlString, String currentVersion) {
+    private boolean downloadUpdate(String urlString, String currentVersion) {
         try {
             File pluginsFolder = plugin.getDataFolder().getParentFile();
             File currentJar = new File(pluginsFolder, "DuelPlugin-" + currentVersion + ".jar");
@@ -146,18 +148,26 @@ public class UpdateManager {
 
             if (newJar.exists()) {
                 plugin.getLogger().info("§5[Update] §dLe fichier existe déjà: " + newJar.getName());
-                return;
+                return true;
             }
+
+            String token = plugin.getConfig().getString("github-token", "");
 
             URL url = new URL(urlString);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestProperty("User-Agent", "FedoraClub-DuelPlugin");
+            conn.setRequestProperty("Accept", "application/octet-stream");
+            if (token != null && !token.isEmpty()) {
+                conn.setRequestProperty("Authorization", "token " + token);
+            }
             conn.setConnectTimeout(15000);
             conn.setReadTimeout(30000);
 
-            if (conn.getResponseCode() != 200) {
-                plugin.getLogger().warning("§5[Update] §cErreur de téléchargement: HTTP " + conn.getResponseCode());
-                return;
+            int code = conn.getResponseCode();
+            if (code != 200) {
+                plugin.getLogger().warning("§5[Update] §cErreur de téléchargement: HTTP " + code);
+                plugin.getLogger().warning("§5[Update] §cURL: " + urlString);
+                return false;
             }
 
             InputStream in = conn.getInputStream();
@@ -177,9 +187,11 @@ public class UpdateManager {
 
             plugin.getLogger().info("§5[Update] §aTéléchargé: §f" + newJar.getName() + " §a(" + (totalBytes / 1024) + " KB)");
             plugin.getLogger().info("§5[Update] §dSupprimez l'ancien JAR (§f" + currentJar.getName() + "§d) après redémarrage.");
+            return true;
 
         } catch (Exception e) {
             plugin.getLogger().log(Level.WARNING, "§5[Update] §cErreur lors du téléchargement:", e);
+            return false;
         }
     }
 

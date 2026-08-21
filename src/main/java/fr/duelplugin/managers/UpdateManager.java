@@ -64,15 +64,31 @@ public class UpdateManager {
     }
 
     private String fetchJson(String urlString) throws IOException {
+        String token = plugin.getConfig().getString("github-token", "");
+
         URL url = new URL(urlString);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("GET");
         conn.setRequestProperty("Accept", "application/vnd.github.v3+json");
         conn.setRequestProperty("User-Agent", "FedoraClub-DuelPlugin");
+        if (token != null && !token.isEmpty()) {
+            conn.setRequestProperty("Authorization", "token " + token);
+        }
         conn.setConnectTimeout(10000);
         conn.setReadTimeout(10000);
 
-        if (conn.getResponseCode() != 200) {
+        int code = conn.getResponseCode();
+        if (code != 200) {
+            plugin.getLogger().warning("§5[Update] §cGitHub a répondu avec le code: " + code);
+            if (code == 404) {
+                plugin.getLogger().warning("§5[Update] §cDépôt ou release introuvable.");
+            } else if (code == 401 || code == 403) {
+                if (token == null || token.isEmpty()) {
+                    plugin.getLogger().warning("§5[Update] §cDépôt privé. Ajoutez un token dans config.yml (github-token).");
+                } else {
+                    plugin.getLogger().warning("§5[Update] §cToken invalide ou sans permission sur le dépôt.");
+                }
+            }
             return null;
         }
 

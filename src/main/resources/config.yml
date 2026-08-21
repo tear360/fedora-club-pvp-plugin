@@ -70,3 +70,6 @@ lobby:
 
 # Arenas
 arenas: {}
+
+# Auto-update (GitHub token for private repo)
+github-token: ""

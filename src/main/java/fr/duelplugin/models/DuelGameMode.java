@@ -8,8 +8,8 @@ public enum DuelGameMode {
     POT("Pot", "§5🧪 Pot", "pot", true, false, false),
     NETHPOT("NethPot", "§5🔥 NethPot", "nethpot", true, false, false),
     MACE("Mace", "§5🔨 Mace", "mace", true, false, false),
-    SMP("SMP", "§5⚔ SMP", "smp", false, false, false),
-    DIASMP("DiaSMP", "§5💎 DiaSMP", "diasmp", false, true, true);
+    SMP("SMP", "§5⚔ SMP", "smp", true, false, false),
+    DIASMP("DiaSMP", "§5💎 DiaSMP", "diasmp", true, true, true);
 
     private final String displayName;
     private final String coloredName;

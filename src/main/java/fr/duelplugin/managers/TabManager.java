@@ -8,6 +8,8 @@ import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scoreboard.Scoreboard;
+import org.bukkit.scoreboard.Team;
 
 import java.util.*;
 
@@ -16,6 +18,7 @@ public class TabManager {
     private final DuelPlugin plugin;
     private final Map<UUID, Set<UUID>> spectators = new HashMap<>();
     private final Set<UUID> friendTabActive = new HashSet<>();
+    private final Map<UUID, Scoreboard> viewerScoreboards = new HashMap<>();
 
     private static final Map<String, TextColor> COLOR_MAP = Map.of(
             "§c", NamedTextColor.RED,
@@ -44,6 +47,21 @@ public class TabManager {
         }.runTaskTimer(plugin, 0L, 20L);
     }
 
+    private Scoreboard getOrCreateScoreboard(Player player) {
+        return viewerScoreboards.computeIfAbsent(player.getUniqueId(), k -> {
+            Scoreboard sb = Bukkit.getScoreboardManager().getNewScoreboard();
+            player.setScoreboard(sb);
+            return sb;
+        });
+    }
+
+    private boolean areInSameParty(UUID a, UUID b) {
+        UUID leaderA = plugin.getPartyManager().getPartyLeader(a);
+        UUID leaderB = plugin.getPartyManager().getPartyLeader(b);
+        if (leaderA == null || leaderB == null) return false;
+        return leaderA.equals(leaderB);
+    }
+
     private void updateAllTabs() {
         for (Player player : Bukkit.getOnlinePlayers()) {
             if (plugin.getDuelManager().isInDuel(player)) {
@@ -57,6 +75,7 @@ public class TabManager {
 
         for (Player player : Bukkit.getOnlinePlayers()) {
             boolean playerInDuel = plugin.getDuelManager().isInDuel(player) || isSpectating(player.getUniqueId());
+            Scoreboard viewerSB = getOrCreateScoreboard(player);
 
             for (Player other : Bukkit.getOnlinePlayers()) {
                 if (player.getUniqueId().equals(other.getUniqueId())) continue;
@@ -89,6 +108,23 @@ public class TabManager {
                     } else {
                         player.showPlayer(plugin, other);
                     }
+                }
+
+                String teamName = other.getUniqueId().toString().replace("-", "").substring(0, 15);
+                Team team = viewerSB.getTeam(teamName);
+                if (team == null) {
+                    team = viewerSB.registerNewTeam(teamName);
+                }
+                team.addPlayer(other);
+
+                if (areInSameParty(player.getUniqueId(), other.getUniqueId())) {
+                    if (plugin.getPartyManager().isLeader(other.getUniqueId())) {
+                        team.prefix(Component.text("👑 ", NamedTextColor.GOLD));
+                    } else {
+                        team.prefix(Component.text("» ", NamedTextColor.GRAY));
+                    }
+                } else {
+                    team.prefix(Component.empty());
                 }
             }
         }
@@ -173,22 +209,13 @@ public class TabManager {
         boolean isFriendMode = friendTabActive.contains(player.getUniqueId());
         player.sendPlayerListHeaderAndFooter(buildHeader(), buildLobbyFooter(player, isFriendMode));
 
-        String prefix = "";
-        if (plugin.getPartyManager().isInParty(player.getUniqueId())) {
-            if (plugin.getPartyManager().isLeader(player.getUniqueId())) {
-                prefix = "§6👑 ";
-            } else {
-                prefix = "§7» ";
-            }
-        }
-
         if (plugin.getVipManager().isVip(player.getUniqueId())) {
             String colorCode = plugin.getVipManager().getNameColor(player.getUniqueId());
             if (colorCode == null) colorCode = "§d";
             TextColor color = COLOR_MAP.getOrDefault(colorCode, NamedTextColor.LIGHT_PURPLE);
-            player.playerListName(Component.text().append(Component.text(prefix + plugin.getVipManager().getBadge(player.getUniqueId()) + " ", color)).append(Component.text(player.getName(), color)).build());
+            player.playerListName(Component.text().append(Component.text(plugin.getVipManager().getBadge(player.getUniqueId()) + " ", color)).append(Component.text(player.getName(), color)).build());
         } else {
-            player.playerListName(Component.text(prefix + player.getName(), NamedTextColor.WHITE));
+            player.playerListName(Component.text(player.getName(), NamedTextColor.WHITE));
         }
     }
 
@@ -260,14 +287,6 @@ public class TabManager {
             if (other.getUniqueId().equals(uuid)) continue;
             if (friends.contains(other.getUniqueId())) {
                 player.showPlayer(plugin, other);
-                if (plugin.getVipManager().isVip(other.getUniqueId())) {
-                    String colorCode = plugin.getVipManager().getNameColor(other.getUniqueId());
-                    if (colorCode == null) colorCode = "§d";
-                    TextColor color = COLOR_MAP.getOrDefault(colorCode, NamedTextColor.LIGHT_PURPLE);
-                    other.playerListName(Component.text().append(Component.text(plugin.getVipManager().getBadge(other.getUniqueId()) + " ", color)).append(Component.text(other.getName(), color)).build());
-                } else {
-                    other.playerListName(Component.text("✦ " + other.getName(), NamedTextColor.GREEN));
-                }
             } else {
                 player.hidePlayer(plugin, other);
             }

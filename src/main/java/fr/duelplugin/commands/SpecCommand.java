@@ -89,7 +89,7 @@ public class SpecCommand implements CommandExecutor, TabCompleter {
 
     private void stopSpectating(Player spectator) {
         plugin.getTabManager().removeSpectator(spectator.getUniqueId());
-        spectator.setGameMode(GameMode.ADVENTURE);
+        spectator.setGameMode(GameMode.SURVIVAL);
 
         if (plugin.getLobbyManager().isLobbySet()) {
             spectator.teleport(plugin.getLobbyManager().resolveLobby());

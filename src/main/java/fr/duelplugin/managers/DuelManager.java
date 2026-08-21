@@ -217,7 +217,7 @@ public class DuelManager {
                 Player ffaPlayer = Bukkit.getPlayer(ffaUuid);
                 if (ffaPlayer != null) {
                     restoreInventory(ffaPlayer);
-                    ffaPlayer.setGameMode(GameMode.ADVENTURE);
+                    ffaPlayer.setGameMode(GameMode.SURVIVAL);
                     plugin.getScoreboardManager().removeScoreboard(ffaPlayer);
                     if (plugin.getLobbyManager().isLobbySet()) {
                         plugin.getLobbyManager().teleportToLobby(ffaPlayer);
@@ -247,7 +247,7 @@ public class DuelManager {
 
         if (w != null) {
             restoreInventory(w);
-            w.setGameMode(GameMode.ADVENTURE);
+            w.setGameMode(GameMode.SURVIVAL);
             w.sendMessage("");
             w.sendMessage("§5§l═══════════════════════════");
             w.sendMessage(plugin.getLanguageManager().msg(w, "duel_winner"));
@@ -266,7 +266,7 @@ public class DuelManager {
         }
         if (l != null) {
             restoreInventory(l);
-            l.setGameMode(GameMode.ADVENTURE);
+            l.setGameMode(GameMode.SURVIVAL);
             l.sendMessage("");
             l.sendMessage("§5§l═══════════════════════════");
             l.sendMessage(plugin.getLanguageManager().msg(l, "duel_eliminated"));
@@ -287,7 +287,7 @@ public class DuelManager {
         for (UUID specUuid : new HashSet<>(plugin.getTabManager().getSpectators(duel.getPlayer1()))) {
             Player spec = Bukkit.getPlayer(specUuid);
             if (spec != null) {
-                spec.setGameMode(GameMode.ADVENTURE);
+                spec.setGameMode(GameMode.SURVIVAL);
                 if (plugin.getLobbyManager().isLobbySet()) {
                     plugin.getLobbyManager().teleportToLobby(spec);
                     PlayerListener.giveLobbyItems(spec);

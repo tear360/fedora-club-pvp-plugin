@@ -64,8 +64,8 @@ public class KitManager {
         config.set("trims", null);
         if (trims != null) {
             for (Map.Entry<Integer, ArmorTrim> entry : trims.entrySet()) {
-                config.set("trims." + entry.getKey() + ".pattern", entry.getValue().getPattern().getKey().toString());
-                config.set("trims." + entry.getKey() + ".material", entry.getValue().getMaterial().getKey().toString());
+                config.set("trims." + entry.getKey() + ".pattern", entry.getValue().getPattern().getKey().asString());
+                config.set("trims." + entry.getKey() + ".material", entry.getValue().getMaterial().getKey().asString());
             }
         }
 

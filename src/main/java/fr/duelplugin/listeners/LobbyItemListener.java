@@ -39,6 +39,11 @@ public class LobbyItemListener implements Listener {
         if (plugin.getDuelManager().isInDuel(player)) return;
         if (event.getAction() != Action.RIGHT_CLICK_AIR && event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
 
+        ItemStack offhand = player.getInventory().getItemInOffHand();
+        if (offhand.getType() == Material.WIND_CHARGE && plugin.getVipManager().isVip(player.getUniqueId())) {
+            return;
+        }
+
         ItemStack item = player.getInventory().getItemInMainHand();
         if (item != null && isLobbyItem(item)) {
             event.setCancelled(true);
@@ -49,11 +54,6 @@ public class LobbyItemListener implements Listener {
             } else if (item.getType() == Material.NETHER_STAR) {
                 plugin.getPartyGUI().openPartyMenu(player);
             }
-            return;
-        }
-
-        ItemStack offhand = player.getInventory().getItemInOffHand();
-        if (offhand.getType() == Material.WIND_CHARGE && plugin.getVipManager().isVip(player.getUniqueId())) {
             return;
         }
     }
@@ -144,13 +144,13 @@ public class LobbyItemListener implements Listener {
             return;
         }
 
-        if (cleanTitle.contains("Kit Editor") || cleanTitle.contains("Éditeur de kits")) {
-            handleKitEditorModeSelect(event, player);
+        if (cleanTitle.contains("Kit ") && !cleanTitle.contains("Kit Editor") && !cleanTitle.contains("Éditeur de kits")) {
+            handleKitEditorClick(event, player);
             return;
         }
 
-        if (cleanTitle.contains("Kit ")) {
-            handleKitEditorClick(event, player);
+        if (cleanTitle.contains("Kit Editor") || cleanTitle.contains("Éditeur de kits")) {
+            handleKitEditorModeSelect(event, player);
             return;
         }
 
@@ -183,7 +183,6 @@ public class LobbyItemListener implements Listener {
         if (cleanTitle.equals("Choisir un mode FFA")) return true;
         if (cleanTitle.contains("Badge VIP") || cleanTitle.contains("VIP Badge")) return true;
         if (cleanTitle.contains("Kit Editor") || cleanTitle.contains("Éditeur de kits")) return true;
-        if (cleanTitle.contains("Kit ")) return true;
         if (cleanTitle.contains("Choisir une pièce") || cleanTitle.contains("Select Armor Piece")) return true;
         if (cleanTitle.equals("Choisir un pattern") || cleanTitle.equals("Select Pattern")) return true;
         if (cleanTitle.equals("Choisir un matériau") || cleanTitle.equals("Select Material")) return true;

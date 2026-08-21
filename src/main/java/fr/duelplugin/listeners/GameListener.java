@@ -102,7 +102,7 @@ public class GameListener implements Listener {
                 victim.sendMessage(plugin.getLanguageManager().msg(victim, "duel_eliminated_ffa"));
                 plugin.getDuelManager().restoreInventory(victim);
                 PlayerListener.giveLobbyItems(victim);
-                victim.setGameMode(GameMode.ADVENTURE);
+                victim.setGameMode(GameMode.SURVIVAL);
                 if (plugin.getLobbyManager().isLobbySet()) {
                     plugin.getLobbyManager().teleportToLobby(victim);
                 }

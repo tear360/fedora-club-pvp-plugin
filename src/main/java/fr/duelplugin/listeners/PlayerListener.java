@@ -37,7 +37,7 @@ public class PlayerListener implements Listener {
             plugin.getScoreboardManager().createLobbyScoreboard(player, null, null);
         }
 
-        player.setGameMode(GameMode.ADVENTURE);
+        player.setGameMode(GameMode.SURVIVAL);
         player.setHealth(20.0);
         player.setFoodLevel(20);
         player.setSaturation(20f);
@@ -125,6 +125,11 @@ public class PlayerListener implements Listener {
                     }
                 }, 15L);
             }
+        }
+
+        ItemStack offhandCheck = player.getInventory().getItemInOffHand();
+        if (offhandCheck.getType() == Material.WIND_CHARGE) {
+            return;
         }
 
         ItemStack hand = event.getItem();

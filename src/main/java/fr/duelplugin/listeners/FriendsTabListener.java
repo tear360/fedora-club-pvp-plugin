@@ -19,6 +19,7 @@ public class FriendsTabListener implements Listener {
         Player player = event.getPlayer();
         if (!event.isSneaking()) return;
         if (plugin.getDuelManager().isInDuel(player)) return;
+        if (plugin.getTabManager().isSpectating(player.getUniqueId())) return;
         if (plugin.getQueueManager().isInAnyQueue(player)) return;
 
         plugin.getTabManager().toggleFriendTab(player);

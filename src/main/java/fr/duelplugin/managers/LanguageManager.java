@@ -541,6 +541,15 @@ public class LanguageManager {
         tBoth("arena_info_configured",
             "&dConfigurée: %configured%",
             "&dConfigured: %configured%");
+        tBoth("arena_usage_tp",
+            "&dUsage: /da arena tp <nom>",
+            "&dUsage: /da arena tp <name>");
+        tBoth("arena_teleported",
+            "&7Téléporté à l'arène &d%name%&7.",
+            "&7Teleported to arena &d%name%&7.");
+        tBoth("arena_no_spawn",
+            "&cL'arène &d%name% &cn'a pas de spawn défini.",
+            "&cArena &d%name% &chas no spawn set.");
 
         // ───────────── VIP ─────────────
         tBoth("vip_set",

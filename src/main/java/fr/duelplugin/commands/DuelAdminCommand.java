@@ -175,6 +175,23 @@ public class DuelAdminCommand implements CommandExecutor, TabCompleter {
                 player.sendMessage("§dConfigurée: " + (arena.isSetup() ? lang().msgRaw(player, "arena_configured") : lang().msgRaw(player, "arena_not_configured")));
                 player.sendMessage("§5═══════════════════════");
             }
+            case "tp" -> {
+                if (args.length < 3) {
+                    player.sendMessage(lang().msg(player, "arena_usage_tp"));
+                    return;
+                }
+                Arena arena = plugin.getArenaManager().getArena(args[2]);
+                if (arena == null) {
+                    player.sendMessage(lang().msg(player, "arena_not_found"));
+                    return;
+                }
+                if (arena.getSpawn1() == null) {
+                    player.sendMessage(lang().msg(player, "arena_no_spawn", "%name%", arena.getName()));
+                    return;
+                }
+                player.teleport(arena.getSpawn1());
+                player.sendMessage(lang().msg(player, "arena_teleported", "%name%", arena.getName()));
+            }
             case "list" -> {
                 var arenas = plugin.getArenaManager().getAllArenas();
                 if (arenas.isEmpty()) {
@@ -212,6 +229,7 @@ public class DuelAdminCommand implements CommandExecutor, TabCompleter {
         player.sendMessage("§d/da arena setmin <nom>");
         player.sendMessage("§d/da arena setmax <nom>");
         player.sendMessage("§d/da arena info <nom>");
+        player.sendMessage("§d/da arena tp <nom>");
         player.sendMessage("§d/da arena list");
         player.sendMessage("§5═══════════════════════");
     }
@@ -228,10 +246,10 @@ public class DuelAdminCommand implements CommandExecutor, TabCompleter {
         if (args.length == 1) {
             completions.addAll(Arrays.asList("reload", "setlobby", "arena"));
         } else if (args.length == 2 && args[0].equalsIgnoreCase("arena")) {
-            completions.addAll(Arrays.asList("create", "delete", "setspawn", "setmin", "setmax", "info", "list"));
+            completions.addAll(Arrays.asList("create", "delete", "setspawn", "setmin", "setmax", "tp", "info", "list"));
         } else if (args.length == 3 && args[0].equalsIgnoreCase("arena")) {
             String sub = args[1].toLowerCase();
-            if (sub.equals("delete") || sub.equals("setspawn") || sub.equals("info") || sub.equals("setmin") || sub.equals("setmax")) {
+            if (sub.equals("delete") || sub.equals("setspawn") || sub.equals("info") || sub.equals("setmin") || sub.equals("setmax") || sub.equals("tp")) {
                 completions.addAll(plugin.getArenaManager().getAllArenas().stream()
                         .map(Arena::getName).collect(Collectors.toList()));
             }

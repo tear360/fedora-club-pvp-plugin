@@ -77,6 +77,23 @@ public class TabManager {
 
         if (friendMode) {
             footer.append(Component.text(plugin.getLanguageManager().msgRaw(player, "tab_mode_friends"), NamedTextColor.LIGHT_PURPLE, TextDecoration.BOLD));
+            footer.append(Component.text("\n"));
+
+            Set<UUID> friends = plugin.getFriendsManager().getFriends(player.getUniqueId());
+            List<String> offlineNames = new ArrayList<>();
+            for (UUID friendUuid : friends) {
+                if (Bukkit.getPlayer(friendUuid) == null) {
+                    org.bukkit.OfflinePlayer offline = Bukkit.getOfflinePlayer(friendUuid);
+                    String name = offline.getName();
+                    if (name != null) offlineNames.add(name);
+                }
+            }
+            if (!offlineNames.isEmpty()) {
+                footer.append(Component.text("\n"));
+                for (String name : offlineNames) {
+                    footer.append(Component.text("  " + name + "\n", NamedTextColor.GRAY));
+                }
+            }
         } else {
             footer.append(Component.text(" fedora.free-node.ovh", NamedTextColor.GRAY, TextDecoration.BOLD));
         }
@@ -102,7 +119,7 @@ public class TabManager {
             String colorCode = plugin.getVipManager().getNameColor(player.getUniqueId());
             if (colorCode == null) colorCode = "§d";
             TextColor color = COLOR_MAP.getOrDefault(colorCode, NamedTextColor.LIGHT_PURPLE);
-            player.playerListName(Component.text().append(Component.text(prefix + "★ ", color)).append(Component.text(player.getName(), NamedTextColor.WHITE)).build());
+            player.playerListName(Component.text().append(Component.text(prefix + "★ ", color)).append(Component.text(player.getName(), color)).build());
         } else {
             player.playerListName(Component.text(prefix + player.getName(), NamedTextColor.WHITE));
         }
@@ -163,10 +180,8 @@ public class TabManager {
         if (!friendTabActive.add(uuid)) {
             friendTabActive.remove(uuid);
             showAllPlayers(player);
-            player.sendMessage(plugin.getLanguageManager().msg(player, "tab_all_players"));
         } else {
             hideNonFriends(player);
-            player.sendMessage(plugin.getLanguageManager().msg(player, "tab_friends_only"));
         }
     }
 
@@ -178,6 +193,7 @@ public class TabManager {
             if (other.getUniqueId().equals(uuid)) continue;
             if (friends.contains(other.getUniqueId())) {
                 player.showPlayer(plugin, other);
+                other.playerListName(Component.text("✦ " + other.getName(), NamedTextColor.GREEN));
             } else {
                 player.hidePlayer(plugin, other);
             }

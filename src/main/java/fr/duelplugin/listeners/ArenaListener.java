@@ -26,7 +26,9 @@ public class ArenaListener implements Listener {
         if (!(event.getWhoClicked() instanceof Player player)) return;
         if (event.getView().getTitle() == null) return;
         String title = event.getView().getTitle();
-        if (!title.contains("Sélection de mode")) return;
+        String cleanTitle = title.replaceAll("§[0-9a-fk-or]", "");
+        if (!cleanTitle.contains("Sélection de mode") && !cleanTitle.contains("Mode Selection")
+                && !cleanTitle.contains("Défi →") && !cleanTitle.contains("Challenge →")) return;
 
         event.setCancelled(true);
         ItemStack item = event.getCurrentItem();

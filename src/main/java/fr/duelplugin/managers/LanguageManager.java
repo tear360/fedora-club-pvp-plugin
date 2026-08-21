@@ -20,8 +20,13 @@ public class LanguageManager {
         loadTranslations();
     }
 
+    private Language getLang(Player player) {
+        if (player == null) return Language.FR;
+        return plugin.getSettingsManager().getLanguage(player.getUniqueId());
+    }
+
     public String msg(Player player, String key, String... args) {
-        Language lang = plugin.getSettingsManager().getLanguage(player.getUniqueId());
+        Language lang = getLang(player);
         String pattern = translations.getOrDefault(lang, translations.get(Language.FR)).get(key);
         if (pattern == null) {
             pattern = translations.get(Language.FR).get(key);
@@ -37,7 +42,7 @@ public class LanguageManager {
     }
 
     public String msgRaw(Player player, String key, String... args) {
-        Language lang = plugin.getSettingsManager().getLanguage(player.getUniqueId());
+        Language lang = getLang(player);
         String pattern = translations.getOrDefault(lang, translations.get(Language.FR)).get(key);
         if (pattern == null) {
             pattern = translations.get(Language.FR).get(key);
@@ -53,7 +58,7 @@ public class LanguageManager {
     }
 
     public String msgNoPrefix(Player player, String key, String... args) {
-        Language lang = plugin.getSettingsManager().getLanguage(player.getUniqueId());
+        Language lang = getLang(player);
         String pattern = translations.getOrDefault(lang, translations.get(Language.FR)).get(key);
         if (pattern == null) {
             pattern = translations.get(Language.FR).get(key);
@@ -835,87 +840,87 @@ public class LanguageManager {
             "&a&lRejoindre la party",
             "&a&lJoin Party");
         tBoth("gui_party_join_lore1",
-            "&7Invité par &d%player%",
-            "&7Invited by &d%player%");
+            "&7Invité par",
+            "&7Invited by");
         tBoth("gui_party_join_lore2",
-            "&7Membres: &f%count%",
-            "&7Members: &f%count%");
+            "&7Membres: &f",
+            "&7Members: &f");
         tBoth("gui_party_join_click",
             "&a&lCliquez pour accepter",
             "&a&lClick to accept");
         tBoth("gui_party_decline",
             "&c&lRefuser l'invitation",
             "&c&lDecline Invitation");
-        tBoth("gui_party_decline_lore",
-            "&7Refuser l'invitation de &d%player%",
-            "&7Decline invitation from &d%player%");
+        tBoth("gui_party_decline_lore1",
+            "&7Refuser l'invitation de",
+            "&7Decline invitation from");
         tBoth("gui_party_decline_click",
             "&c&lCliquez pour refuser",
             "&c&lClick to decline");
         tBoth("gui_party_leader_title",
             "Party (Leader)",
             "Party (Leader)");
-        tBoth("gui_party_invite",
+        tBoth("gui_party_leader_invite",
             "&d&lInviter un joueur",
             "&d&lInvite Player");
-        tBoth("gui_party_invite_lore1",
+        tBoth("gui_party_leader_invite_lore1",
             "&7Invitez un joueur en ligne",
             "&7Invite an online player");
-        tBoth("gui_party_invite_lore2",
+        tBoth("gui_party_leader_invite_lore2",
             "&7dans votre party",
             "&7to your party");
-        tBoth("gui_party_invite_click",
+        tBoth("gui_party_leader_invite_click",
             "&d&lCliquez pour inviter",
             "&d&lClick to invite");
-        tBoth("gui_party_ffa",
+        tBoth("gui_party_leader_ffa",
             "&d&lLancer une FFA",
             "&d&lStart FFA");
-        tBoth("gui_party_ffa_lore1",
+        tBoth("gui_party_leader_ffa_lore1",
             "&7Lancez un combat libre",
             "&7Start a free-for-all");
-        tBoth("gui_party_ffa_lore2",
+        tBoth("gui_party_leader_ffa_lore2",
             "&7avec tous les membres",
             "&7with all members");
-        tBoth("gui_party_ffa_lore3",
+        tBoth("gui_party_leader_ffa_lore3",
             "&7de la party",
             "&7of the party");
-        tBoth("gui_party_ffa_click",
+        tBoth("gui_party_leader_ffa_click",
             "&d&lCliquez pour lancer",
             "&d&lClick to start");
-        tBoth("gui_party_transfer",
+        tBoth("gui_party_leader_transfer",
             "&d&lTransférer le leadership",
             "&d&lTransfer Leadership");
-        tBoth("gui_party_transfer_lore1",
+        tBoth("gui_party_leader_transfer_lore1",
             "&7Transférez la direction",
             "&7Transfer leadership");
-        tBoth("gui_party_transfer_lore2",
+        tBoth("gui_party_leader_transfer_lore2",
             "&7de la party à un membre",
             "&7to a member");
-        tBoth("gui_party_transfer_click",
+        tBoth("gui_party_leader_transfer_click",
             "&d&lCliquez pour transférer",
             "&d&lClick to transfer");
-        tBoth("gui_party_disband",
+        tBoth("gui_party_leader_disband",
             "&c&lDissoudre la party",
             "&c&lDisband Party");
-        tBoth("gui_party_disband_lore1",
+        tBoth("gui_party_leader_disband_lore1",
             "&7Dissout la party et",
             "&7Disbands the party");
-        tBoth("gui_party_disband_lore2",
+        tBoth("gui_party_leader_disband_lore2",
             "&7expulse tous les membres",
             "&7and removes all members");
-        tBoth("gui_party_disband_click",
+        tBoth("gui_party_leader_disband_click",
             "&c&lCliquez pour dissoudre",
             "&c&lClick to disband");
-        tBoth("gui_party_leave",
+        tBoth("gui_party_leader_leave",
             "&c&lQuitter la party",
             "&c&lLeave Party");
-        tBoth("gui_party_leave_lore1",
+        tBoth("gui_party_leader_leave_lore1",
             "&7Quittez votre propre party",
             "&7Leave your own party");
-        tBoth("gui_party_leave_lore2",
+        tBoth("gui_party_leader_leave_lore2",
             "&7(Transfert au 1er membre)",
             "&7(Transfer to first member)");
-        tBoth("gui_party_leave_click",
+        tBoth("gui_party_leader_leave_click",
             "&c&lCliquez pour quitter",
             "&c&lClick to leave");
         tBoth("gui_party_back_lobby",
@@ -1056,5 +1061,87 @@ public class LanguageManager {
         tBoth("queue_title",
             "Rejoindre une queue",
             "Join a Queue");
+
+        // ───────────── GUI COMMON ─────────────
+        tBoth("gui_back",
+            "&d← Retour",
+            "&d← Back");
+        tBoth("gui_back_lobby",
+            "&7Retour au lobby",
+            "&7Back to lobby");
+        tBoth("gui_back_party",
+            "&7Retour à la party",
+            "&7Back to party");
+        tBoth("gui_back_menu",
+            "&7Retour au menu",
+            "&7Back to menu");
+        tBoth("gui_back_editor",
+            "&7Retour à l'éditeur",
+            "&7Back to editor");
+        tBoth("gui_back_armor_select",
+            "&7Retour à la sélection de pièce",
+            "&7Back to piece selection");
+        tBoth("gui_back_pattern_select",
+            "&7Retour à la sélection de pattern",
+            "&7Back to pattern selection");
+        tBoth("gui_unavailable",
+            "&cIndisponible",
+            "&cUnavailable");
+        tBoth("gui_party_ffa_unavailable",
+            "&c&lIndisponible",
+            "&c&lUnavailable");
+
+        // ───────────── KIT EDITOR GUI (aliases) ─────────────
+        tBoth("gui_kit_armor_select",
+            "Choisir une pièce d'armure",
+            "Select Armor Piece");
+        tBoth("gui_slot_boots",
+            "Bottes",
+            "Boots");
+        tBoth("gui_slot_leggings",
+            "Jambières",
+            "Leggings");
+        tBoth("gui_slot_chestplate",
+            "Plastron",
+            "Chestplate");
+        tBoth("gui_slot_helmet",
+            "Casque",
+            "Helmet");
+        tBoth("gui_kit_armor_type",
+            "&7Type:",
+            "&7Type:");
+        tBoth("gui_kit_armor_trim",
+            "&7Trim:",
+            "&7Trim:");
+        tBoth("gui_kit_no_armor",
+            "&7Aucune armure dans ce slot",
+            "&7No armor in this slot");
+        tBoth("gui_kit_click_add",
+            "&d&lCliquez pour ajouter",
+            "&d&lClick to add");
+        tBoth("gui_kit_trims_lore1",
+            "&7Personnalisez les trims",
+            "&7Customize your armor");
+        tBoth("gui_kit_pattern_select",
+            "Choisir un pattern",
+            "Select Pattern");
+        tBoth("gui_kit_pattern_info",
+            "&7Pattern de trim",
+            "&7Trim pattern");
+        tBoth("gui_kit_pattern_selected",
+            "&aSélectionné actuellement",
+            "&aCurrently selected");
+        tBoth("gui_kit_click_select",
+            "&d&lCliquez pour sélectionner",
+            "&d&lClick to select");
+        tBoth("gui_kit_material_select",
+            "Choisir un matériau",
+            "Select Material");
+        tBoth("gui_kit_material_info",
+            "&7Matériau de trim",
+            "&7Trim material");
+        tBoth("gui_kit_material_selected",
+            "&aSélectionné actuellement",
+            "&aCurrently selected");
     }
 }

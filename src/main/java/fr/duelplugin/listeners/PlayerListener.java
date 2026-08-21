@@ -9,6 +9,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -90,18 +91,23 @@ public class PlayerListener implements Listener {
             if (isLobbyItem(item) || isVipLobbyItem(item)) {
                 event.setCancelled(true);
             }
-            if (event.getSlot() == 38 && plugin.getVipManager().isVip(player.getUniqueId())) {
-                event.setCancelled(true);
-            }
-            if (event.getSlot() == 40 && plugin.getVipManager().isVip(player.getUniqueId())) {
-                event.setCancelled(true);
-            }
         }
-        if (event.getSlot() == 38 && plugin.getVipManager().isVip(player.getUniqueId())) {
+        int slot = event.getRawSlot();
+        if (slot == 38 || slot == 39 || slot == 40 || slot == 41) {
             event.setCancelled(true);
         }
-        if (event.getSlot() == 40 && plugin.getVipManager().isVip(player.getUniqueId())) {
-            event.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onInventoryDrag(InventoryDragEvent event) {
+        if (!(event.getWhoClicked() instanceof Player player)) return;
+        if (plugin.getDuelManager().isInDuel(player)) return;
+
+        for (int slot : event.getRawSlots()) {
+            if (slot == 38 || slot == 39 || slot == 40 || slot == 41) {
+                event.setCancelled(true);
+                return;
+            }
         }
     }
 
@@ -119,6 +125,16 @@ public class PlayerListener implements Listener {
                     }
                 }, 1L);
             }
+        }
+
+        ItemStack hand = event.getItem();
+        if (hand != null && hand.getType() == Material.ELYTRA) {
+            event.setCancelled(true);
+        }
+
+        ItemStack chest = player.getInventory().getChestplate();
+        if (chest != null && chest.getType() == Material.ELYTRA) {
+            event.setCancelled(true);
         }
     }
 

@@ -39,11 +39,6 @@ public class LobbyItemListener implements Listener {
         if (plugin.getDuelManager().isInDuel(player)) return;
         if (event.getAction() != Action.RIGHT_CLICK_AIR && event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
 
-        ItemStack offhand = player.getInventory().getItemInOffHand();
-        if (offhand.getType() == Material.WIND_CHARGE && plugin.getVipManager().isVip(player.getUniqueId())) {
-            return;
-        }
-
         ItemStack item = player.getInventory().getItemInMainHand();
         if (item != null && isLobbyItem(item)) {
             event.setCancelled(true);
@@ -54,6 +49,11 @@ public class LobbyItemListener implements Listener {
             } else if (item.getType() == Material.NETHER_STAR) {
                 plugin.getPartyGUI().openPartyMenu(player);
             }
+            return;
+        }
+
+        ItemStack offhand = player.getInventory().getItemInOffHand();
+        if (offhand.getType() == Material.WIND_CHARGE && plugin.getVipManager().isVip(player.getUniqueId())) {
             return;
         }
     }

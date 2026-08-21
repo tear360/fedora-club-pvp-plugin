@@ -193,7 +193,14 @@ public class TabManager {
             if (other.getUniqueId().equals(uuid)) continue;
             if (friends.contains(other.getUniqueId())) {
                 player.showPlayer(plugin, other);
-                other.playerListName(Component.text("✦ " + other.getName(), NamedTextColor.GREEN));
+                if (plugin.getVipManager().isVip(other.getUniqueId())) {
+                    String colorCode = plugin.getVipManager().getNameColor(other.getUniqueId());
+                    if (colorCode == null) colorCode = "§d";
+                    TextColor color = COLOR_MAP.getOrDefault(colorCode, NamedTextColor.LIGHT_PURPLE);
+                    other.playerListName(Component.text().append(Component.text(plugin.getVipManager().getBadge(other.getUniqueId()) + " ", color)).append(Component.text(other.getName(), color)).build());
+                } else {
+                    other.playerListName(Component.text("✦ " + other.getName(), NamedTextColor.GREEN));
+                }
             } else {
                 player.hidePlayer(plugin, other);
             }

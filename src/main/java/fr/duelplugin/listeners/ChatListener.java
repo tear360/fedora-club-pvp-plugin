@@ -23,7 +23,7 @@ public class ChatListener implements Listener {
         String color = plugin.getVipManager().getNameColor(player.getUniqueId());
         if (color == null) color = "§d";
 
-        String prefix = plugin.colorize(color + "★ ");
+        String prefix = plugin.colorize(color + plugin.getVipManager().getBadge(player.getUniqueId()) + " ");
         String coloredName = plugin.colorize(color + player.getName());
         event.setFormat(prefix + coloredName + plugin.colorize("&7: ") + "%2$s");
     }

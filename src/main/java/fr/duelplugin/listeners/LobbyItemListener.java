@@ -513,58 +513,74 @@ public class LobbyItemListener implements Listener {
     }
 
     private void handleKitEditorClick(InventoryClickEvent event, Player player) {
-        ItemStack item = event.getCurrentItem();
-        if (item == null || item.getType() == Material.AIR) return;
+        event.setCancelled(true);
 
-        if (event.getClickedInventory() != event.getView().getTopInventory()) {
-            event.setCancelled(true);
-            return;
-        }
+        if (event.getClickedInventory() != event.getView().getTopInventory()) return;
 
         int slot = event.getSlot();
-        if (slot >= 0 && slot < 45) {
-            if (event.isShiftClick()) {
-                event.setCancelled(true);
-            }
-            return;
-        }
+        if (slot < 0) return;
 
-        event.setCancelled(true);
-        Material type = item.getType();
+        if (slot >= 45) {
+            ItemStack item = event.getCurrentItem();
+            if (item == null || item.getType() == Material.AIR) return;
+            Material type = item.getType();
 
-        if (type == Material.LIME_STAINED_GLASS_PANE) {
-            DuelGameMode mode = plugin.getKitEditorGUI().getEditingMode(player.getUniqueId());
-            if (mode != null) {
-                plugin.getKitEditorGUI().saveKit(player, mode, event.getInventory());
-            }
-            plugin.getKitEditorGUI().removeEditingMode(player.getUniqueId());
-            plugin.getKitEditorGUI().openModeSelector(player);
-            return;
-        }
-
-        if (type == Material.RED_STAINED_GLASS_PANE) {
-            DuelGameMode mode = plugin.getKitEditorGUI().getEditingMode(player.getUniqueId());
-            if (mode != null) {
-                plugin.getKitEditorGUI().resetKit(player, mode);
-            }
-            plugin.getKitEditorGUI().removeEditingMode(player.getUniqueId());
-            plugin.getKitEditorGUI().openModeSelector(player);
-            return;
-        }
-
-        if (type == Material.ARMOR_STAND) {
-            if (!plugin.getVipManager().isVip(player.getUniqueId())) {
-                player.sendMessage(plugin.getLanguageManager().msg(player, "party_vip_only"));
+            if (type == Material.LIME_STAINED_GLASS_PANE) {
+                DuelGameMode mode = plugin.getKitEditorGUI().getEditingMode(player.getUniqueId());
+                if (mode != null) {
+                    plugin.getKitEditorGUI().saveKit(player, mode, event.getInventory());
+                }
+                plugin.getKitEditorGUI().removeEditingMode(player.getUniqueId());
+                plugin.getKitEditorGUI().openModeSelector(player);
                 return;
             }
-            plugin.getKitEditorGUI().openArmorPieceSelector(player);
+            if (type == Material.RED_STAINED_GLASS_PANE) {
+                DuelGameMode mode = plugin.getKitEditorGUI().getEditingMode(player.getUniqueId());
+                if (mode != null) {
+                    plugin.getKitEditorGUI().resetKit(player, mode);
+                }
+                plugin.getKitEditorGUI().removeEditingMode(player.getUniqueId());
+                plugin.getKitEditorGUI().openModeSelector(player);
+                return;
+            }
+            if (type == Material.ARMOR_STAND) {
+                if (!plugin.getVipManager().isVip(player.getUniqueId())) {
+                    player.sendMessage(plugin.getLanguageManager().msg(player, "party_vip_only"));
+                    return;
+                }
+                plugin.getKitEditorGUI().openArmorPieceSelector(player);
+                return;
+            }
+            if (type == Material.ARROW) {
+                plugin.getKitEditorGUI().removeEditingMode(player.getUniqueId());
+                plugin.getKitEditorGUI().openModeSelector(player);
+                return;
+            }
             return;
         }
 
-        if (type == Material.ARROW) {
-            plugin.getKitEditorGUI().removeEditingMode(player.getUniqueId());
-            plugin.getKitEditorGUI().openModeSelector(player);
-            return;
+        if (slot >= 0 && slot <= 44) {
+            ItemStack cursor = event.getCursor();
+            ItemStack clicked = event.getCurrentItem();
+            boolean cursorEmpty = cursor == null || cursor.getType() == Material.AIR;
+            boolean slotEmpty = clicked == null || clicked.getType() == Material.AIR;
+
+            if (cursorEmpty && slotEmpty) return;
+
+            if (!cursorEmpty && !slotEmpty) {
+                event.getInventory().setItem(slot, cursor.clone());
+                event.getCursor().setType(Material.AIR);
+                event.getCursor().setAmount(1);
+                player.getOpenInventory().setItem(slot, cursor.clone());
+            } else if (!cursorEmpty) {
+                event.getInventory().setItem(slot, cursor.clone());
+                event.getCursor().setType(Material.AIR);
+                event.getCursor().setAmount(1);
+            } else {
+                event.getInventory().setItem(slot, null);
+                event.getCursor().setType(Material.AIR);
+                event.getCursor().setAmount(1);
+            }
         }
     }
 
@@ -704,10 +720,23 @@ public class LobbyItemListener implements Listener {
         if (!(event.getPlayer() instanceof Player player)) return;
         UUID uuid = player.getUniqueId();
         String cleanTitle = event.getView().getTitle().replaceAll("§[0-9a-fk-or]", "");
-        if (cleanTitle.startsWith("Kit ") && !cleanTitle.contains("Kit Editor") && !cleanTitle.contains("Éditeur de kits")) {
+
+        boolean isKitEditor = cleanTitle.startsWith("Kit ") && !cleanTitle.contains("Kit Editor") && !cleanTitle.contains("Éditeur de kits");
+        boolean isArmorSelect = cleanTitle.contains("Choisir une pièce") || cleanTitle.contains("Select Armor Piece");
+        boolean isPatternSelect = cleanTitle.equals("Choisir un pattern") || cleanTitle.equals("Select Pattern");
+        boolean isMaterialSelect = cleanTitle.equals("Choisir un matériau") || cleanTitle.equals("Select Material");
+
+        if (isKitEditor || isArmorSelect || isPatternSelect || isMaterialSelect) {
             DuelGameMode mode = plugin.getKitEditorGUI().getEditingMode(uuid);
-            if (mode != null) {
-                plugin.getKitEditorGUI().saveKit(player, mode, event.getInventory());
+            if (mode != null && !plugin.getDuelManager().isInDuel(player)) {
+                if (isKitEditor) {
+                    Inventory topInv = event.getView().getTopInventory();
+                    if (topInv != null) {
+                        plugin.getKitEditorGUI().saveKit(player, mode, topInv);
+                    }
+                } else {
+                    plugin.getKitEditorGUI().saveKitFromEditor(player, mode);
+                }
             }
             plugin.getKitEditorGUI().removeEditingMode(uuid);
         }

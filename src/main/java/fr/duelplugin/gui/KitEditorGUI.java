@@ -27,6 +27,7 @@ public class KitEditorGUI {
     private final Map<UUID, Map<Integer, ArmorTrim>> editingTrims = new HashMap<>();
     private final Map<UUID, Integer> editingArmorSlot = new HashMap<>();
     private final Map<UUID, TrimPattern> selectedPattern = new HashMap<>();
+    private final Map<UUID, Inventory> lastEditorInventory = new HashMap<>();
 
     public KitEditorGUI(DuelPlugin plugin) {
         this.plugin = plugin;
@@ -101,6 +102,7 @@ public class KitEditorGUI {
         inv.setItem(47, new ItemBuilder(Material.ARMOR_STAND).name(plugin.getLanguageManager().msgRaw(player, "gui_kit_trims")).lore("", plugin.getLanguageManager().msgRaw(player, "gui_kit_trims_lore1"), plugin.getLanguageManager().msgRaw(player, "gui_kit_trims_lore2"), "").build());
         inv.setItem(49, new ItemBuilder(Material.ARROW).name(plugin.getLanguageManager().msgRaw(player, "gui_back")).lore("", plugin.getLanguageManager().msgRaw(player, "gui_back_menu")).build());
 
+        lastEditorInventory.put(player.getUniqueId(), inv);
         player.openInventory(inv);
     }
 
@@ -144,18 +146,27 @@ public class KitEditorGUI {
 
             if (armorPiece != null && armorPiece.getType() != Material.AIR) {
                 ItemStack display = armorPiece.clone();
-                if (trim != null && display.hasItemMeta() && display.getItemMeta() instanceof ArmorMeta) {
+                if (display.hasItemMeta() && display.getItemMeta() instanceof ArmorMeta) {
                     ArmorMeta meta = (ArmorMeta) display.getItemMeta();
-                    meta.setTrim(trim);
+                    if (trim != null) {
+                        meta.setTrim(trim);
+                    } else {
+                        meta.setTrim(null);
+                    }
+                    meta.displayName(Component.text(slotNames[armorIdx], NamedTextColor.LIGHT_PURPLE));
+                    String trimInfo = trim != null ?
+                            "§d" + formatTrimName(trim.getPattern().getKey().getKey()) + " §7/ §d" + formatTrimName(trim.getMaterial().getKey().getKey()) :
+                            "§7Aucun";
+                    meta.lore(java.util.List.of(
+                            Component.empty(),
+                            Component.text(plugin.getLanguageManager().msgRaw(player, "gui_kit_armor_type") + " §f" + formatMaterialName(display.getType())),
+                            Component.text(plugin.getLanguageManager().msgRaw(player, "gui_kit_armor_trim") + " " + trimInfo),
+                            Component.empty(),
+                            Component.text(plugin.getLanguageManager().msgRaw(player, "gui_kit_click_edit"))
+                    ));
                     display.setItemMeta(meta);
                 }
-                ItemBuilder builder = new ItemBuilder(display.getType());
-                String trimInfo = trim != null ?
-                        "§d" + formatTrimName(trim.getPattern().getKey().getKey()) + " §7/ §d" + formatTrimName(trim.getMaterial().getKey().getKey()) :
-                        "§7Aucun";
-                builder.name("§d" + slotNames[armorIdx]);
-                builder.lore("", plugin.getLanguageManager().msgRaw(player, "gui_kit_armor_type") + " §f" + formatMaterialName(display.getType()), plugin.getLanguageManager().msgRaw(player, "gui_kit_armor_trim") + " " + trimInfo, "", plugin.getLanguageManager().msgRaw(player, "gui_kit_click_edit"));
-                inv.setItem(invSlots[i], builder.build());
+                inv.setItem(invSlots[i], display);
             } else {
                 inv.setItem(invSlots[i], new ItemBuilder(Material.BARRIER)
                         .name("§c" + slotNames[armorIdx])
@@ -376,6 +387,18 @@ public class KitEditorGUI {
         player.sendMessage(plugin.getLanguageManager().msg(player, "gui_kit_saved", "%mode%", mode.getDisplayName()));
     }
 
+    public void saveKitFromEditor(Player player, DuelGameMode mode) {
+        Inventory cached = lastEditorInventory.get(player.getUniqueId());
+        if (cached != null) {
+            saveKit(player, mode, cached);
+        } else {
+            Map<Integer, ArmorTrim> trims = editingTrims.remove(player.getUniqueId());
+            if (trims != null && !trims.isEmpty()) {
+                plugin.getKitManager().saveKitTrims(player.getUniqueId(), mode, trims);
+            }
+        }
+    }
+
     public void resetKit(Player player, DuelGameMode mode) {
         plugin.getKitManager().deleteKit(player.getUniqueId(), mode);
         editingTrims.remove(player.getUniqueId());
@@ -391,6 +414,7 @@ public class KitEditorGUI {
         editingTrims.remove(uuid);
         editingArmorSlot.remove(uuid);
         selectedPattern.remove(uuid);
+        lastEditorInventory.remove(uuid);
     }
 
     public Map<Integer, ArmorTrim> getEditingTrims(UUID uuid) {

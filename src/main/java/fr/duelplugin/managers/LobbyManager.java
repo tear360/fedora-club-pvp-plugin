@@ -62,6 +62,10 @@ public class LobbyManager {
         } catch (IOException e) {
             plugin.getLogger().warning("Failed to save lobby.yml");
         }
+
+        if (loc.getWorld() != null) {
+            loc.getWorld().setSpawnLocation(loc);
+        }
     }
 
     public Location getLobbySpawn() {

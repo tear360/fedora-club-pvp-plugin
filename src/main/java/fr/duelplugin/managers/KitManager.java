@@ -36,6 +36,10 @@ public class KitManager {
         File file = getKitFile(playerUuid, mode);
         FileConfiguration config = YamlConfiguration.loadConfiguration(file);
 
+        config.set("contents", null);
+        config.set("armor", null);
+        config.set("offhand", null);
+
         for (int i = 0; i < contents.length; i++) {
             if (contents[i] != null) {
                 config.set("contents." + i, contents[i]);

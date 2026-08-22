@@ -57,6 +57,7 @@ public class DuelAdminCommand implements CommandExecutor, TabCompleter {
                 player.sendMessage(lang().msg(player, "arena_config_reloaded"));
             }
             case "arena" -> handleArenaCommand(player, args);
+            case "lobby" -> handleLobbyCommand(player, args);
             default -> sendHelp(player);
         }
         return true;
@@ -210,6 +211,41 @@ public class DuelAdminCommand implements CommandExecutor, TabCompleter {
         }
     }
 
+    private void handleLobbyCommand(Player player, String[] args) {
+        if (args.length < 2) {
+            player.sendMessage("§5═══════════════════════");
+            player.sendMessage("§d§lLobby commands:");
+            player.sendMessage("");
+            player.sendMessage("§d/da lobby build §7- Toggle build mode");
+            player.sendMessage("§5═══════════════════════");
+            return;
+        }
+
+        switch (args[1].toLowerCase()) {
+            case "build" -> {
+                boolean wasBuild = plugin.isBuildMode(player.getUniqueId());
+                if (wasBuild) {
+                    plugin.setBuildMode(player.getUniqueId(), false);
+                    fr.duelplugin.listeners.PlayerListener.giveLobbyItems(player);
+                    player.sendMessage(lang().msg(player, "lobby_build_mode_disabled"));
+                } else {
+                    plugin.setBuildMode(player.getUniqueId(), true);
+                    player.getInventory().clear();
+                    player.getInventory().setArmorContents(null);
+                    player.getInventory().setItemInOffHand(null);
+                    player.sendMessage(lang().msg(player, "lobby_build_mode_enabled"));
+                }
+            }
+            default -> {
+                player.sendMessage("§5═══════════════════════");
+                player.sendMessage("§d§lLobby commands:");
+                player.sendMessage("");
+                player.sendMessage("§d/da lobby build §7- Toggle build mode");
+                player.sendMessage("§5═══════════════════════");
+            }
+        }
+    }
+
     private void sendHelp(Player player) {
         player.sendMessage("§5═══════════════════════");
         player.sendMessage("§d§lFedora Club §7- Admin");
@@ -217,6 +253,7 @@ public class DuelAdminCommand implements CommandExecutor, TabCompleter {
         player.sendMessage("§d/da reload §7- Recharger la config");
         player.sendMessage("§d/da setlobby §7- Définir le lobby");
         player.sendMessage("§d/da arena <cmd> §7- Gestion des arènes");
+        player.sendMessage("§d/da lobby <cmd> §7- Gestion du lobby");
         player.sendMessage("§5═══════════════════════");
     }
 
@@ -245,9 +282,11 @@ public class DuelAdminCommand implements CommandExecutor, TabCompleter {
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         List<String> completions = new ArrayList<>();
         if (args.length == 1) {
-            completions.addAll(Arrays.asList("reload", "setlobby", "arena"));
+            completions.addAll(Arrays.asList("reload", "setlobby", "arena", "lobby"));
         } else if (args.length == 2 && args[0].equalsIgnoreCase("arena")) {
             completions.addAll(Arrays.asList("create", "delete", "setspawn", "setmin", "setmax", "tp", "info", "list"));
+        } else if (args.length == 2 && args[0].equalsIgnoreCase("lobby")) {
+            completions.add("build");
         } else if (args.length == 3 && args[0].equalsIgnoreCase("arena")) {
             String sub = args[1].toLowerCase();
             if (sub.equals("delete") || sub.equals("setspawn") || sub.equals("info") || sub.equals("setmin") || sub.equals("setmax") || sub.equals("tp")) {

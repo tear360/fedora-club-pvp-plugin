@@ -29,6 +29,11 @@ import fr.duelplugin.managers.*;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.Collections;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+
 public class DuelPlugin extends JavaPlugin {
 
     private static DuelPlugin instance;
@@ -51,6 +56,7 @@ public class DuelPlugin extends JavaPlugin {
     private LanguageManager languageManager;
     private ChatFilterManager chatFilterManager;
     private BanManager banManager;
+    private final Set<UUID> buildModePlayers = ConcurrentHashMap.newKeySet();
 
     @Override
     public void onEnable() {
@@ -145,6 +151,12 @@ public class DuelPlugin extends JavaPlugin {
     public LanguageManager getLanguageManager() { return languageManager; }
     public ChatFilterManager getChatFilterManager() { return chatFilterManager; }
     public BanManager getBanManager() { return banManager; }
+    public Set<UUID> getBuildModePlayers() { return Collections.unmodifiableSet(buildModePlayers); }
+    public boolean isBuildMode(UUID uuid) { return buildModePlayers.contains(uuid); }
+    public void setBuildMode(UUID uuid, boolean enabled) {
+        if (enabled) buildModePlayers.add(uuid);
+        else buildModePlayers.remove(uuid);
+    }
 
     public String getPrefix() {
         return colorize(getConfig().getString("messages.prefix", "&8[&6Fedora &eClub&8] &r"));

@@ -29,6 +29,7 @@ public class LobbyItemListener implements Listener {
 
     private final DuelPlugin plugin;
     private final Map<UUID, Inventory> queueGUIs = new HashMap<>();
+    private final java.util.Set<UUID> navigating = new java.util.HashSet<>();
 
     private static final Map<String, net.kyori.adventure.text.format.TextColor> COLOR_MAP = Map.of(
             "§c", net.kyori.adventure.text.format.NamedTextColor.RED,
@@ -62,6 +63,8 @@ public class LobbyItemListener implements Listener {
                 plugin.getKitEditorGUI().openModeSelector(player);
             } else if (item.getType() == Material.NETHER_STAR) {
                 plugin.getPartyGUI().openPartyMenu(player);
+            } else if (item.getType() == Material.GRINDSTONE) {
+                plugin.getServer().dispatchCommand(player, "settings");
             }
             return;
         }
@@ -506,6 +509,7 @@ public class LobbyItemListener implements Listener {
         String name = item.getItemMeta() != null ? item.getItemMeta().getDisplayName() : "";
         for (DuelGameMode mode : DuelGameMode.values()) {
             if (name.contains(mode.getDisplayName())) {
+                navigating.add(player.getUniqueId());
                 plugin.getKitEditorGUI().openKitEditor(player, mode);
                 break;
             }
@@ -550,6 +554,7 @@ public class LobbyItemListener implements Listener {
                     player.sendMessage(plugin.getLanguageManager().msg(player, "party_vip_only"));
                     return;
                 }
+                navigating.add(player.getUniqueId());
                 plugin.getKitEditorGUI().openArmorPieceSelector(player);
                 return;
             }
@@ -577,6 +582,7 @@ public class LobbyItemListener implements Listener {
         if (item.getType() == Material.ARROW) {
             DuelGameMode mode = plugin.getKitEditorGUI().getEditingMode(player.getUniqueId());
             if (mode != null) {
+                navigating.add(player.getUniqueId());
                 plugin.getKitEditorGUI().openKitEditor(player, mode);
             }
             return;
@@ -590,6 +596,7 @@ public class LobbyItemListener implements Listener {
         else if (slot == 16) armorSlot = 0;
 
         if (armorSlot >= 0) {
+            navigating.add(player.getUniqueId());
             plugin.getKitEditorGUI().openPatternSelector(player, armorSlot);
         }
     }
@@ -601,6 +608,7 @@ public class LobbyItemListener implements Listener {
         if (item.getType() == Material.BLACK_STAINED_GLASS_PANE) return;
 
         if (item.getType() == Material.ARROW) {
+            navigating.add(player.getUniqueId());
             plugin.getKitEditorGUI().openArmorPieceSelector(player);
             return;
         }
@@ -637,6 +645,7 @@ public class LobbyItemListener implements Listener {
 
         for (int i = 0; i < patterns.length && i < patternIcons.length; i++) {
             if (item.getType() == patternIcons[i]) {
+                navigating.add(player.getUniqueId());
                 plugin.getKitEditorGUI().openMaterialSelector(player, patterns[i]);
                 return;
             }
@@ -650,6 +659,7 @@ public class LobbyItemListener implements Listener {
         if (item.getType() == Material.BLACK_STAINED_GLASS_PANE) return;
 
         if (item.getType() == Material.ARROW) {
+            navigating.add(player.getUniqueId());
             int armorSlot = plugin.getKitEditorGUI().getEditingArmorSlot(player.getUniqueId());
             plugin.getKitEditorGUI().openPatternSelector(player, armorSlot);
             return;
@@ -682,6 +692,7 @@ public class LobbyItemListener implements Listener {
                     String matName = formatTrimName(materials[i].getKey().getKey());
                     player.sendMessage(plugin.getLanguageManager().msg(player, "gui_trim_applied", "%slot%", slotName, "%pattern%", formatTrimName(pattern.getKey().getKey()), "%material%", matName));
                 }
+                navigating.add(player.getUniqueId());
                 plugin.getKitEditorGUI().openArmorPieceSelector(player);
                 return;
             }
@@ -703,23 +714,19 @@ public class LobbyItemListener implements Listener {
     public void onInventoryClose(InventoryCloseEvent event) {
         if (!(event.getPlayer() instanceof Player player)) return;
         UUID uuid = player.getUniqueId();
+
+        if (navigating.remove(uuid)) return;
+
         String cleanTitle = event.getView().getTitle().replaceAll("§[0-9a-fk-or]", "");
 
         boolean isKitEditor = cleanTitle.startsWith("Kit ") && !cleanTitle.contains("Kit Editor") && !cleanTitle.contains("Éditeur de kits");
-        boolean isArmorSelect = cleanTitle.contains("Choisir une pièce") || cleanTitle.contains("Select Armor Piece");
-        boolean isPatternSelect = cleanTitle.equals("Choisir un pattern") || cleanTitle.equals("Select Pattern");
-        boolean isMaterialSelect = cleanTitle.equals("Choisir un matériau") || cleanTitle.equals("Select Material");
 
-        if (isKitEditor || isArmorSelect || isPatternSelect || isMaterialSelect) {
+        if (isKitEditor) {
             DuelGameMode mode = plugin.getKitEditorGUI().getEditingMode(uuid);
             if (mode != null && !plugin.getDuelManager().isInDuel(player)) {
-                if (isKitEditor) {
-                    Inventory topInv = event.getView().getTopInventory();
-                    if (topInv != null) {
-                        plugin.getKitEditorGUI().saveKit(player, mode, topInv);
-                    }
-                } else {
-                    plugin.getKitEditorGUI().saveKitFromEditor(player, mode);
+                Inventory topInv = event.getView().getTopInventory();
+                if (topInv != null) {
+                    plugin.getKitEditorGUI().saveKit(player, mode, topInv);
                 }
             }
             plugin.getKitEditorGUI().removeEditingMode(uuid);
@@ -759,7 +766,7 @@ public class LobbyItemListener implements Listener {
 
     private boolean isLobbyItem(ItemStack item) {
         if (item == null || item.getType() == Material.AIR) return false;
-        return item.getType() == Material.NETHERITE_SWORD || item.getType() == Material.CRAFTING_TABLE || item.getType() == Material.NETHER_STAR;
+        return item.getType() == Material.NETHERITE_SWORD || item.getType() == Material.CRAFTING_TABLE || item.getType() == Material.NETHER_STAR || item.getType() == Material.GRINDSTONE;
     }
 
     private boolean isModeIcon(Material type) {

@@ -7,6 +7,9 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
@@ -69,6 +72,7 @@ public class PlayerListener implements Listener {
         plugin.getQueueManager().leaveQueue(player);
         plugin.getDuelManager().handleDisconnect(player);
         plugin.getScoreboardManager().removeScoreboard(player);
+        plugin.setBuildMode(player.getUniqueId(), false);
         event.setQuitMessage(plugin.getLanguageManager().msgRaw(player, "lobby_quit", "%player%", player.getName()));
     }
 
@@ -98,6 +102,7 @@ public class PlayerListener implements Listener {
     public void onPlayerDamage(EntityDamageEvent event) {
         if (!(event.getEntity() instanceof Player player)) return;
         if (plugin.getDuelManager().isInDuel(player)) return;
+        if (plugin.isBuildMode(player.getUniqueId())) return;
         event.setCancelled(true);
     }
 
@@ -186,7 +191,7 @@ public class PlayerListener implements Listener {
 
     private boolean isLobbyItem(ItemStack item) {
         if (item == null || item.getType() == Material.AIR) return false;
-        return item.getType() == Material.NETHERITE_SWORD || item.getType() == Material.CRAFTING_TABLE || item.getType() == Material.NETHER_STAR;
+        return item.getType() == Material.NETHERITE_SWORD || item.getType() == Material.CRAFTING_TABLE || item.getType() == Material.NETHER_STAR || item.getType() == Material.GRINDSTONE;
     }
 
     private boolean isVipLobbyItem(ItemStack item) {
@@ -215,6 +220,10 @@ public class PlayerListener implements Listener {
                 .name(plugin.getLanguageManager().msgRaw(player, "lobby_item_party"))
                 .lore("", plugin.getLanguageManager().msgRaw(player, "lobby_item_party_lore"), "").build());
 
+        player.getInventory().setItem(2, new ItemBuilder(Material.GRINDSTONE)
+                .name(plugin.getLanguageManager().msgRaw(player, "lobby_item_settings"))
+                .lore("", plugin.getLanguageManager().msgRaw(player, "lobby_item_settings_lore"), "").build());
+
         if (plugin != null && plugin.getVipManager().isVip(player.getUniqueId())) {
             ItemStack windCharge = new ItemStack(Material.WIND_CHARGE, 64);
             player.getInventory().setItemInOffHand(windCharge);
@@ -232,5 +241,45 @@ public class PlayerListener implements Listener {
             }
             player.getInventory().setChestplate(elytra);
         }
+    }
+
+    @EventHandler
+    public void onBlockInteract(PlayerInteractEvent event) {
+        if (event.getAction() != Action.RIGHT_CLICK_BLOCK && event.getAction() != Action.LEFT_CLICK_BLOCK) return;
+        Player player = event.getPlayer();
+        if (plugin.getDuelManager().isInDuel(player)) return;
+        if (plugin.isBuildMode(player.getUniqueId())) return;
+        if (event.getClickedBlock() == null) return;
+        if (event.getItem() != null && event.getItem().getType() == Material.WIND_CHARGE) return;
+        if (event.getItem() != null && event.getItem().getType() == Material.ELYTRA) return;
+        Material type = event.getClickedBlock().getType();
+        if (type.name().endsWith("_DOOR") || type.name().endsWith("_TRAPDOOR") || type.name().endsWith("_GATE")
+                || type.name().endsWith("_FENCE_GATE")
+                || type == Material.LEVER || type.name().endsWith("_BUTTON")
+                || type == Material.CHEST || type == Material.TRAPPED_CHEST
+                || type == Material.BARREL || type == Material.BREWING_STAND
+                || type == Material.CRAFTING_TABLE || type == Material.ENCHANTING_TABLE
+                || type == Material.ANVIL || type == Material.CHIPPED_ANVIL || type == Material.DAMAGED_ANVIL
+                || type == Material.ENDER_CHEST || type == Material.JUKEBOX
+                || type == Material.NOTE_BLOCK
+                || type.name().contains("SHULKER_BOX") || type == Material.BELL) {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onBlockBreak(BlockBreakEvent event) {
+        Player player = event.getPlayer();
+        if (plugin.getDuelManager().isInDuel(player)) return;
+        if (plugin.isBuildMode(player.getUniqueId())) return;
+        event.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onBlockPlace(BlockPlaceEvent event) {
+        Player player = event.getPlayer();
+        if (plugin.getDuelManager().isInDuel(player)) return;
+        if (plugin.isBuildMode(player.getUniqueId())) return;
+        event.setCancelled(true);
     }
 }

@@ -1083,6 +1083,23 @@ public class LanguageManager {
             "Rejoindre une queue",
             "Join a Queue");
 
+        // ───────────── LOBBY BUILD MODE ─────────────
+        tBoth("lobby_build_mode_enabled",
+            "&aMode build activé. /da lobby build pour quitter.",
+            "&aBuild mode enabled. /da lobby build to exit.");
+        tBoth("lobby_build_mode_disabled",
+            "&cMode build désactivé.",
+            "&cBuild mode disabled.");
+        tBoth("lobby_item_settings",
+            "&5&lParamètres",
+            "&5&lSettings");
+        tBoth("lobby_item_settings_lore",
+            "&7Changez vos paramètres",
+            "&7Change your settings");
+        tBoth("lobby_block_interact_disabled",
+            "&cVous ne pouvez pas interagir avec les blocs ici.",
+            "&cYou cannot interact with blocks here.");
+
         // ───────────── GUI COMMON ─────────────
         tBoth("gui_back",
             "&d← Retour",

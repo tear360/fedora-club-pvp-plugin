@@ -79,25 +79,23 @@ public class SettingsCommand implements CommandExecutor, TabCompleter, Listener 
         friendItem.setItemMeta(friendMeta);
         gui.setItem(11, friendItem);
 
-        // Language selector - French
-        ItemStack frItem = createSkullItem(FR_SKULL);
-        SkullMeta frMeta = (SkullMeta) frItem.getItemMeta();
-        frMeta.displayName(Component.text("Français", NamedTextColor.DARK_PURPLE, TextDecoration.BOLD));
-        frMeta.lore(List.of(
-            Component.text(currentLang == Language.FR ? "§a✔ Sélectionné" : "§7Sélectionner", currentLang == Language.FR ? NamedTextColor.GREEN : NamedTextColor.GRAY)
-        ));
-        frItem.setItemMeta(frMeta);
-        gui.setItem(12, frItem);
+        // Language toggle - single button
+        Language targetLang = currentLang == Language.FR ? Language.EN : Language.FR;
+        boolean isFr = currentLang == Language.FR;
+        String langLabel = isFr ? "Français" : "English";
+        String langSwitchLabel = isFr ? "English" : "Français";
+        String langSwitchCode = isFr ? "§c" : "§9";
 
-        // Language selector - English
-        ItemStack enItem = createSkullItem(EN_SKULL);
-        SkullMeta enMeta = (SkullMeta) enItem.getItemMeta();
-        enMeta.displayName(Component.text("English", NamedTextColor.DARK_PURPLE, TextDecoration.BOLD));
-        enMeta.lore(List.of(
-            Component.text(currentLang == Language.EN ? "§a✔ Selected" : "§7Select", currentLang == Language.EN ? NamedTextColor.GREEN : NamedTextColor.GRAY)
+        ItemStack langItem = createSkullItem(isFr ? FR_SKULL : EN_SKULL);
+        SkullMeta langMeta = (SkullMeta) langItem.getItemMeta();
+        langMeta.displayName(Component.text(langLabel, NamedTextColor.DARK_PURPLE, TextDecoration.BOLD));
+        langMeta.lore(List.of(
+            Component.text("§a✔ " + langLabel, NamedTextColor.GREEN),
+            Component.empty(),
+            Component.text("§7Cliquer pour passer en " + langSwitchLabel, NamedTextColor.GRAY)
         ));
-        enItem.setItemMeta(enMeta);
-        gui.setItem(14, enItem);
+        langItem.setItemMeta(langMeta);
+        gui.setItem(13, langItem);
 
         // Duel requests toggle
         ItemStack duelItem = new ItemStack(Material.DIAMOND_SWORD);
@@ -156,14 +154,12 @@ public class SettingsCommand implements CommandExecutor, TabCompleter, Listener 
 
         switch (slot) {
             case 11 -> toggleFriends(player);
-            case 12 -> {
-                plugin.getSettingsManager().setLanguage(player.getUniqueId(), Language.FR);
-                player.sendMessage(plugin.getLanguageManager().msg(player, "language_changed", "%language%", "Français"));
-                openSettingsGUI(player);
-            }
-            case 14 -> {
-                plugin.getSettingsManager().setLanguage(player.getUniqueId(), Language.EN);
-                player.sendMessage(plugin.getLanguageManager().msg(player, "language_changed", "%language%", "English"));
+            case 13 -> {
+                Language current = plugin.getSettingsManager().getLanguage(player.getUniqueId());
+                Language next = current == Language.FR ? Language.EN : Language.FR;
+                plugin.getSettingsManager().setLanguage(player.getUniqueId(), next);
+                String name = next == Language.FR ? "Français" : "English";
+                player.sendMessage(plugin.getLanguageManager().msg(player, "language_changed", "%language%", name));
                 openSettingsGUI(player);
             }
             case 15 -> toggleDuels(player);

@@ -513,14 +513,16 @@ public class LobbyItemListener implements Listener {
     }
 
     private void handleKitEditorClick(InventoryClickEvent event, Player player) {
-        event.setCancelled(true);
-
-        if (event.getClickedInventory() != event.getView().getTopInventory()) return;
+        if (event.getClickedInventory() != event.getView().getTopInventory()) {
+            event.setCancelled(true);
+            return;
+        }
 
         int slot = event.getSlot();
         if (slot < 0) return;
 
         if (slot >= 45) {
+            event.setCancelled(true);
             ItemStack item = event.getCurrentItem();
             if (item == null || item.getType() == Material.AIR) return;
             Material type = item.getType();
@@ -560,26 +562,8 @@ public class LobbyItemListener implements Listener {
         }
 
         if (slot >= 0 && slot <= 44) {
-            ItemStack cursor = event.getCursor();
-            ItemStack clicked = event.getCurrentItem();
-            boolean cursorEmpty = cursor == null || cursor.getType() == Material.AIR;
-            boolean slotEmpty = clicked == null || clicked.getType() == Material.AIR;
-
-            if (cursorEmpty && slotEmpty) return;
-
-            if (!cursorEmpty && !slotEmpty) {
-                event.getInventory().setItem(slot, cursor.clone());
-                event.getCursor().setType(Material.AIR);
-                event.getCursor().setAmount(1);
-                player.getOpenInventory().setItem(slot, cursor.clone());
-            } else if (!cursorEmpty) {
-                event.getInventory().setItem(slot, cursor.clone());
-                event.getCursor().setType(Material.AIR);
-                event.getCursor().setAmount(1);
-            } else {
-                event.getInventory().setItem(slot, null);
-                event.getCursor().setType(Material.AIR);
-                event.getCursor().setAmount(1);
+            if (event.isShiftClick()) {
+                event.setCancelled(true);
             }
         }
     }

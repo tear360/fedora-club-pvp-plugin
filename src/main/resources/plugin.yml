@@ -45,6 +45,30 @@ commands:
     description: Paramètres du joueur
     usage: /settings [friends|duels]
     aliases: [parametres, options]
+  ban:
+    description: Bannir un joueur
+    usage: /ban <joueur> [durée] [raison]
+    permission: duelplugin.admin
+  kick:
+    description: Expulser un joueur
+    usage: /kick <joueur> [raison]
+    permission: duelplugin.admin
+  tempban:
+    description: Bannir temporairement un joueur
+    usage: /tempban <joueur> <durée> [raison]
+    permission: duelplugin.admin
+  mute:
+    description: Mute un joueur
+    usage: /mute <joueur> <durée> [raison]
+    permission: duelplugin.admin
+  unban:
+    description: Débannir un joueur
+    usage: /unban <joueur>
+    permission: duelplugin.admin
+  unmute:
+    description: Unmute un joueur
+    usage: /unmute <joueur>
+    permission: duelplugin.admin
 
 permissions:
   duelplugin.admin:

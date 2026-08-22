@@ -1,14 +1,20 @@
 package fr.duelplugin;
 
 import fr.duelplugin.commands.AcceptDuelCommand;
+import fr.duelplugin.commands.BanCommand;
 import fr.duelplugin.commands.DenyDuelCommand;
 import fr.duelplugin.commands.DuelAdminCommand;
 import fr.duelplugin.commands.DuelCommand;
 import fr.duelplugin.commands.FriendsCommand;
+import fr.duelplugin.commands.KickCommand;
 import fr.duelplugin.commands.LeaveCommand;
+import fr.duelplugin.commands.MuteCommand;
 import fr.duelplugin.commands.PartyCommand;
 import fr.duelplugin.commands.SettingsCommand;
 import fr.duelplugin.commands.SpecCommand;
+import fr.duelplugin.commands.TempBanCommand;
+import fr.duelplugin.commands.UnbanCommand;
+import fr.duelplugin.commands.UnmuteCommand;
 import fr.duelplugin.commands.VipCommand;
 import fr.duelplugin.gui.DuelGUI;
 import fr.duelplugin.gui.KitEditorGUI;
@@ -43,6 +49,8 @@ public class DuelPlugin extends JavaPlugin {
     private PartyManager partyManager;
     private SettingsManager settingsManager;
     private LanguageManager languageManager;
+    private ChatFilterManager chatFilterManager;
+    private BanManager banManager;
 
     @Override
     public void onEnable() {
@@ -66,6 +74,8 @@ public class DuelPlugin extends JavaPlugin {
         partyManager = new PartyManager(this);
         settingsManager = new SettingsManager(this);
         languageManager = new LanguageManager(this);
+        chatFilterManager = new ChatFilterManager(this);
+        banManager = new BanManager(this);
 
         getCommand("duel").setExecutor(new DuelCommand(this));
         getCommand("duel").setTabCompleter(new DuelCommand(this));
@@ -86,6 +96,13 @@ public class DuelPlugin extends JavaPlugin {
         getCommand("settings").setExecutor(new SettingsCommand(this));
         getCommand("settings").setTabCompleter(new SettingsCommand(this));
         getServer().getPluginManager().registerEvents(new SettingsCommand(this), this);
+
+        getCommand("ban").setExecutor(new BanCommand(this));
+        getCommand("kick").setExecutor(new KickCommand(this));
+        getCommand("tempban").setExecutor(new TempBanCommand(this));
+        getCommand("mute").setExecutor(new MuteCommand(this));
+        getCommand("unban").setExecutor(new UnbanCommand(this));
+        getCommand("unmute").setExecutor(new UnmuteCommand(this));
 
         getServer().getPluginManager().registerEvents(new GameListener(this), this);
         getServer().getPluginManager().registerEvents(new ArenaListener(this), this);
@@ -126,6 +143,8 @@ public class DuelPlugin extends JavaPlugin {
     public PartyManager getPartyManager() { return partyManager; }
     public SettingsManager getSettingsManager() { return settingsManager; }
     public LanguageManager getLanguageManager() { return languageManager; }
+    public ChatFilterManager getChatFilterManager() { return chatFilterManager; }
+    public BanManager getBanManager() { return banManager; }
 
     public String getPrefix() {
         return colorize(getConfig().getString("messages.prefix", "&8[&6Fedora &eClub&8] &r"));

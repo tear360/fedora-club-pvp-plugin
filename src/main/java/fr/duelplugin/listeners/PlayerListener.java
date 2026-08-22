@@ -14,6 +14,7 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.EquipmentSlotGroup;
 import org.bukkit.inventory.ItemStack;
@@ -25,6 +26,14 @@ public class PlayerListener implements Listener {
 
     public PlayerListener(DuelPlugin plugin) {
         this.plugin = plugin;
+    }
+
+    @EventHandler
+    public void onPlayerLogin(PlayerLoginEvent event) {
+        if (plugin.getBanManager().isBanned(event.getPlayer().getUniqueId())) {
+            event.setResult(PlayerLoginEvent.Result.KICK_BANNED);
+            event.kickMessage(plugin.getBanManager().buildBanScreen(event.getPlayer().getUniqueId()));
+        }
     }
 
     @EventHandler

@@ -15,9 +15,21 @@ public class ChatListener implements Listener {
         this.plugin = plugin;
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
     public void onChat(AsyncPlayerChatEvent event) {
         Player player = event.getPlayer();
+
+        if (plugin.getBanManager().isMuted(player.getUniqueId())) {
+            event.setCancelled(true);
+            long remaining = plugin.getBanManager().getMuteRemaining(player.getUniqueId());
+            String remainingStr = remaining == -1 ? "Permanent" : fr.duelplugin.managers.BanManager.formatDuration(remaining);
+            player.sendMessage("§cVous êtes mute! Temps restant: §4" + remainingStr);
+            return;
+        }
+
+        String filtered = plugin.getChatFilterManager().censor(event.getMessage());
+        event.setMessage(filtered);
+
         if (!plugin.getVipManager().isVip(player.getUniqueId())) return;
 
         String color = plugin.getVipManager().getNameColor(player.getUniqueId());

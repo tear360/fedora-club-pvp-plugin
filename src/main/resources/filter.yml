@@ -1,0 +1,59 @@
+# Fedora Club - Chat Filter
+# Liste des mots à censurer (en minuscules)
+# Rechargez avec /da reload
+
+banned-words:
+  - con
+  - conne
+  - connard
+  - connasse
+  - batard
+  - batards
+  - bâtard
+  - bordel
+  - branleur
+  - branleuse
+  - cassecouilles
+  - chiant
+  - chie
+  - chier
+  - chienne
+  - cretin
+  - crétin
+  - cretine
+  - crétine
+  - degueulasse
+  - dégueulasse
+  - emmerde
+  - emmerdeur
+  - enculé
+  - enculee
+  - enfoiré
+  - enfoiree
+  - fdp
+  - imbécile
+  - merde
+  - merdeux
+  - merdeuse
+  - nique
+  - niquer
+  - nazi
+  - negre
+  - nègre
+  - negro
+  - négro
+  - ordure
+  - petasse
+  - peteuse
+  - pd
+  - putain
+  - pute
+  - salope
+  - salaud
+  - tapette
+  - tare
+  - taré
+  - tocard
+  - tocarde
+  - troudcul
+  - vaurien

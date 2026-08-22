@@ -49,6 +49,7 @@ public class DuelAdminCommand implements CommandExecutor, TabCompleter {
             case "reload" -> {
                 plugin.getArenaManager().loadArenas();
                 plugin.getLobbyManager().loadLobby();
+                plugin.getChatFilterManager().loadFilter();
                 player.sendMessage(lang().msg(player, "arena_config_reloaded"));
             }
             case "setlobby" -> {

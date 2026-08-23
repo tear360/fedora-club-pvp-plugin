@@ -262,6 +262,15 @@ public class DuelManager {
         dl.addDeath(duel.getMode().getConfigName());
         dl.resetWinStreak();
 
+        if (!duel.isFFA()) {
+            long duration = System.currentTimeMillis() - duel.getStartTime();
+            String wName = w != null ? w.getName() : Bukkit.getOfflinePlayer(winner).getName();
+            String lName = l != null ? l.getName() : Bukkit.getOfflinePlayer(loser).getName();
+            if (wName != null && lName != null) {
+                plugin.getDiscordWebhookManager().sendDuelResult(wName, lName, duel.getMode().getDisplayName(), duration);
+            }
+        }
+
         if (w != null) {
             restoreInventory(w);
             w.setGameMode(GameMode.SURVIVAL);

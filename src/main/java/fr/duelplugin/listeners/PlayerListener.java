@@ -72,6 +72,7 @@ public class PlayerListener implements Listener {
         plugin.getQueueManager().leaveQueue(player);
         plugin.getDuelManager().handleDisconnect(player);
         plugin.getScoreboardManager().removeScoreboard(player);
+        plugin.getTabManager().onPlayerQuit(player.getUniqueId());
         plugin.setBuildMode(player.getUniqueId(), false);
         event.setQuitMessage(plugin.getLanguageManager().msgRaw(player, "lobby_quit", "%player%", player.getName()));
     }

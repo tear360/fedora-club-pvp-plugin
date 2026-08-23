@@ -221,7 +221,7 @@ public class LobbyItemListener implements Listener {
 
         String name = item.getItemMeta() != null ? item.getItemMeta().getDisplayName() : "";
         for (DuelGameMode mode : DuelGameMode.values()) {
-            if (name.contains(mode.getDisplayName())) {
+            if (name.contains(mode.getColoredName())) {
                 if (cleanTitle.contains("Défi →") || cleanTitle.contains("Challenge →")) {
                     UUID targetUuid = plugin.getDuelGUI().getPendingTarget(player.getUniqueId());
                     if (targetUuid != null) {
@@ -267,7 +267,7 @@ public class LobbyItemListener implements Listener {
 
         String name = item.getItemMeta() != null ? item.getItemMeta().getDisplayName() : "";
         for (DuelGameMode mode : DuelGameMode.values()) {
-            if (name.contains(mode.getDisplayName())) {
+            if (name.contains(mode.getColoredName())) {
                 if (plugin.getQueueManager().isInQueue(player, mode)) {
                     plugin.getQueueManager().leaveQueue(player, mode);
                     player.sendMessage(plugin.getLanguageManager().msg(player, "queue_left", "%mode%", mode.getDisplayName()));
@@ -523,7 +523,7 @@ public class LobbyItemListener implements Listener {
 
         String name = item.getItemMeta() != null ? item.getItemMeta().getDisplayName() : "";
         for (DuelGameMode mode : DuelGameMode.values()) {
-            if (name.contains(mode.getDisplayName())) {
+            if (name.contains(mode.getColoredName())) {
                 navigating.add(player.getUniqueId());
                 plugin.getKitEditorGUI().openKitEditor(player, mode);
                 break;

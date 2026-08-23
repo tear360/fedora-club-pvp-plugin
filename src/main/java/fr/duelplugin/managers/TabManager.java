@@ -47,11 +47,19 @@ public class TabManager {
     }
 
     private Scoreboard getOrCreateScoreboard(Player player) {
-        return viewerScoreboards.computeIfAbsent(player.getUniqueId(), k -> {
-            Scoreboard sb = Bukkit.getScoreboardManager().getNewScoreboard();
-            player.setScoreboard(sb);
-            return sb;
+        Scoreboard sb = viewerScoreboards.computeIfAbsent(player.getUniqueId(), k -> {
+            Scoreboard board = Bukkit.getScoreboardManager().getNewScoreboard();
+            player.setScoreboard(board);
+            return board;
         });
+        if (player.getScoreboard() != sb) {
+            player.setScoreboard(sb);
+        }
+        return sb;
+    }
+
+    public void onPlayerQuit(UUID uuid) {
+        viewerScoreboards.remove(uuid);
     }
 
     private boolean areInSameParty(UUID a, UUID b) {
@@ -136,6 +144,7 @@ public class TabManager {
                     team.color(NamedTextColor.WHITE);
                 } else if (plugin.getVipManager().isVip(other.getUniqueId())) {
                     String colorCode = plugin.getVipManager().getNameColor(other.getUniqueId());
+                    if (colorCode == null) colorCode = "§d";
                     NamedTextColor vipColor = COLOR_MAP.getOrDefault(colorCode, NamedTextColor.LIGHT_PURPLE);
                     String badge = plugin.getVipManager().getBadge(other.getUniqueId());
                     team.prefix(Component.text(badge + " ", vipColor));

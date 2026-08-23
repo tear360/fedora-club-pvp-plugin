@@ -18,6 +18,7 @@ import fr.duelplugin.commands.UnbanCommand;
 import fr.duelplugin.commands.UnmuteCommand;
 import fr.duelplugin.commands.VipCommand;
 import fr.duelplugin.gui.DuelGUI;
+import fr.duelplugin.gui.DuelSettingsGUI;
 import fr.duelplugin.gui.KitEditorGUI;
 import fr.duelplugin.gui.PartyGUI;
 import fr.duelplugin.listeners.ArenaListener;
@@ -44,6 +45,7 @@ public class DuelPlugin extends JavaPlugin {
     private ScoreboardManager scoreboardManager;
     private LobbyManager lobbyManager;
     private DuelGUI duelGUI;
+    private DuelSettingsGUI duelSettingsGUI;
     private TabManager tabManager;
     private UpdateManager updateManager;
     private KitManager kitManager;
@@ -72,6 +74,7 @@ public class DuelPlugin extends JavaPlugin {
         scoreboardManager = new ScoreboardManager(this);
         duelManager = new DuelManager(this);
         duelGUI = new DuelGUI(this);
+        duelSettingsGUI = new DuelSettingsGUI(this);
         tabManager = new TabManager(this);
         updateManager = new UpdateManager(this);
         kitManager = new KitManager(this);
@@ -146,6 +149,7 @@ public class DuelPlugin extends JavaPlugin {
     public ScoreboardManager getScoreboardManager() { return scoreboardManager; }
     public LobbyManager getLobbyManager() { return lobbyManager; }
     public DuelGUI getDuelGUI() { return duelGUI; }
+    public DuelSettingsGUI getDuelSettingsGUI() { return duelSettingsGUI; }
     public TabManager getTabManager() { return tabManager; }
     public UpdateManager getUpdateManager() { return updateManager; }
     public KitManager getKitManager() { return kitManager; }

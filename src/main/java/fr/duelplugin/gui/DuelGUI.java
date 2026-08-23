@@ -63,6 +63,16 @@ public class DuelGUI {
                     ).build());
         }
 
+        boolean discordEnabled = plugin.getSettingsManager().discordNotificationsEnabled(player.getUniqueId());
+        inv.setItem(31, new ItemBuilder(Material.REDSTONE)
+                .name("§5⚙ Paramètres de duel")
+                .lore(
+                        "",
+                        discordEnabled ? "§a✔ Discord: Activé" : "§c✖ Discord: Désactivé",
+                        "",
+                        "§7Cliquez pour configurer"
+                ).build());
+
         player.openInventory(inv);
     }
 

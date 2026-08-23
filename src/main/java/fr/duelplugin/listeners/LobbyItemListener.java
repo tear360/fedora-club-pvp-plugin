@@ -172,6 +172,11 @@ public class LobbyItemListener implements Listener {
             return;
         }
 
+        if (cleanTitle.equals("Paramètres de duel")) {
+            handleDuelSettingsClick(event, player);
+            return;
+        }
+
         if (cleanTitle.contains("Choisir une pièce") || cleanTitle.contains("Select Armor Piece")) {
             handleArmorPieceClick(event, player);
             return;
@@ -201,6 +206,7 @@ public class LobbyItemListener implements Listener {
         if (cleanTitle.equals("Choisir un mode FFA")) return true;
         if (cleanTitle.contains("Badge VIP") || cleanTitle.contains("VIP Badge")) return true;
         if (cleanTitle.contains("Kit Editor") || cleanTitle.contains("Éditeur de kits")) return true;
+        if (cleanTitle.equals("Paramètres de duel")) return true;
         if (cleanTitle.startsWith("Kit ")) return true;
         if (cleanTitle.contains("Choisir une pièce") || cleanTitle.contains("Select Armor Piece")) return true;
         if (cleanTitle.equals("Choisir un pattern") || cleanTitle.equals("Select Pattern")) return true;
@@ -218,6 +224,11 @@ public class LobbyItemListener implements Listener {
         ItemStack item = event.getCurrentItem();
         if (item == null || item.getType() == Material.AIR) return;
         if (item.getType() == Material.BLACK_STAINED_GLASS_PANE || item.getType() == Material.PURPLE_STAINED_GLASS_PANE) return;
+
+        if (item.getType() == Material.REDSTONE && event.getSlot() == 31) {
+            plugin.getDuelSettingsGUI().open(player);
+            return;
+        }
 
         String name = item.getItemMeta() != null ? item.getItemMeta().getDisplayName() : "";
         for (DuelGameMode mode : DuelGameMode.values()) {
@@ -528,6 +539,18 @@ public class LobbyItemListener implements Listener {
                 plugin.getKitEditorGUI().openKitEditor(player, mode);
                 break;
             }
+        }
+    }
+
+    private void handleDuelSettingsClick(InventoryClickEvent event, Player player) {
+        event.setCancelled(true);
+        int slot = event.getRawSlot();
+        if (slot == 11) {
+            boolean current = plugin.getSettingsManager().discordNotificationsEnabled(player.getUniqueId());
+            plugin.getSettingsManager().setDiscordNotifications(player.getUniqueId(), !current);
+            plugin.getDuelSettingsGUI().open(player);
+        } else if (slot == 13) {
+            plugin.getDuelGUI().openModeSelector(player, null);
         }
     }
 

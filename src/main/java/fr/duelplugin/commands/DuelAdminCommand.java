@@ -2,21 +2,33 @@ package fr.duelplugin.commands;
 
 import fr.duelplugin.DuelPlugin;
 import fr.duelplugin.managers.LanguageManager;
+import fr.duelplugin.managers.ReportManager;
 import fr.duelplugin.models.Arena;
 import fr.duelplugin.models.DuelGameMode;
+import fr.duelplugin.utils.ItemBuilder;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class DuelAdminCommand implements CommandExecutor, TabCompleter {
+public class DuelAdminCommand implements CommandExecutor, TabCompleter, Listener {
 
     private final DuelPlugin plugin;
 
@@ -58,6 +70,7 @@ public class DuelAdminCommand implements CommandExecutor, TabCompleter {
             }
             case "arena" -> handleArenaCommand(player, args);
             case "lobby" -> handleLobbyCommand(player, args);
+            case "report" -> handleReportCommand(player, args);
             default -> sendHelp(player);
         }
         return true;
@@ -246,6 +259,103 @@ public class DuelAdminCommand implements CommandExecutor, TabCompleter {
         }
     }
 
+    private void handleReportCommand(Player player, String[] args) {
+        if (args.length >= 2 && args[1].equalsIgnoreCase("close")) {
+            if (args.length < 3) { player.sendMessage(lang().msg(player, "report_usage_admin")); return; }
+            try {
+                int id = Integer.parseInt(args[2]);
+                ReportManager.Report report = plugin.getReportManager().getReport(id);
+                if (report == null) { player.sendMessage(lang().msg(player, "report_not_found")); return; }
+                plugin.getReportManager().closeReport(id);
+                player.sendMessage(lang().msg(player, "report_closed", "%id%", String.valueOf(id)));
+            } catch (NumberFormatException e) { player.sendMessage(lang().msg(player, "report_usage_admin")); }
+            return;
+        }
+        if (args.length >= 2 && args[1].equalsIgnoreCase("delete")) {
+            if (args.length < 3) { player.sendMessage(lang().msg(player, "report_usage_admin")); return; }
+            try {
+                int id = Integer.parseInt(args[2]);
+                ReportManager.Report report = plugin.getReportManager().getReport(id);
+                if (report == null) { player.sendMessage(lang().msg(player, "report_not_found")); return; }
+                plugin.getReportManager().deleteReport(id);
+                player.sendMessage(lang().msg(player, "report_deleted", "%id%", String.valueOf(id)));
+            } catch (NumberFormatException e) { player.sendMessage(lang().msg(player, "report_usage_admin")); }
+            return;
+        }
+        openReportGUI(player);
+    }
+
+    private void openReportGUI(Player player) {
+        List<ReportManager.Report> allReports = plugin.getReportManager().getAllReports();
+        int openCount = plugin.getReportManager().getOpenReportCount();
+        Inventory inv = Bukkit.createInventory(null, 54,
+                net.kyori.adventure.text.Component.text("\u00A75\u00A7lReports \u00A77(" + openCount + " ouverts)", NamedTextColor.DARK_PURPLE, TextDecoration.BOLD));
+        for (int i = 0; i < 54; i++) {
+            inv.setItem(i, new ItemBuilder(Material.BLACK_STAINED_GLASS_PANE).name(" ").build());
+        }
+        int slot = 10;
+        for (ReportManager.Report report : allReports) {
+            if (slot >= 45) break;
+            Material icon = report.getStatus().equals("open") ? Material.PAPER : Material.BARRIER;
+            String statusText = report.getStatus().equals("open") ? "\u00A7cOuvert" : "\u00A77Ferm\u00E9";
+            long diff = System.currentTimeMillis() - report.getTimestamp();
+            String timeAgo = formatTimeAgo(diff);
+            inv.setItem(slot, new ItemBuilder(icon)
+                    .name("\u00A7d#" + report.getId() + " \u00A77- \u00A7c" + report.getReported())
+                    .lore("", "\u00A77Signal\u00E9 par: \u00A7f" + report.getReporter(),
+                            "\u00A77Raison: \u00A7f" + report.getReason(),
+                            "\u00A77Date: \u00A7f" + timeAgo,
+                            "\u00A77Statut: " + statusText, "",
+                            report.getStatus().equals("open") ? "\u00A7aCliquez pour fermer" : "\u00A77Ferm\u00E9")
+                    .build());
+            slot++;
+            if (slot == 17) slot = 19;
+            else if (slot == 26) slot = 28;
+            else if (slot == 35) slot = 37;
+        }
+        if (allReports.isEmpty()) {
+            inv.setItem(22, new ItemBuilder(Material.LIME_STAINED_GLASS_PANE).name("\u00A7aAucun report").lore("", "\u00A77Aucun report en attente").build());
+        }
+        inv.setItem(49, new ItemBuilder(Material.ARROW).name("\u00A7dRetour").lore("", "\u00A77Retour au menu admin").build());
+        player.openInventory(inv);
+    }
+
+    private String formatTimeAgo(long diffMs) {
+        long s = diffMs / 1000;
+        if (s < 60) return s + "s";
+        long m = s / 60;
+        if (m < 60) return m + "m";
+        long h = m / 60;
+        if (h < 24) return h + "h";
+        return (h / 24) + "j";
+    }
+
+    @EventHandler
+    public void onReportGUIClick(InventoryClickEvent event) {
+        if (!(event.getWhoClicked() instanceof Player player)) return;
+        String title = event.getView().getTitle();
+        if (!title.contains("Reports")) return;
+        event.setCancelled(true);
+        int slot = event.getRawSlot();
+        if (slot < 0 || slot >= event.getInventory().getSize()) return;
+        if (slot == 49) { player.closeInventory(); return; }
+        ItemStack item = event.getCurrentItem();
+        if (item == null || item.getType() == Material.AIR || item.getType() == Material.BLACK_STAINED_GLASS_PANE || item.getType() == Material.LIME_STAINED_GLASS_PANE) return;
+        String name = item.getItemMeta() != null ? item.getItemMeta().getDisplayName() : "";
+        if (name.contains("#")) {
+            try {
+                String idStr = name.replaceAll("\u00A7[0-9a-fk-or]", "").replace("#", "").trim().split(" ")[0];
+                int id = Integer.parseInt(idStr);
+                ReportManager.Report report = plugin.getReportManager().getReport(id);
+                if (report != null && report.getStatus().equals("open")) {
+                    plugin.getReportManager().closeReport(id);
+                    player.sendMessage(lang().msg(player, "report_closed", "%id%", String.valueOf(id)));
+                    openReportGUI(player);
+                }
+            } catch (NumberFormatException ignored) {}
+        }
+    }
+
     private void sendHelp(Player player) {
         player.sendMessage("§5═══════════════════════");
         player.sendMessage("§d§lFedora Club §7- Admin");
@@ -254,6 +364,7 @@ public class DuelAdminCommand implements CommandExecutor, TabCompleter {
         player.sendMessage("§d/da setlobby §7- Définir le lobby");
         player.sendMessage("§d/da arena <cmd> §7- Gestion des arènes");
         player.sendMessage("§d/da lobby <cmd> §7- Gestion du lobby");
+        player.sendMessage("§d/da report §7- Gérer les reports");
         player.sendMessage("§5═══════════════════════");
     }
 
@@ -282,11 +393,17 @@ public class DuelAdminCommand implements CommandExecutor, TabCompleter {
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         List<String> completions = new ArrayList<>();
         if (args.length == 1) {
-            completions.addAll(Arrays.asList("reload", "setlobby", "arena", "lobby"));
+            completions.addAll(Arrays.asList("reload", "setlobby", "arena", "lobby", "report"));
         } else if (args.length == 2 && args[0].equalsIgnoreCase("arena")) {
             completions.addAll(Arrays.asList("create", "delete", "setspawn", "setmin", "setmax", "tp", "info", "list"));
         } else if (args.length == 2 && args[0].equalsIgnoreCase("lobby")) {
             completions.add("build");
+        } else if (args.length == 2 && args[0].equalsIgnoreCase("report")) {
+            completions.addAll(Arrays.asList("close", "delete"));
+        } else if (args.length == 3 && args[0].equalsIgnoreCase("report")) {
+            for (ReportManager.Report r : plugin.getReportManager().getAllReports()) {
+                completions.add(String.valueOf(r.getId()));
+            }
         } else if (args.length == 3 && args[0].equalsIgnoreCase("arena")) {
             String sub = args[1].toLowerCase();
             if (sub.equals("delete") || sub.equals("setspawn") || sub.equals("info") || sub.equals("setmin") || sub.equals("setmax") || sub.equals("tp")) {

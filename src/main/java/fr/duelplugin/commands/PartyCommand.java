@@ -231,8 +231,18 @@ public class PartyCommand implements CommandExecutor, TabCompleter {
             Player member = Bukkit.getPlayer(m);
             if (member != null) {
                 member.sendMessage(lang().msg(member, "party_disbanded_by_leader"));
+                member.showTitle(net.kyori.adventure.title.Title.title(
+                        net.kyori.adventure.text.Component.text(lang().msgRaw(member, "title_party_disbanded"), net.kyori.adventure.text.format.NamedTextColor.RED, TextDecoration.BOLD),
+                        net.kyori.adventure.text.Component.empty(),
+                        net.kyori.adventure.title.Title.Times.times(java.time.Duration.ZERO, java.time.Duration.ofSeconds(2), java.time.Duration.ofSeconds(1))
+                ));
             }
         }
+        player.showTitle(net.kyori.adventure.title.Title.title(
+                net.kyori.adventure.text.Component.text(lang().msgRaw(player, "title_party_disbanded"), net.kyori.adventure.text.format.NamedTextColor.RED, TextDecoration.BOLD),
+                net.kyori.adventure.text.Component.empty(),
+                net.kyori.adventure.title.Title.Times.times(java.time.Duration.ZERO, java.time.Duration.ofSeconds(2), java.time.Duration.ofSeconds(1))
+        ));
 
         plugin.getPartyManager().disbandParty(player);
         player.sendMessage(lang().msg(player, "party_disbanded"));

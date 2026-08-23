@@ -212,15 +212,15 @@ public class PlayerListener implements Listener {
                 .name(plugin.getLanguageManager().msgRaw(player, "lobby_item_queue"))
                 .lore("", plugin.getLanguageManager().msgRaw(player, "lobby_item_queue_lore"), "").build());
 
-        player.getInventory().setItem(4, new ItemBuilder(Material.CRAFTING_TABLE)
-                .name(plugin.getLanguageManager().msgRaw(player, "lobby_item_kits"))
-                .lore("", plugin.getLanguageManager().msgRaw(player, "lobby_item_kits_lore"), "").build());
-
-        player.getInventory().setItem(8, new ItemBuilder(Material.NETHER_STAR)
+        player.getInventory().setItem(3, new ItemBuilder(Material.NETHER_STAR)
                 .name(plugin.getLanguageManager().msgRaw(player, "lobby_item_party"))
                 .lore("", plugin.getLanguageManager().msgRaw(player, "lobby_item_party_lore"), "").build());
 
-        player.getInventory().setItem(2, new ItemBuilder(Material.GRINDSTONE)
+        player.getInventory().setItem(6, new ItemBuilder(Material.CRAFTING_TABLE)
+                .name(plugin.getLanguageManager().msgRaw(player, "lobby_item_kits"))
+                .lore("", plugin.getLanguageManager().msgRaw(player, "lobby_item_kits_lore"), "").build());
+
+        player.getInventory().setItem(8, new ItemBuilder(Material.GRINDSTONE)
                 .name(plugin.getLanguageManager().msgRaw(player, "lobby_item_settings"))
                 .lore("", plugin.getLanguageManager().msgRaw(player, "lobby_item_settings_lore"), "").build());
 
@@ -250,7 +250,10 @@ public class PlayerListener implements Listener {
         if (plugin.getDuelManager().isInDuel(player)) return;
         if (plugin.isBuildMode(player.getUniqueId())) return;
         if (event.getClickedBlock() == null) return;
-        if (event.getItem() != null && event.getItem().getType() == Material.WIND_CHARGE) return;
+        if (event.getItem() != null && event.getItem().getType() == Material.WIND_CHARGE) {
+            event.setCancelled(true);
+            return;
+        }
         if (event.getItem() != null && event.getItem().getType() == Material.ELYTRA) return;
         Material type = event.getClickedBlock().getType();
         if (type.name().endsWith("_DOOR") || type.name().endsWith("_TRAPDOOR") || type.name().endsWith("_GATE")

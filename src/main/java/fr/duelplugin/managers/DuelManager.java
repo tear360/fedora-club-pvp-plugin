@@ -155,7 +155,11 @@ public class DuelManager {
             player1.setHealth(20.0);
             player1.setFoodLevel(20);
             player1.setSaturation(20f);
-            player1.sendActionBar(Component.text(plugin.getLanguageManager().msgRaw(player1, "duel_countdown", "%count%", "3")));
+            player1.showTitle(net.kyori.adventure.title.Title.title(
+                    Component.text(plugin.getLanguageManager().msgRaw(player1, "title_duel_found"), NamedTextColor.DARK_PURPLE, TextDecoration.BOLD),
+                    Component.text(player2.getName() + " - " + mode.getDisplayName(), NamedTextColor.LIGHT_PURPLE),
+                    net.kyori.adventure.title.Title.Times.times(java.time.Duration.ZERO, java.time.Duration.ofSeconds(2), java.time.Duration.ofSeconds(1))
+            ));
         });
 
         player2.teleportAsync(finalLoc2, org.bukkit.event.player.PlayerTeleportEvent.TeleportCause.PLUGIN).thenAccept(success -> {
@@ -164,7 +168,11 @@ public class DuelManager {
             player2.setHealth(20.0);
             player2.setFoodLevel(20);
             player2.setSaturation(20f);
-            player2.sendActionBar(Component.text(plugin.getLanguageManager().msgRaw(player2, "duel_countdown", "%count%", "3")));
+            player2.showTitle(net.kyori.adventure.title.Title.title(
+                    Component.text(plugin.getLanguageManager().msgRaw(player2, "title_duel_found"), NamedTextColor.DARK_PURPLE, TextDecoration.BOLD),
+                    Component.text(player1.getName() + " - " + mode.getDisplayName(), NamedTextColor.LIGHT_PURPLE),
+                    net.kyori.adventure.title.Title.Times.times(java.time.Duration.ZERO, java.time.Duration.ofSeconds(2), java.time.Duration.ofSeconds(1))
+            ));
         });
 
         plugin.getScoreboardManager().createDuelScoreboard(player1, player2, mode);
@@ -219,10 +227,19 @@ public class DuelManager {
                     restoreInventory(ffaPlayer);
                     ffaPlayer.setGameMode(GameMode.SURVIVAL);
                     plugin.getScoreboardManager().removeScoreboard(ffaPlayer);
-                    if (plugin.getLobbyManager().isLobbySet()) {
-                        plugin.getLobbyManager().teleportToLobby(ffaPlayer);
-                        PlayerListener.giveLobbyItems(ffaPlayer);
-                    }
+                    boolean isWinner = ffaUuid.equals(winner);
+                    ffaPlayer.showTitle(net.kyori.adventure.title.Title.title(
+                            Component.text(plugin.getLanguageManager().msgRaw(ffaPlayer, isWinner ? "title_victory" : "title_defeat"), isWinner ? NamedTextColor.GREEN : NamedTextColor.RED, TextDecoration.BOLD),
+                            Component.empty(),
+                            net.kyori.adventure.title.Title.Times.times(java.time.Duration.ZERO, java.time.Duration.ofSeconds(3), java.time.Duration.ofSeconds(1))
+                    ));
+                    final boolean fw = isWinner;
+                    plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+                        if (ffaPlayer.isOnline() && plugin.getLobbyManager().isLobbySet()) {
+                            plugin.getLobbyManager().teleportToLobby(ffaPlayer);
+                            PlayerListener.giveLobbyItems(ffaPlayer);
+                        }
+                    }, 100L);
                 }
             }
         } else {
@@ -248,6 +265,11 @@ public class DuelManager {
         if (w != null) {
             restoreInventory(w);
             w.setGameMode(GameMode.SURVIVAL);
+            w.showTitle(net.kyori.adventure.title.Title.title(
+                    Component.text(plugin.getLanguageManager().msgRaw(w, "title_victory"), NamedTextColor.GREEN, TextDecoration.BOLD),
+                    Component.text(plugin.getLanguageManager().msgRaw(w, "duel_winner_against", "%player%", (l != null ? l.getName() : "Unknown")), NamedTextColor.GRAY),
+                    net.kyori.adventure.title.Title.Times.times(java.time.Duration.ZERO, java.time.Duration.ofSeconds(3), java.time.Duration.ofSeconds(1))
+            ));
             w.sendMessage("");
             w.sendMessage("§5§l═══════════════════════════");
             w.sendMessage(plugin.getLanguageManager().msg(w, "duel_winner"));
@@ -259,14 +281,21 @@ public class DuelManager {
             w.sendMessage("§5§l═══════════════════════════");
             w.sendMessage("");
             plugin.getScoreboardManager().removeScoreboard(w);
-            if (plugin.getLobbyManager().isLobbySet()) {
-                plugin.getLobbyManager().teleportToLobby(w);
-                PlayerListener.giveLobbyItems(w);
-            }
+            plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+                if (w.isOnline() && plugin.getLobbyManager().isLobbySet()) {
+                    plugin.getLobbyManager().teleportToLobby(w);
+                    PlayerListener.giveLobbyItems(w);
+                }
+            }, 100L);
         }
         if (l != null) {
             restoreInventory(l);
             l.setGameMode(GameMode.SURVIVAL);
+            l.showTitle(net.kyori.adventure.title.Title.title(
+                    Component.text(plugin.getLanguageManager().msgRaw(l, "title_defeat"), NamedTextColor.RED, TextDecoration.BOLD),
+                    Component.text(plugin.getLanguageManager().msgRaw(l, "duel_eliminated_against", "%player%", (w != null ? w.getName() : "Unknown")), NamedTextColor.GRAY),
+                    net.kyori.adventure.title.Title.Times.times(java.time.Duration.ZERO, java.time.Duration.ofSeconds(3), java.time.Duration.ofSeconds(1))
+            ));
             l.sendMessage("");
             l.sendMessage("§5§l═══════════════════════════");
             l.sendMessage(plugin.getLanguageManager().msg(l, "duel_eliminated"));
@@ -278,20 +307,25 @@ public class DuelManager {
             l.sendMessage("§5§l═══════════════════════════");
             l.sendMessage("");
             plugin.getScoreboardManager().removeScoreboard(l);
-            if (plugin.getLobbyManager().isLobbySet()) {
-                plugin.getLobbyManager().teleportToLobby(l);
-                PlayerListener.giveLobbyItems(l);
-            }
+            plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+                if (l.isOnline() && plugin.getLobbyManager().isLobbySet()) {
+                    plugin.getLobbyManager().teleportToLobby(l);
+                    PlayerListener.giveLobbyItems(l);
+                }
+            }, 100L);
         }
 
         for (UUID specUuid : new HashSet<>(plugin.getTabManager().getSpectators(duel.getPlayer1()))) {
             Player spec = Bukkit.getPlayer(specUuid);
             if (spec != null) {
                 spec.setGameMode(GameMode.SURVIVAL);
-                if (plugin.getLobbyManager().isLobbySet()) {
-                    plugin.getLobbyManager().teleportToLobby(spec);
-                    PlayerListener.giveLobbyItems(spec);
-                }
+                plugin.getScoreboardManager().removeScoreboard(spec);
+                plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+                    if (spec.isOnline() && plugin.getLobbyManager().isLobbySet()) {
+                        plugin.getLobbyManager().teleportToLobby(spec);
+                        PlayerListener.giveLobbyItems(spec);
+                    }
+                }, 100L);
                 spec.sendMessage(plugin.getLanguageManager().msg(spec, "duel_ended"));
             }
         }

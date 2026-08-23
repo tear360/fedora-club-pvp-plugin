@@ -1100,6 +1100,43 @@ public class LanguageManager {
             "&cVous ne pouvez pas interagir avec les blocs ici.",
             "&cYou cannot interact with blocks here.");
 
+        // ───────────── TITLES ─────────────
+        tBoth("title_victory",
+            "VICTOIRE",
+            "VICTORY");
+        tBoth("title_defeat",
+            "DÉFAITE",
+            "DEFEAT");
+        tBoth("title_duel_found",
+            "DUEL TROUVÉ",
+            "DUEL FOUND");
+        tBoth("title_party_disbanded",
+            "PARTY DISSOUTE",
+            "PARTY DISBANDED");
+
+        // ───────────── REPORTS ─────────────
+        tBoth("report_usage",
+            "&cUsage: /report <joueur> <raison>",
+            "&cUsage: /report <player> <reason>");
+        tBoth("report_cannot_self",
+            "&cVous ne pouvez pas vous signaler.",
+            "&cYou cannot report yourself.");
+        tBoth("report_success",
+            "&aReport &d#%id% &aenvoyé contre &f%player%&a!",
+            "&aReport &d#%id% &asubmitted against &f%player%&a!");
+        tBoth("report_usage_admin",
+            "&dUsage: /da report [close|delete] <id>",
+            "&dUsage: /da report [close|delete] <id>");
+        tBoth("report_not_found",
+            "&cReport introuvable.",
+            "&cReport not found.");
+        tBoth("report_closed",
+            "&aReport &d#%id% &afermé.",
+            "&aReport &d#%id% &aclosed.");
+        tBoth("report_deleted",
+            "&cReport &d#%id% &csupprimé.",
+            "&cReport &d#%id% &deleted.");
+
         // ───────────── GUI COMMON ─────────────
         tBoth("gui_back",
             "&d← Retour",

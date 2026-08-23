@@ -10,6 +10,7 @@ import fr.duelplugin.commands.KickCommand;
 import fr.duelplugin.commands.LeaveCommand;
 import fr.duelplugin.commands.MuteCommand;
 import fr.duelplugin.commands.PartyCommand;
+import fr.duelplugin.commands.ReportCommand;
 import fr.duelplugin.commands.SettingsCommand;
 import fr.duelplugin.commands.SpecCommand;
 import fr.duelplugin.commands.TempBanCommand;
@@ -56,6 +57,7 @@ public class DuelPlugin extends JavaPlugin {
     private LanguageManager languageManager;
     private ChatFilterManager chatFilterManager;
     private BanManager banManager;
+    private ReportManager reportManager;
     private final Set<UUID> buildModePlayers = ConcurrentHashMap.newKeySet();
 
     @Override
@@ -82,6 +84,7 @@ public class DuelPlugin extends JavaPlugin {
         languageManager = new LanguageManager(this);
         chatFilterManager = new ChatFilterManager(this);
         banManager = new BanManager(this);
+        reportManager = new ReportManager(this);
 
         getCommand("duel").setExecutor(new DuelCommand(this));
         getCommand("duel").setTabCompleter(new DuelCommand(this));
@@ -90,6 +93,7 @@ public class DuelPlugin extends JavaPlugin {
         getCommand("denyduel").setExecutor(new DenyDuelCommand(this));
         getCommand("da").setExecutor(new DuelAdminCommand(this));
         getCommand("da").setTabCompleter(new DuelAdminCommand(this));
+        getServer().getPluginManager().registerEvents(new DuelAdminCommand(this), this);
         getCommand("spec").setExecutor(new SpecCommand(this));
         getCommand("spec").setTabCompleter(new SpecCommand(this));
         getCommand("vip").setExecutor(new VipCommand(this));
@@ -109,6 +113,8 @@ public class DuelPlugin extends JavaPlugin {
         getCommand("mute").setExecutor(new MuteCommand(this));
         getCommand("unban").setExecutor(new UnbanCommand(this));
         getCommand("unmute").setExecutor(new UnmuteCommand(this));
+        getCommand("report").setExecutor(new ReportCommand(this));
+        getCommand("report").setTabCompleter(new ReportCommand(this));
 
         getServer().getPluginManager().registerEvents(new GameListener(this), this);
         getServer().getPluginManager().registerEvents(new ArenaListener(this), this);
@@ -151,6 +157,7 @@ public class DuelPlugin extends JavaPlugin {
     public LanguageManager getLanguageManager() { return languageManager; }
     public ChatFilterManager getChatFilterManager() { return chatFilterManager; }
     public BanManager getBanManager() { return banManager; }
+    public ReportManager getReportManager() { return reportManager; }
     public Set<UUID> getBuildModePlayers() { return Collections.unmodifiableSet(buildModePlayers); }
     public boolean isBuildMode(UUID uuid) { return buildModePlayers.contains(uuid); }
     public void setBuildMode(UUID uuid, boolean enabled) {

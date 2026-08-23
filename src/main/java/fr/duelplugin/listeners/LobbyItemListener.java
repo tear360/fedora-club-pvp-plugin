@@ -350,6 +350,21 @@ public class LobbyItemListener implements Listener {
                 return;
             }
             if (type == Material.RED_WOOL && event.getSlot() == 14) {
+                fr.duelplugin.managers.PartyManager.Party party = plugin.getPartyManager().getParty(player.getUniqueId());
+                if (party != null) {
+                    java.util.Set<UUID> allMembers = new java.util.HashSet<>(party.getMembers());
+                    allMembers.add(party.getLeader());
+                    for (UUID m : allMembers) {
+                        Player member = org.bukkit.Bukkit.getPlayer(m);
+                        if (member != null && member.isOnline()) {
+                            member.showTitle(net.kyori.adventure.title.Title.title(
+                                    net.kyori.adventure.text.Component.text(plugin.getLanguageManager().msgRaw(member, "title_party_disbanded"), net.kyori.adventure.text.format.NamedTextColor.RED, net.kyori.adventure.text.format.TextDecoration.BOLD),
+                                    net.kyori.adventure.text.Component.empty(),
+                                    net.kyori.adventure.title.Title.Times.times(java.time.Duration.ZERO, java.time.Duration.ofSeconds(2), java.time.Duration.ofSeconds(1))
+                            ));
+                        }
+                    }
+                }
                 plugin.getPartyManager().disbandParty(player);
                 player.closeInventory();
                 player.sendMessage(plugin.getLanguageManager().msg(player, "party_disbanded"));

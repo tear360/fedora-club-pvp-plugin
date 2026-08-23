@@ -7,7 +7,7 @@ authors: [DuelPlugin]
 
 commands:
   duel:
-    description: Défier un joueur en duel
+    description: Défier un joueur en douel
     usage: /duel <joueur>
     aliases: [duels, fight]
   acceptduel:

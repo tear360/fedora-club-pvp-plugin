@@ -23,6 +23,7 @@ public class DuelSettingsGUI {
     public void open(Player player) {
         UUID uuid = player.getUniqueId();
         boolean discordEnabled = plugin.getSettingsManager().discordNotificationsEnabled(uuid);
+        int roundCount = plugin.getSettingsManager().getRoundCount(uuid);
 
         Inventory inv = Bukkit.createInventory(null, 27,
                 Component.text("Paramètres de duel", NamedTextColor.DARK_PURPLE, TextDecoration.BOLD));
@@ -40,6 +41,17 @@ public class DuelSettingsGUI {
                         discordEnabled ? "§aActivé" : "§cDésactivé",
                         "",
                         "§7Cliquez pour basculer"
+                ).build());
+
+        inv.setItem(15, new ItemBuilder(Material.PAPER)
+                .name("§5⟳ Rounds (Sword & Axe)")
+                .lore(
+                        "",
+                        "§dNombre de rounds: §f" + roundCount,
+                        "§7(First to " + roundCount + ")",
+                        "",
+                        "§7Cliquez pour augmenter",
+                        "§7Clic droit pour diminuer"
                 ).build());
 
         inv.setItem(13, new ItemBuilder(Material.RED_STAINED_GLASS_PANE)

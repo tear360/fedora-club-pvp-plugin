@@ -50,17 +50,23 @@ public class DuelGUI {
             Material icon = getModeIcon(mode);
             boolean hasArena = !mode.isArenaRestricted() || plugin.getArenaManager().getAvailableArena(mode) != null;
 
+            java.util.List<String> lore = new java.util.ArrayList<>();
+            lore.add("");
+            lore.add(mode.isArenaRestricted() ?
+                    (hasArena ? plugin.getLanguageManager().msgRaw(player, "gui_arenas_available") : plugin.getLanguageManager().msgRaw(player, "gui_no_arena")) :
+                    plugin.getLanguageManager().msgRaw(player, "gui_free_mode"));
+            lore.add(plugin.getLanguageManager().msgRaw(player, "gui_blocks") + (mode.canBreakBlocks() ? plugin.getLanguageManager().msgRaw(player, "gui_blocks_breakable") : plugin.getLanguageManager().msgRaw(player, "gui_blocks_unbreakable")));
+            if (mode.supportsRounds()) {
+                int rounds = plugin.getSettingsManager().getRoundCount(player.getUniqueId());
+                lore.add("§dRounds: §fFirst to " + rounds);
+            }
+            lore.add("");
+            lore.add(plugin.getLanguageManager().msgRaw(player, "gui_click_to_play"));
+
             inv.setItem(slots[i], new ItemBuilder(icon)
                     .name(mode.getColoredName())
-                    .lore(
-                            "",
-                            mode.isArenaRestricted() ?
-                                    (hasArena ? plugin.getLanguageManager().msgRaw(player, "gui_arenas_available") : plugin.getLanguageManager().msgRaw(player, "gui_no_arena")) :
-                                    plugin.getLanguageManager().msgRaw(player, "gui_free_mode"),
-                            plugin.getLanguageManager().msgRaw(player, "gui_blocks") + (mode.canBreakBlocks() ? plugin.getLanguageManager().msgRaw(player, "gui_blocks_breakable") : plugin.getLanguageManager().msgRaw(player, "gui_blocks_unbreakable")),
-                            "",
-                            plugin.getLanguageManager().msgRaw(player, "gui_click_to_play")
-                    ).build());
+                    .lore(lore.toArray(new String[0]))
+                    .build());
         }
 
         boolean discordEnabled = plugin.getSettingsManager().discordNotificationsEnabled(player.getUniqueId());

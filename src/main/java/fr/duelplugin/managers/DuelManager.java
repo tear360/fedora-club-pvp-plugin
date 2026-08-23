@@ -143,6 +143,11 @@ public class DuelManager {
         final Location finalLoc2 = loc2;
 
         ActiveDuel duel = new ActiveDuel(player1.getUniqueId(), player2.getUniqueId(), mode, arena);
+        if (mode.supportsRounds()) {
+            int roundsP1 = plugin.getSettingsManager().getRoundCount(player1.getUniqueId());
+            int roundsP2 = plugin.getSettingsManager().getRoundCount(player2.getUniqueId());
+            duel.setMaxRounds(Math.max(roundsP1, roundsP2));
+        }
         activeDuels.put(player1.getUniqueId(), duel);
         activeDuels.put(player2.getUniqueId(), duel);
 
@@ -214,10 +219,11 @@ public class DuelManager {
     }
 
     public void endDuel(UUID uuid, UUID winner, UUID loser) {
-        ActiveDuel duel = activeDuels.remove(uuid);
+        ActiveDuel duel = activeDuels.get(uuid);
         if (duel == null) return;
 
         if (duel.isFFA() && duel.getFFAParticipants() != null) {
+            activeDuels.remove(uuid);
             for (UUID ffaUuid : duel.getFFAParticipants()) {
                 activeDuels.remove(ffaUuid);
                 frozenPlayers.remove(ffaUuid);
@@ -242,14 +248,104 @@ public class DuelManager {
                     }, 100L);
                 }
             }
-        } else {
-            activeDuels.remove(duel.getPlayer1());
-            activeDuels.remove(duel.getPlayer2());
-            frozenPlayers.remove(duel.getPlayer1());
-            frozenPlayers.remove(duel.getPlayer2());
-            countdownActive.remove(duel.getPlayer1());
-            countdownActive.remove(duel.getPlayer2());
+            return;
         }
+
+        if (duel.getMode().supportsRounds()) {
+            int wins = duel.getRoundWins().getOrDefault(winner, 0) + 1;
+            duel.getRoundWins().put(winner, wins);
+            int maxR = duel.getMaxRounds();
+
+            Player w = Bukkit.getPlayer(winner);
+            Player l = Bukkit.getPlayer(loser);
+
+            if (w != null) {
+                w.showTitle(net.kyori.adventure.title.Title.title(
+                        Component.text("Round gagné!", NamedTextColor.GREEN, TextDecoration.BOLD),
+                        Component.text(wins + " - " + duel.getRoundWins().getOrDefault(loser, 0) + " (Best of " + maxR + ")", NamedTextColor.LIGHT_PURPLE),
+                        net.kyori.adventure.title.Title.Times.times(java.time.Duration.ZERO, java.time.Duration.ofSeconds(2), java.time.Duration.ofSeconds(1))
+                ));
+            }
+            if (l != null) {
+                l.showTitle(net.kyori.adventure.title.Title.title(
+                        Component.text("Round perdu!", NamedTextColor.RED, TextDecoration.BOLD),
+                        Component.text(duel.getRoundWins().getOrDefault(winner, 0) + " - " + wins + " (Best of " + maxR + ")", NamedTextColor.LIGHT_PURPLE),
+                        net.kyori.adventure.title.Title.Times.times(java.time.Duration.ZERO, java.time.Duration.ofSeconds(2), java.time.Duration.ofSeconds(1))
+                ));
+            }
+
+            if (wins >= maxR) {
+                endDuelFinal(duel, winner, loser);
+                return;
+            }
+
+            final UUID wUuid = winner;
+            final UUID lUuid = loser;
+            plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+                Player pw = Bukkit.getPlayer(wUuid);
+                Player pl = Bukkit.getPlayer(lUuid);
+                if (pw == null || pl == null) {
+                    endDuelFinal(duel, wUuid, lUuid);
+                    return;
+                }
+
+                frozenPlayers.add(wUuid);
+                frozenPlayers.add(lUuid);
+
+                Location loc1, loc2;
+                if (duel.getArena() != null && duel.getArena().isSetup()) {
+                    loc1 = duel.getArena().resolveSpawn1();
+                    loc2 = duel.getArena().resolveSpawn2();
+                } else {
+                    Location lobby = plugin.getLobbyManager().resolveLobby();
+                    if (lobby == null) lobby = new Location(Bukkit.getWorlds().get(0), 0, 64, 0);
+                    loc1 = lobby.clone().add(2, 0, 0);
+                    loc2 = lobby.clone().add(-2, 0, 0);
+                }
+
+                final Location fLoc1 = loc1;
+                final Location fLoc2 = loc2;
+
+                pw.teleportAsync(fLoc1, org.bukkit.event.player.PlayerTeleportEvent.TeleportCause.PLUGIN).thenAccept(success -> {
+                    if (!success || !pw.isOnline()) return;
+                    applyKit(pw, duel.getMode());
+                    pw.setHealth(20.0);
+                    pw.setFoodLevel(20);
+                    pw.setSaturation(20f);
+                });
+                pl.teleportAsync(fLoc2, org.bukkit.event.player.PlayerTeleportEvent.TeleportCause.PLUGIN).thenAccept(success -> {
+                    if (!success || !pl.isOnline()) return;
+                    applyKit(pl, duel.getMode());
+                    pl.setHealth(20.0);
+                    pl.setFoodLevel(20);
+                    pl.setSaturation(20f);
+                });
+
+                plugin.getScoreboardManager().createDuelScoreboard(pw, pl, duel.getMode());
+                plugin.getScoreboardManager().createDuelScoreboard(pl, pw, duel.getMode());
+
+                startCountdown(pw, pl, duel.getMode());
+            }, 60L);
+            return;
+        }
+
+        activeDuels.remove(duel.getPlayer1());
+        activeDuels.remove(duel.getPlayer2());
+        frozenPlayers.remove(duel.getPlayer1());
+        frozenPlayers.remove(duel.getPlayer2());
+        countdownActive.remove(duel.getPlayer1());
+        countdownActive.remove(duel.getPlayer2());
+
+        endDuelFinal(duel, winner, loser);
+    }
+
+    private void endDuelFinal(ActiveDuel duel, UUID winner, UUID loser) {
+        activeDuels.remove(duel.getPlayer1());
+        activeDuels.remove(duel.getPlayer2());
+        frozenPlayers.remove(duel.getPlayer1());
+        frozenPlayers.remove(duel.getPlayer2());
+        countdownActive.remove(duel.getPlayer1());
+        countdownActive.remove(duel.getPlayer2());
 
         Player w = Bukkit.getPlayer(winner);
         Player l = Bukkit.getPlayer(loser);
@@ -577,6 +673,8 @@ public class DuelManager {
         private UUID ffaId;
         private Set<UUID> ffaParticipants;
         private final Set<String> placedBlocks = new HashSet<>();
+        private final Map<UUID, Integer> roundWins = new HashMap<>();
+        private int maxRounds = 2;
 
         public ActiveDuel(UUID player1, UUID player2, DuelGameMode mode, Arena arena) {
             this.player1 = player1;
@@ -584,6 +682,8 @@ public class DuelManager {
             this.mode = mode;
             this.arena = arena;
             this.startTime = System.currentTimeMillis();
+            this.roundWins.put(player1, 0);
+            this.roundWins.put(player2, 0);
         }
 
         public UUID getPlayer1() { return player1; }
@@ -591,6 +691,9 @@ public class DuelManager {
         public DuelGameMode getMode() { return mode; }
         public Arena getArena() { return arena; }
         public long getStartTime() { return startTime; }
+        public Map<UUID, Integer> getRoundWins() { return roundWins; }
+        public int getMaxRounds() { return maxRounds; }
+        public void setMaxRounds(int maxRounds) { this.maxRounds = maxRounds; }
 
         public UUID getOpponent(UUID uuid) {
             return uuid.equals(player1) ? player2 : player1;

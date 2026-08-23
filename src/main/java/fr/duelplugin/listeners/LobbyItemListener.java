@@ -549,6 +549,15 @@ public class LobbyItemListener implements Listener {
             boolean current = plugin.getSettingsManager().discordNotificationsEnabled(player.getUniqueId());
             plugin.getSettingsManager().setDiscordNotifications(player.getUniqueId(), !current);
             plugin.getDuelSettingsGUI().open(player);
+        } else if (slot == 15) {
+            int current = plugin.getSettingsManager().getRoundCount(player.getUniqueId());
+            if (event.isRightClick()) {
+                current = Math.max(1, current - 1);
+            } else {
+                current = Math.min(5, current + 1);
+            }
+            plugin.getSettingsManager().setRoundCount(player.getUniqueId(), current);
+            plugin.getDuelSettingsGUI().open(player);
         } else if (slot == 13) {
             plugin.getDuelGUI().openModeSelector(player, null);
         }

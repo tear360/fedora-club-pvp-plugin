@@ -51,6 +51,10 @@ public enum DuelGameMode {
         return this == DIASMP;
     }
 
+    public boolean supportsRounds() {
+        return this == SWORD || this == AXE;
+    }
+
     public static DuelGameMode fromConfig(String config) {
         for (DuelGameMode mode : values()) {
             if (mode.configName.equalsIgnoreCase(config)) {

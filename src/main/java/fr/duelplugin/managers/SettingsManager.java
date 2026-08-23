@@ -16,6 +16,7 @@ public class SettingsManager {
     private final Map<UUID, Boolean> acceptFriendRequests = new HashMap<>();
     private final Map<UUID, Boolean> acceptDuelRequests = new HashMap<>();
     private final Map<UUID, Boolean> discordNotifications = new HashMap<>();
+    private final Map<UUID, Integer> roundCounts = new HashMap<>();
     private final Map<UUID, Language> languages = new HashMap<>();
 
     public SettingsManager(DuelPlugin plugin) {
@@ -32,6 +33,7 @@ public class SettingsManager {
         acceptFriendRequests.clear();
         acceptDuelRequests.clear();
         discordNotifications.clear();
+        roundCounts.clear();
         languages.clear();
         if (!settingsConfig.contains("players")) return;
         for (String uuidStr : settingsConfig.getConfigurationSection("players").getKeys(false)) {
@@ -45,6 +47,9 @@ public class SettingsManager {
             }
             if (settingsConfig.contains(path + ".discord-notifications")) {
                 discordNotifications.put(uuid, settingsConfig.getBoolean(path + ".discord-notifications"));
+            }
+            if (settingsConfig.contains(path + ".round-count")) {
+                roundCounts.put(uuid, settingsConfig.getInt(path + ".round-count"));
             }
             if (settingsConfig.contains(path + ".language")) {
                 languages.put(uuid, Language.fromString(settingsConfig.getString(path + ".language")));
@@ -68,6 +73,10 @@ public class SettingsManager {
         return discordNotifications.getOrDefault(uuid, true);
     }
 
+    public int getRoundCount(UUID uuid) {
+        return roundCounts.getOrDefault(uuid, 2);
+    }
+
     public void setAcceptFriendRequests(UUID uuid, boolean accept) {
         acceptFriendRequests.put(uuid, accept);
         settingsConfig.set("players." + uuid.toString() + ".accept-friends", accept);
@@ -89,6 +98,12 @@ public class SettingsManager {
     public void setDiscordNotifications(UUID uuid, boolean enabled) {
         discordNotifications.put(uuid, enabled);
         settingsConfig.set("players." + uuid.toString() + ".discord-notifications", enabled);
+        save();
+    }
+
+    public void setRoundCount(UUID uuid, int rounds) {
+        roundCounts.put(uuid, rounds);
+        settingsConfig.set("players." + uuid.toString() + ".round-count", rounds);
         save();
     }
 

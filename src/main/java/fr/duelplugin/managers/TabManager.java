@@ -3,7 +3,6 @@ package fr.duelplugin.managers;
 import fr.duelplugin.DuelPlugin;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -20,7 +19,7 @@ public class TabManager {
     private final Set<UUID> friendTabActive = new HashSet<>();
     private final Map<UUID, Scoreboard> viewerScoreboards = new HashMap<>();
 
-    private static final Map<String, TextColor> COLOR_MAP = Map.of(
+    private static final Map<String, NamedTextColor> COLOR_MAP = Map.of(
             "§c", NamedTextColor.RED,
             "§6", NamedTextColor.GOLD,
             "§e", NamedTextColor.YELLOW,
@@ -134,8 +133,16 @@ public class TabManager {
                     } else {
                         team.prefix(Component.text("» ", NamedTextColor.GRAY));
                     }
+                    team.color(NamedTextColor.WHITE);
+                } else if (plugin.getVipManager().isVip(other.getUniqueId())) {
+                    String colorCode = plugin.getVipManager().getNameColor(other.getUniqueId());
+                    NamedTextColor vipColor = COLOR_MAP.getOrDefault(colorCode, NamedTextColor.LIGHT_PURPLE);
+                    String badge = plugin.getVipManager().getBadge(other.getUniqueId());
+                    team.prefix(Component.text(badge + " ", vipColor));
+                    team.color(vipColor);
                 } else {
                     team.prefix(Component.empty());
+                    team.color(NamedTextColor.WHITE);
                 }
             }
         }
@@ -223,7 +230,7 @@ public class TabManager {
         if (plugin.getVipManager().isVip(player.getUniqueId())) {
             String colorCode = plugin.getVipManager().getNameColor(player.getUniqueId());
             if (colorCode == null) colorCode = "§d";
-            TextColor color = COLOR_MAP.getOrDefault(colorCode, NamedTextColor.LIGHT_PURPLE);
+            NamedTextColor color = COLOR_MAP.getOrDefault(colorCode, NamedTextColor.LIGHT_PURPLE);
             player.playerListName(Component.text().append(Component.text(plugin.getVipManager().getBadge(player.getUniqueId()) + " ", color)).append(Component.text(player.getName(), color)).build());
         } else {
             player.playerListName(Component.text(player.getName(), NamedTextColor.WHITE));

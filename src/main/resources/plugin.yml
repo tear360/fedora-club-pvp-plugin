@@ -20,7 +20,6 @@ commands:
     description: Administration Fedora Club
     usage: /da <args>
     aliases: [dueladmin]
-    permission: duelplugin.admin
   spec:
     description: Spectater un duel
     usage: /spec <joueur>
@@ -48,34 +47,87 @@ commands:
   ban:
     description: Bannir un joueur
     usage: /ban <joueur> [durée] [raison]
-    permission: duelplugin.admin
+    permission: duelplugin.admin.ban
   kick:
     description: Expulser un joueur
     usage: /kick <joueur> [raison]
-    permission: duelplugin.admin
+    permission: duelplugin.admin.kick
   tempban:
     description: Bannir temporairement un joueur
     usage: /tempban <joueur> <durée> [raison]
-    permission: duelplugin.admin
+    permission: duelplugin.admin.tempban
   mute:
     description: Mute un joueur
     usage: /mute <joueur> <durée> [raison]
-    permission: duelplugin.admin
+    permission: duelplugin.admin.mute
   unban:
     description: Débannir un joueur
     usage: /unban <joueur>
-    permission: duelplugin.admin
+    permission: duelplugin.admin.unban
   unmute:
     description: Unmute un joueur
     usage: /unmute <joueur>
-    permission: duelplugin.admin
+    permission: duelplugin.admin.unmute
   report:
     description: Signaler un joueur
     usage: /report <joueur> <raison>
 
 permissions:
   duelplugin.admin:
-    description: Permission admin du plugin
+    description: Permission admin globale (accède à tout)
+    default: op
+    children:
+      duelplugin.admin.reload: true
+      duelplugin.admin.setlobby: true
+      duelplugin.admin.arena: true
+      duelplugin.admin.lobby: true
+      duelplugin.admin.lobby.build: true
+      duelplugin.admin.report: true
+      duelplugin.admin.ban: true
+      duelplugin.admin.kick: true
+      duelplugin.admin.tempban: true
+      duelplugin.admin.mute: true
+      duelplugin.admin.unban: true
+      duelplugin.admin.unmute: true
+      duelplugin.admin.vip: true
+  duelplugin.admin.reload:
+    description: Recharger la configuration
+    default: op
+  duelplugin.admin.setlobby:
+    description: Définir le lobby
+    default: op
+  duelplugin.admin.arena:
+    description: Gestion des arènes
+    default: op
+  duelplugin.admin.lobby:
+    description: Gestion du lobby
+    default: op
+  duelplugin.admin.lobby.build:
+    description: Mode build dans le lobby
+    default: op
+  duelplugin.admin.report:
+    description: Gérer les reports
+    default: op
+  duelplugin.admin.ban:
+    description: Bannir des joueurs
+    default: op
+  duelplugin.admin.kick:
+    description: Expulser des joueurs
+    default: op
+  duelplugin.admin.tempban:
+    description: Bannir temporairement des joueurs
+    default: op
+  duelplugin.admin.mute:
+    description: Mute des joueurs
+    default: op
+  duelplugin.admin.unban:
+    description: Débannir des joueurs
+    default: op
+  duelplugin.admin.unmute:
+    description: Unmute des joueurs
+    default: op
+  duelplugin.admin.vip:
+    description: Gérer les VIP (set/remove)
     default: op
   duelplugin.play:
     description: Permission de jouer

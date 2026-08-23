@@ -75,7 +75,7 @@ public class VipCommand implements CommandExecutor, TabCompleter {
     }
 
     private void handleSet(CommandSender sender, String[] args) {
-        if (!sender.hasPermission("duelplugin.admin")) {
+        if (!sender.hasPermission("duelplugin.admin.vip")) {
             sender.sendMessage(lang().msgRaw(null, "no_permission"));
             return;
         }
@@ -98,7 +98,7 @@ public class VipCommand implements CommandExecutor, TabCompleter {
     }
 
     private void handleRemove(CommandSender sender, String[] args) {
-        if (!sender.hasPermission("duelplugin.admin")) {
+        if (!sender.hasPermission("duelplugin.admin.vip")) {
             sender.sendMessage(lang().msgRaw(null, "no_permission"));
             return;
         }
@@ -212,7 +212,7 @@ public class VipCommand implements CommandExecutor, TabCompleter {
 
     private void sendHelp(Player player) {
         player.sendMessage(lang().msgRaw(player, "vip_info_title"));
-        if (player.hasPermission("duelplugin.admin")) {
+        if (player.hasPermission("duelplugin.admin.vip")) {
             player.sendMessage(lang().msgRaw(player, "vip_help_set"));
             player.sendMessage(lang().msgRaw(player, "vip_help_remove"));
         }
@@ -226,13 +226,13 @@ public class VipCommand implements CommandExecutor, TabCompleter {
         List<String> completions = new ArrayList<>();
         if (args.length == 1) {
             List<String> subs = new ArrayList<>(Arrays.asList("color", "badges", "info"));
-            if (sender.hasPermission("duelplugin.admin")) {
+            if (sender.hasPermission("duelplugin.admin.vip")) {
                 subs.addAll(Arrays.asList("set", "remove"));
             }
             completions.addAll(subs);
         } else if (args.length == 2) {
             if (args[0].equalsIgnoreCase("set") || args[0].equalsIgnoreCase("remove")) {
-                if (sender.hasPermission("duelplugin.admin")) {
+                if (sender.hasPermission("duelplugin.admin.vip")) {
                     for (Player p : Bukkit.getOnlinePlayers()) {
                         completions.add(p.getName());
                     }

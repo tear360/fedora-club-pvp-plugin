@@ -100,7 +100,7 @@ public class ReportManager {
     private void notifyAdmins(Report report) {
         String msg = "§5[Report §d#" + report.getId() + "§5] §d" + report.getReporter() + " §7a signalé §c" + report.getReported() + " §7: §f" + report.getReason();
         for (Player p : Bukkit.getOnlinePlayers()) {
-            if (p.hasPermission("duelplugin.admin")) {
+            if (p.hasPermission("duelplugin.admin.report")) {
                 p.sendMessage(msg);
             }
         }

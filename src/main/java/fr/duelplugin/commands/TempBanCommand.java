@@ -20,7 +20,7 @@ public class TempBanCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!sender.hasPermission("duelplugin.admin")) {
+        if (!sender.hasPermission("duelplugin.admin.tempban")) {
             sender.sendMessage(plugin.getLanguageManager().msg(null, "no_permission"));
             return true;
         }

@@ -47,11 +47,6 @@ public class DuelAdminCommand implements CommandExecutor, TabCompleter, Listener
             return true;
         }
 
-        if (!player.hasPermission("duelplugin.admin")) {
-            player.sendMessage(lang().msg(player, "no_permission"));
-            return true;
-        }
-
         if (args.length == 0) {
             sendHelp(player);
             return true;
@@ -59,18 +54,44 @@ public class DuelAdminCommand implements CommandExecutor, TabCompleter, Listener
 
         switch (args[0].toLowerCase()) {
             case "reload" -> {
+                if (!player.hasPermission("duelplugin.admin.reload")) {
+                    player.sendMessage(lang().msg(player, "no_permission"));
+                    return true;
+                }
                 plugin.getArenaManager().loadArenas();
                 plugin.getLobbyManager().loadLobby();
                 plugin.getChatFilterManager().loadFilter();
                 player.sendMessage(lang().msg(player, "arena_config_reloaded"));
             }
             case "setlobby" -> {
+                if (!player.hasPermission("duelplugin.admin.setlobby")) {
+                    player.sendMessage(lang().msg(player, "no_permission"));
+                    return true;
+                }
                 plugin.getLobbyManager().setLobby(player.getLocation());
                 player.sendMessage(lang().msg(player, "arena_config_reloaded"));
             }
-            case "arena" -> handleArenaCommand(player, args);
-            case "lobby" -> handleLobbyCommand(player, args);
-            case "report" -> handleReportCommand(player, args);
+            case "arena" -> {
+                if (!player.hasPermission("duelplugin.admin.arena")) {
+                    player.sendMessage(lang().msg(player, "no_permission"));
+                    return true;
+                }
+                handleArenaCommand(player, args);
+            }
+            case "lobby" -> {
+                if (!player.hasPermission("duelplugin.admin.lobby")) {
+                    player.sendMessage(lang().msg(player, "no_permission"));
+                    return true;
+                }
+                handleLobbyCommand(player, args);
+            }
+            case "report" -> {
+                if (!player.hasPermission("duelplugin.admin.report")) {
+                    player.sendMessage(lang().msg(player, "no_permission"));
+                    return true;
+                }
+                handleReportCommand(player, args);
+            }
             default -> sendHelp(player);
         }
         return true;
@@ -393,7 +414,11 @@ public class DuelAdminCommand implements CommandExecutor, TabCompleter, Listener
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         List<String> completions = new ArrayList<>();
         if (args.length == 1) {
-            completions.addAll(Arrays.asList("reload", "setlobby", "arena", "lobby", "report"));
+            if (sender.hasPermission("duelplugin.admin.reload")) completions.add("reload");
+            if (sender.hasPermission("duelplugin.admin.setlobby")) completions.add("setlobby");
+            if (sender.hasPermission("duelplugin.admin.arena")) completions.add("arena");
+            if (sender.hasPermission("duelplugin.admin.lobby")) completions.add("lobby");
+            if (sender.hasPermission("duelplugin.admin.report")) completions.add("report");
         } else if (args.length == 2 && args[0].equalsIgnoreCase("arena")) {
             completions.addAll(Arrays.asList("create", "delete", "setspawn", "setmin", "setmax", "tp", "info", "list"));
         } else if (args.length == 2 && args[0].equalsIgnoreCase("lobby")) {

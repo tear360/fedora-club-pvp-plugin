@@ -15,6 +15,7 @@ public class QueueManager {
 
     private final DuelPlugin plugin;
     private final Map<DuelGameMode, LinkedHashSet<UUID>> queues = new HashMap<>();
+    private final Map<UUID, Long> queueJoinTime = new HashMap<>();
 
     public QueueManager(DuelPlugin plugin) {
         this.plugin = plugin;
@@ -80,29 +81,45 @@ public class QueueManager {
             for (UUID uuid : queue) {
                 Player p = Bukkit.getPlayer(uuid);
                 if (p == null || !p.isOnline()) continue;
+
+                long elapsed = (System.currentTimeMillis() - queueJoinTime.getOrDefault(uuid, System.currentTimeMillis())) / 1000;
+                String timeStr = formatTime(elapsed);
+
                 p.sendActionBar(Component.text()
                         .append(Component.text(plugin.getLanguageManager().msgRaw(p, "queue_action_bar"), NamedTextColor.LIGHT_PURPLE))
                         .append(Component.text(mode.getDisplayName(), NamedTextColor.WHITE))
                         .append(Component.text(" ... ", NamedTextColor.LIGHT_PURPLE))
                         .append(Component.text(plugin.getLanguageManager().msgRaw(p, "queue_action_bar_count", "%count%", String.valueOf(count), "%s%", count > 1 ? "s" : ""), NamedTextColor.GRAY))
+                        .append(Component.text(" ⏱ ", NamedTextColor.LIGHT_PURPLE))
+                        .append(Component.text(timeStr, NamedTextColor.WHITE))
                         .build());
             }
         }
+    }
+
+    private String formatTime(long seconds) {
+        if (seconds < 60) return seconds + "s";
+        long min = seconds / 60;
+        long sec = seconds % 60;
+        return min + "m " + sec + "s";
     }
 
     public void joinQueue(Player player, DuelGameMode mode) {
         if (isInAnyQueue(player)) return;
         if (plugin.getDuelManager().isInDuel(player)) return;
         queues.get(mode).add(player.getUniqueId());
+        queueJoinTime.put(player.getUniqueId(), System.currentTimeMillis());
     }
 
     public void leaveQueue(Player player) {
+        queueJoinTime.remove(player.getUniqueId());
         for (LinkedHashSet<UUID> queue : queues.values()) {
             queue.remove(player.getUniqueId());
         }
     }
 
     public void leaveQueue(Player player, DuelGameMode mode) {
+        queueJoinTime.remove(player.getUniqueId());
         queues.get(mode).remove(player.getUniqueId());
     }
 

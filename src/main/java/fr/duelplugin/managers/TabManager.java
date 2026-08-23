@@ -115,7 +115,18 @@ public class TabManager {
                 if (team == null) {
                     team = viewerSB.registerNewTeam(teamName);
                 }
-                team.addPlayer(other);
+
+                boolean shouldShowInTab = true;
+                if (friendTabActive.contains(player.getUniqueId())) {
+                    Set<UUID> friends = plugin.getFriendsManager().getFriends(player.getUniqueId());
+                    shouldShowInTab = friends.contains(other.getUniqueId());
+                }
+
+                if (shouldShowInTab) {
+                    team.addPlayer(other);
+                } else {
+                    team.removePlayer(other);
+                }
 
                 if (areInSameParty(player.getUniqueId(), other.getUniqueId())) {
                     if (plugin.getPartyManager().isLeader(other.getUniqueId())) {

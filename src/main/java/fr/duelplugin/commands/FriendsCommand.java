@@ -183,7 +183,9 @@ public class FriendsCommand implements CommandExecutor, TabCompleter {
                 if (online != null) {
                     player.sendMessage(lang().msgRaw(player, "friend_list_online", "%player%", online.getName()));
                 } else {
-                    player.sendMessage(lang().msgRaw(player, "friend_list_offline", "%player%", uuid.toString().substring(0, 8) + "..."));
+                    String name = Bukkit.getOfflinePlayer(uuid).getName();
+                    if (name == null) name = "???";
+                    player.sendMessage(lang().msgRaw(player, "friend_list_offline", "%player%", name));
                 }
             }
         }

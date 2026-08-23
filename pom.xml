@@ -6,7 +6,7 @@
 
     <groupId>fr.duelplugin</groupId>
     <artifactId>DuelPlugin</artifactId>
-    <version>1.12.18</version>
+    <version>1.12.19</version>
     <packaging>jar</packaging>
 
     <name>DuelPlugin</name>

@@ -40,7 +40,7 @@ public class DuelSettingsGUI {
                         "",
                         discordEnabled ? "§aActivé" : "§cDésactivé",
                         "",
-                        "§7Cliquez pour basculer"
+                        "§7Cliquez pour changer"
                 ).build());
 
         inv.setItem(15, new ItemBuilder(Material.PAPER)
@@ -50,7 +50,7 @@ public class DuelSettingsGUI {
                         "§dNombre de rounds: §f" + roundCount,
                         "§7(First to " + roundCount + ")",
                         "",
-                        "§7Cliquez pour augmenter",
+                        "§7Clic gauche pour augmenter",
                         "§7Clic droit pour diminuer"
                 ).build());
 

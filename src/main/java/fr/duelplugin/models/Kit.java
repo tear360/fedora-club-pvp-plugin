@@ -130,7 +130,9 @@ public class Kit {
         inv.setItem(4, new ItemStack(Material.GOLDEN_APPLE, 128));
         inv.setItem(5, new ItemStack(Material.ENDER_PEARL, 256));
         inv.setItem(6, new ItemStack(Material.WIND_CHARGE, 128));
-        inv.setItem(7, new ItemStack(Material.ELYTRA));
+        ItemStack elytra = new ItemStack(Material.ELYTRA);
+        elytra.setDurability((short) (elytra.getType().getMaxDurability() - 150));
+        inv.setItem(7, elytra);
         inv.setItem(8, ench(Material.SHIELD, Enchantment.UNBREAKING, 3, Enchantment.MENDING, 1));
         inv.setArmorContents(new ItemStack[]{
                 ench(Material.NETHERITE_BOOTS, Enchantment.PROTECTION, 4, Enchantment.FEATHER_FALLING, 4),
@@ -139,6 +141,7 @@ public class Kit {
                 ench(Material.NETHERITE_HELMET, Enchantment.PROTECTION, 4)
         });
         inv.setItemInOffHand(new ItemStack(Material.TOTEM_OF_UNDYING));
+        inv.setItem(31, new ItemStack(Material.TOTEM_OF_UNDYING));
         for (int i = 9; i <= 19; i++) {
             inv.setItem(i, splash(PotionEffectType.STRENGTH, 1));
         }
@@ -178,11 +181,14 @@ public class Kit {
         });
         inv.setItemInOffHand(ench(Material.SHIELD, Enchantment.UNBREAKING, 3, Enchantment.MENDING, 1));
         for (int i = 7; i <= 18; i++) {
-            inv.setItem(i, splashWithTwo(PotionEffectType.STRENGTH, 1, PotionEffectType.SPEED, 1));
+            inv.setItem(i, splash(PotionEffectType.STRENGTH, 1));
         }
-        inv.setItem(19, splash(PotionEffectType.FIRE_RESISTANCE, 0));
-        inv.setItem(20, splash(PotionEffectType.FIRE_RESISTANCE, 0));
-        inv.setItem(21, splash(PotionEffectType.FIRE_RESISTANCE, 0));
+        for (int i = 19; i <= 30; i++) {
+            inv.setItem(i, splash(PotionEffectType.SPEED, 1));
+        }
+        inv.setItem(31, splashWithDuration(PotionEffectType.FIRE_RESISTANCE, 0, 9600));
+        inv.setItem(32, splashWithDuration(PotionEffectType.FIRE_RESISTANCE, 0, 9600));
+        inv.setItem(33, splashWithDuration(PotionEffectType.FIRE_RESISTANCE, 0, 9600));
     }
 
     private static void giveDiaSMPKit(PlayerInventory inv) {
@@ -208,7 +214,7 @@ public class Kit {
             inv.setItem(i, splash(PotionEffectType.STRENGTH, 1));
         }
         for (int i = 27; i <= 29; i++) {
-            inv.setItem(i, splash(PotionEffectType.SPEED, 1));
+            inv.setItem(i, splash(PotionEffectType.SPEED, 0));
         }
         for (int i = 30; i <= 32; i++) {
             inv.setItem(i, splashWithDuration(PotionEffectType.FIRE_RESISTANCE, 0, 9600));

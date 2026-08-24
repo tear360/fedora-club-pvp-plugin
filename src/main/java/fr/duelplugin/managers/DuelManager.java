@@ -367,7 +367,7 @@ public class DuelManager {
                 String wName = w != null ? w.getName() : Bukkit.getOfflinePlayer(winner).getName();
                 String lName = l != null ? l.getName() : Bukkit.getOfflinePlayer(loser).getName();
                 if (wName != null && lName != null) {
-                    plugin.getDiscordWebhookManager().sendDuelResult(wName, lName, duel.getMode().getDisplayName(), duration);
+                    plugin.getDiscordBotManager().sendDuelResult(wName, lName, duel.getMode().getDisplayName(), duration);
                 }
             }
         }

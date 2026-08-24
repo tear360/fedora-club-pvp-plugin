@@ -64,8 +64,9 @@ scoreboard-update-interval: 20
 # Auto-update (GitHub token for private repo)
 github-token: ""
 
-# Discord Webhook ( résultats des duels 1v1 )
-discord-webhook-url: ""
-
-# Discord Webhook ( bug reports )
-discord-bugreport-webhook-url: ""
+# Discord Bot (JDA)
+discord:
+  bot-token: ""
+  bug-report-channel-id: ""
+  duel-result-channel-id: ""
+  report-category-id: ""

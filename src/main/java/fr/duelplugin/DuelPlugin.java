@@ -61,7 +61,7 @@ public class DuelPlugin extends JavaPlugin {
     private ChatFilterManager chatFilterManager;
     private BanManager banManager;
     private ReportManager reportManager;
-    private DiscordWebhookManager discordWebhookManager;
+    private DiscordBotManager discordBotManager;
     private final Set<UUID> buildModePlayers = ConcurrentHashMap.newKeySet();
 
     @Override
@@ -90,7 +90,7 @@ public class DuelPlugin extends JavaPlugin {
         chatFilterManager = new ChatFilterManager(this);
         banManager = new BanManager(this);
         reportManager = new ReportManager(this);
-        discordWebhookManager = new DiscordWebhookManager(this);
+        discordBotManager = new DiscordBotManager(this);
 
         getCommand("duel").setExecutor(new DuelCommand(this));
         getCommand("duel").setTabCompleter(new DuelCommand(this));
@@ -141,6 +141,7 @@ public class DuelPlugin extends JavaPlugin {
         duelManager.cleanup();
         arenaManager.saveArenas();
         playerManager.saveAndUnload();
+        discordBotManager.shutdown();
         getLogger().info("§5Fedora Club §d- DuelPlugin disabled.");
     }
 
@@ -166,7 +167,7 @@ public class DuelPlugin extends JavaPlugin {
     public ChatFilterManager getChatFilterManager() { return chatFilterManager; }
     public BanManager getBanManager() { return banManager; }
     public ReportManager getReportManager() { return reportManager; }
-    public DiscordWebhookManager getDiscordWebhookManager() { return discordWebhookManager; }
+    public DiscordBotManager getDiscordBotManager() { return discordBotManager; }
     public Set<UUID> getBuildModePlayers() { return Collections.unmodifiableSet(buildModePlayers); }
     public boolean isBuildMode(UUID uuid) { return buildModePlayers.contains(uuid); }
     public void setBuildMode(UUID uuid, boolean enabled) {

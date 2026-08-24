@@ -1218,5 +1218,14 @@ public class LanguageManager {
         tBoth("gui_kit_material_selected",
             "&aSélectionné actuellement",
             "&aCurrently selected");
+        tBoth("bugreport_usage",
+            "&cUtilisation: /bugreport <bug>",
+            "&cUsage: /bugreport <bug>");
+        tBoth("bugreport_sent",
+            "&a&lMerci! &aVotre bug report a été envoyé sur Discord.",
+            "&a&lThanks! &aYour bug report has been sent to Discord.");
+        tBoth("bugreport_cooldown",
+            "&cVous devez patienter %time% avant de pouvoir signaler un nouveau bug.",
+            "&cYou must wait %time% before reporting another bug.");
     }
 }

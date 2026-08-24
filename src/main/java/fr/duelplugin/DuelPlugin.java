@@ -1,5 +1,6 @@
 package fr.duelplugin;
 
+import fr.duelplugin.commands.BugReportCommand;
 import fr.duelplugin.commands.AcceptDuelCommand;
 import fr.duelplugin.commands.BanCommand;
 import fr.duelplugin.commands.DenyDuelCommand;
@@ -120,6 +121,7 @@ public class DuelPlugin extends JavaPlugin {
         getCommand("unmute").setExecutor(new UnmuteCommand(this));
         getCommand("report").setExecutor(new ReportCommand(this));
         getCommand("report").setTabCompleter(new ReportCommand(this));
+        getCommand("bugreport").setExecutor(new BugReportCommand(this));
 
         getServer().getPluginManager().registerEvents(new GameListener(this), this);
         getServer().getPluginManager().registerEvents(new ArenaListener(this), this);

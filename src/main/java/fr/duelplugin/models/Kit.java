@@ -128,7 +128,7 @@ public class Kit {
         inv.setItem(2, ench(Material.MACE, Enchantment.BREACH, 4, Enchantment.UNBREAKING, 3));
         inv.setItem(3, ench(Material.MACE, Enchantment.DENSITY, 5, Enchantment.WIND_BURST, 1, Enchantment.UNBREAKING, 3));
         inv.setItem(4, new ItemStack(Material.GOLDEN_APPLE, 128));
-        inv.setItem(5, new ItemStack(Material.ENDER_PEARL, 256));
+        inv.setItem(5, new ItemStack(Material.ENDER_PEARL, 32));
         inv.setItem(6, new ItemStack(Material.WIND_CHARGE, 128));
         ItemStack elytra = new ItemStack(Material.ELYTRA);
         elytra.setDurability((short) (elytra.getType().getMaxDurability() - 150));
@@ -171,7 +171,7 @@ public class Kit {
         inv.setItem(2, ench(Material.NETHERITE_AXE, Enchantment.SHARPNESS, 5, Enchantment.UNBREAKING, 3));
         inv.setItem(3, new ItemStack(Material.GOLDEN_APPLE, 128));
         inv.setItem(4, new ItemStack(Material.EXPERIENCE_BOTTLE, 64));
-        inv.setItem(5, new ItemStack(Material.ENDER_PEARL, 128));
+        inv.setItem(5, new ItemStack(Material.ENDER_PEARL, 32));
         inv.setItem(6, new ItemStack(Material.TOTEM_OF_UNDYING));
         inv.setArmorContents(new ItemStack[]{
                 ench(Material.NETHERITE_BOOTS, Enchantment.PROTECTION, 4, Enchantment.FEATHER_FALLING, 4, Enchantment.UNBREAKING, 3, Enchantment.MENDING, 1),
@@ -197,7 +197,7 @@ public class Kit {
         inv.setItem(2, ench(Material.SHIELD, Enchantment.UNBREAKING, 3, Enchantment.MENDING, 1));
         inv.setItem(3, new ItemStack(Material.GOLDEN_APPLE, 128));
         inv.setItem(4, new ItemStack(Material.EXPERIENCE_BOTTLE, 64));
-        inv.setItem(5, new ItemStack(Material.ENDER_PEARL, 128));
+        inv.setItem(5, new ItemStack(Material.ENDER_PEARL, 32));
         inv.setItem(6, new ItemStack(Material.TOTEM_OF_UNDYING));
         inv.setItem(7, ench(Material.NETHERITE_PICKAXE, Enchantment.EFFICIENCY, 5, Enchantment.SILK_TOUCH, 1, Enchantment.MENDING, 1, Enchantment.UNBREAKING, 3));
         inv.setItem(8, new ItemStack(Material.OAK_LOG, 64));

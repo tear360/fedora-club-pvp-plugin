@@ -71,6 +71,9 @@ commands:
   report:
     description: Signaler un joueur
     usage: /report <joueur> <raison>
+  bugreport:
+    description: Signaler un bug
+    usage: /bugreport <bug>
 
 permissions:
   duelplugin.admin:

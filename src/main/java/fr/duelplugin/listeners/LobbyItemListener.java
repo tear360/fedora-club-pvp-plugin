@@ -569,6 +569,13 @@ public class LobbyItemListener implements Listener {
             return;
         }
 
+        if (event.getClick() == org.bukkit.event.inventory.ClickType.NUMBER_KEY
+                || event.getClick() == org.bukkit.event.inventory.ClickType.DROP
+                || event.isShiftClick()) {
+            event.setCancelled(true);
+            return;
+        }
+
         int slot = event.getSlot();
         if (slot < 0) return;
 
@@ -611,12 +618,6 @@ public class LobbyItemListener implements Listener {
                 return;
             }
             return;
-        }
-
-        if (slot >= 0 && slot <= 44) {
-            if (event.isShiftClick()) {
-                event.setCancelled(true);
-            }
         }
     }
 

@@ -46,7 +46,7 @@ public class TabManager {
         }.runTaskTimer(plugin, 0L, 20L);
     }
 
-    private Scoreboard getOrCreateScoreboard(Player player) {
+    public Scoreboard getOrCreateScoreboard(Player player) {
         Scoreboard sb = viewerScoreboards.computeIfAbsent(player.getUniqueId(), k -> {
             Scoreboard board = Bukkit.getScoreboardManager().getNewScoreboard();
             player.setScoreboard(board);

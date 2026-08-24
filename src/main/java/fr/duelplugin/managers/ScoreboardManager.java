@@ -5,28 +5,24 @@ import fr.duelplugin.models.DuelGameMode;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.*;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 
 public class ScoreboardManager {
 
     private final DuelPlugin plugin;
-    private final Map<UUID, Scoreboard> scoreboards;
 
     public ScoreboardManager(DuelPlugin plugin) {
         this.plugin = plugin;
-        this.scoreboards = new HashMap<>();
     }
 
     public void createLobbyScoreboard(Player player, DuelGameMode mode, String arenaName) {
-        Scoreboard board = Bukkit.getScoreboardManager().getNewScoreboard();
+        Scoreboard board = plugin.getTabManager().getOrCreateScoreboard(player);
+        clearSidebar(board);
+
         Component title = Component.text()
                 .append(Component.text("FEDORA", NamedTextColor.DARK_PURPLE, TextDecoration.BOLD))
                 .append(Component.text(" "))
@@ -49,11 +45,12 @@ public class ScoreboardManager {
         addLine(obj, line--, plugin.getLanguageManager().msgRaw(player, "sb_ip"));
 
         player.setScoreboard(board);
-        scoreboards.put(player.getUniqueId(), board);
     }
 
     public void createDuelScoreboard(Player player, Player opponent, DuelGameMode mode) {
-        Scoreboard board = Bukkit.getScoreboardManager().getNewScoreboard();
+        Scoreboard board = plugin.getTabManager().getOrCreateScoreboard(player);
+        clearSidebar(board);
+
         Component title = Component.text()
                 .append(Component.text("FEDORA", NamedTextColor.DARK_PURPLE, TextDecoration.BOLD))
                 .append(Component.text(" "))
@@ -77,13 +74,20 @@ public class ScoreboardManager {
         addLine(obj, line--, plugin.getLanguageManager().msgRaw(player, "sb_ip"));
 
         player.setScoreboard(board);
-        scoreboards.put(player.getUniqueId(), board);
     }
 
     public void removeScoreboard(Player player) {
-        scoreboards.remove(player.getUniqueId());
-        Scoreboard board = Bukkit.getScoreboardManager().getNewScoreboard();
+        Scoreboard board = player.getScoreboard();
+        clearSidebar(board);
         player.setScoreboard(board);
+    }
+
+    private void clearSidebar(Scoreboard board) {
+        for (Objective obj : board.getObjectives()) {
+            if (obj.getDisplaySlot() == DisplaySlot.SIDEBAR) {
+                obj.unregister();
+            }
+        }
     }
 
     private void addLine(Objective obj, int score, String text) {

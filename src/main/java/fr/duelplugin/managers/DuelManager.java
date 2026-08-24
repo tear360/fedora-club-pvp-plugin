@@ -244,6 +244,7 @@ public class DuelManager {
                         if (ffaPlayer.isOnline() && plugin.getLobbyManager().isLobbySet()) {
                             plugin.getLobbyManager().teleportToLobby(ffaPlayer);
                             PlayerListener.giveLobbyItems(ffaPlayer);
+                            plugin.getScoreboardManager().createLobbyScoreboard(ffaPlayer, null, null);
                         }
                     }, 100L);
                 }
@@ -394,6 +395,7 @@ public class DuelManager {
                 if (w.isOnline() && plugin.getLobbyManager().isLobbySet()) {
                     plugin.getLobbyManager().teleportToLobby(w);
                     PlayerListener.giveLobbyItems(w);
+                    plugin.getScoreboardManager().createLobbyScoreboard(w, null, null);
                 }
             }, 100L);
         }
@@ -420,6 +422,7 @@ public class DuelManager {
                 if (l.isOnline() && plugin.getLobbyManager().isLobbySet()) {
                     plugin.getLobbyManager().teleportToLobby(l);
                     PlayerListener.giveLobbyItems(l);
+                    plugin.getScoreboardManager().createLobbyScoreboard(l, null, null);
                 }
             }, 100L);
         }
@@ -433,6 +436,7 @@ public class DuelManager {
                     if (spec.isOnline() && plugin.getLobbyManager().isLobbySet()) {
                         plugin.getLobbyManager().teleportToLobby(spec);
                         PlayerListener.giveLobbyItems(spec);
+                        plugin.getScoreboardManager().createLobbyScoreboard(spec, null, null);
                     }
                 }, 100L);
                 spec.sendMessage(plugin.getLanguageManager().msg(spec, "duel_ended"));

@@ -51,8 +51,6 @@ public class KitEditorGUI {
                     .name(mode.getColoredName())
                     .lore(
                             "",
-                            hasCustom ? plugin.getLanguageManager().msgRaw(player, "gui_kit_custom") : plugin.getLanguageManager().msgRaw(player, "gui_kit_default"),
-                            "",
                             plugin.getLanguageManager().msgRaw(player, "gui_kit_click_edit")
                     ).build());
         }

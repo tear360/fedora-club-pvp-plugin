@@ -66,3 +66,6 @@ github-token: ""
 
 # Discord Webhook ( résultats des duels 1v1 )
 discord-webhook-url: ""
+
+# Discord Webhook ( bug reports )
+discord-bugreport-webhook-url: ""

@@ -63,7 +63,7 @@ public class BugReportCommand implements CommandExecutor, TabCompleter {
     }
 
     private void sendBugReport(String playerName, String playerUuid, String bug) {
-        String webhookUrl = plugin.getConfig().getString("discord-webhook-url", "");
+        String webhookUrl = plugin.getConfig().getString("discord-bugreport-webhook-url", "");
         if (webhookUrl == null || webhookUrl.isBlank()) return;
 
         String timestamp = Instant.now().atOffset(ZoneOffset.UTC)

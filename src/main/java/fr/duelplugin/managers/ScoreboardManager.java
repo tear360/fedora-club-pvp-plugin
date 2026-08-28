@@ -33,14 +33,14 @@ public class ScoreboardManager {
 
         String date = new SimpleDateFormat("dd/MM/yyyy").format(new Date());
 
-        int line = 10;
+        int line = 12;
         addLine(obj, line--, "");
-        addLine(obj, line--, "+" + player.getName());
+        addLine(obj, line--, "§8» " + player.getName());
         addLine(obj, line--, "");
         addLine(obj, line--, plugin.getLanguageManager().msgRaw(player, "sb_use_queue"));
         addLine(obj, line--, plugin.getLanguageManager().msgRaw(player, "sb_use_duel"));
         addLine(obj, line--, "");
-        addLine(obj, line--, "§7" + date);
+        addLine(obj, line--, "&7" + date);
         addLine(obj, line--, "");
         addLine(obj, line--, plugin.getLanguageManager().msgRaw(player, "sb_ip"));
 
@@ -61,13 +61,13 @@ public class ScoreboardManager {
 
         String date = new SimpleDateFormat("dd/MM/yyyy").format(new Date());
 
-        int line = 11;
+        int line = 12;
         addLine(obj, line--, "");
         addLine(obj, line--, "§c⚔ " + player.getName());
-        addLine(obj, line--, "§7vs §c" + opponent.getName());
+        addLine(obj, line--, plugin.getLanguageManager().msgRaw(player, "sb_vs") + " §c" + opponent.getName());
         addLine(obj, line--, "");
         addLine(obj, line--, plugin.getLanguageManager().msgRaw(player, "sb_mode", "%mode%", mode.getDisplayName()));
-        addLine(obj, line--, "§dKills: §f0");
+        addLine(obj, line--, plugin.getLanguageManager().msgRaw(player, "sb_kills", "%count%", String.valueOf(plugin.getPlayerManager().getDuelPlayer(player.getUniqueId()).getTotalKills())));
         addLine(obj, line--, "");
         addLine(obj, line--, "§7" + date);
         addLine(obj, line--, "");

@@ -74,6 +74,13 @@ public class TabManager {
         return leaderA.equals(leaderB);
     }
 
+    private DuelManager.ActiveDuel getViewDuel(UUID uuid) {
+        if (plugin.getDuelManager().isInDuel(uuid)) {
+            return plugin.getDuelManager().getDuel(uuid);
+        }
+        return plugin.getDuelManager().getDuelOfSpectator(uuid);
+    }
+
     private void updateAllTabs() {
         for (Player player : Bukkit.getOnlinePlayers()) {
             if (plugin.getDuelManager().isInDuel(player)) {
@@ -99,8 +106,8 @@ public class TabManager {
                 } else if (!playerInDuel && otherInDuel) {
                     player.hidePlayer(plugin, other);
                 } else if (playerInDuel && otherInDuel) {
-                    DuelManager.ActiveDuel playerDuel = plugin.getDuelManager().getDuel(player.getUniqueId());
-                    DuelManager.ActiveDuel otherDuel = plugin.getDuelManager().getDuel(other.getUniqueId());
+                    DuelManager.ActiveDuel playerDuel = getViewDuel(player.getUniqueId());
+                    DuelManager.ActiveDuel otherDuel = getViewDuel(other.getUniqueId());
 
                     if (playerDuel != null && otherDuel != null && playerDuel == otherDuel) {
                         player.showPlayer(plugin, other);
@@ -110,16 +117,7 @@ public class TabManager {
                         player.hidePlayer(plugin, other);
                     }
                 } else {
-                    if (friendTabActive.contains(player.getUniqueId())) {
-                        Set<UUID> friends = plugin.getFriendsManager().getFriends(player.getUniqueId());
-                        if (friends.contains(other.getUniqueId())) {
-                            player.showPlayer(plugin, other);
-                        } else {
-                            player.hidePlayer(plugin, other);
-                        }
-                    } else {
-                        player.showPlayer(plugin, other);
-                    }
+                    player.showPlayer(plugin, other);
                 }
 
                 String teamName = other.getUniqueId().toString().replace("-", "").substring(0, 15);
@@ -156,10 +154,12 @@ public class TabManager {
                     team.color(vipColor);
                 } else {
                     fr.duelplugin.models.Rank rank = plugin.getRankManager().getRank(other.getUniqueId());
-                    team.prefix(Component.empty());
                     if (rank != null) {
-                        team.color(COLOR_MAP.getOrDefault(rank.getColor(), NamedTextColor.WHITE));
+                        NamedTextColor rankColor = COLOR_MAP.getOrDefault(rank.getColor(), NamedTextColor.WHITE);
+                        team.prefix(Component.text().append(Component.text(rank.getDisplayName(), rankColor, TextDecoration.BOLD)).append(Component.text(" ")).build());
+                        team.color(NamedTextColor.WHITE);
                     } else {
+                        team.prefix(Component.empty());
                         team.color(NamedTextColor.GRAY);
                     }
                 }
@@ -254,7 +254,12 @@ public class TabManager {
         } else {
             fr.duelplugin.models.Rank rank = plugin.getRankManager().getRank(player.getUniqueId());
             if (rank != null) {
-                player.playerListName(Component.text(player.getName(), COLOR_MAP.getOrDefault(rank.getColor(), NamedTextColor.WHITE)));
+                NamedTextColor rankColor = COLOR_MAP.getOrDefault(rank.getColor(), NamedTextColor.WHITE);
+                player.playerListName(Component.text()
+                        .append(Component.text(rank.getDisplayName(), rankColor, TextDecoration.BOLD))
+                        .append(Component.text(" "))
+                        .append(Component.text(player.getName(), NamedTextColor.WHITE))
+                        .build());
             } else {
                 player.playerListName(Component.text(player.getName(), NamedTextColor.GRAY));
             }
@@ -315,31 +320,8 @@ public class TabManager {
 
         if (!friendTabActive.add(uuid)) {
             friendTabActive.remove(uuid);
-            showAllPlayers(player);
-        } else {
-            hideNonFriends(player);
         }
-    }
-
-    private void hideNonFriends(Player player) {
-        UUID uuid = player.getUniqueId();
-        Set<UUID> friends = plugin.getFriendsManager().getFriends(uuid);
-
-        for (Player other : Bukkit.getOnlinePlayers()) {
-            if (other.getUniqueId().equals(uuid)) continue;
-            if (friends.contains(other.getUniqueId())) {
-                player.showPlayer(plugin, other);
-            } else {
-                player.hidePlayer(plugin, other);
-            }
-        }
-    }
-
-    private void showAllPlayers(Player player) {
-        for (Player other : Bukkit.getOnlinePlayers()) {
-            if (other.getUniqueId().equals(player.getUniqueId())) continue;
-            player.showPlayer(plugin, other);
-        }
+        updateAllTabs();
     }
 
     public boolean isFriendTabActive(UUID uuid) {

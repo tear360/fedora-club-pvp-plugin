@@ -2,6 +2,7 @@ package fr.duelplugin.listeners;
 
 import fr.duelplugin.DuelPlugin;
 import fr.duelplugin.utils.ItemBuilder;
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -63,7 +64,13 @@ public class PlayerListener implements Listener {
 
         player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, Integer.MAX_VALUE, 0, true, false, false));
 
-        event.setJoinMessage(plugin.getLanguageManager().msg(player, "lobby_join", "%player%", player.getName()));
+        event.setJoinMessage(null);
+        for (Player online : Bukkit.getOnlinePlayers()) {
+            if (online.getUniqueId().equals(player.getUniqueId())) continue;
+            if (plugin.getFriendsManager().isFriend(online.getUniqueId(), player.getUniqueId())) {
+                online.sendMessage(plugin.getLanguageManager().msgRaw(online, "lobby_join", "%player%", player.getName()));
+            }
+        }
     }
 
     @EventHandler
@@ -74,7 +81,13 @@ public class PlayerListener implements Listener {
         plugin.getScoreboardManager().removeScoreboard(player);
         plugin.getTabManager().onPlayerQuit(player.getUniqueId());
         plugin.setBuildMode(player.getUniqueId(), false);
-        event.setQuitMessage(plugin.getLanguageManager().msgRaw(player, "lobby_quit", "%player%", player.getName()));
+        event.setQuitMessage(null);
+        for (Player online : Bukkit.getOnlinePlayers()) {
+            if (online.getUniqueId().equals(player.getUniqueId())) continue;
+            if (plugin.getFriendsManager().isFriend(online.getUniqueId(), player.getUniqueId())) {
+                online.sendMessage(plugin.getLanguageManager().msgRaw(online, "lobby_quit", "%player%", player.getName()));
+            }
+        }
     }
 
     @EventHandler

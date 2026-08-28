@@ -160,6 +160,9 @@ public class SettingsCommand implements CommandExecutor, TabCompleter, Listener 
                 plugin.getSettingsManager().setLanguage(player.getUniqueId(), next);
                 String name = next == Language.FR ? "Français" : "English";
                 player.sendMessage(plugin.getLanguageManager().msg(player, "language_changed", "%language%", name));
+                if (!plugin.getDuelManager().isInDuel(player.getUniqueId())) {
+                    plugin.getScoreboardManager().createLobbyScoreboard(player, null, null);
+                }
                 openSettingsGUI(player);
             }
             case 15 -> toggleDuels(player);

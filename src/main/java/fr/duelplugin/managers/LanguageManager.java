@@ -1004,20 +1004,23 @@ public class LanguageManager {
 
         // ───────────── SCOREBOARD ─────────────
         tBoth("sb_use_queue",
-            "Use &b⚔&7 to queue",
+            "Utilise &b⚔&7 pour la queue",
             "Use &b⚔&7 to queue");
         tBoth("sb_use_duel",
-            "or &b/duel&7 to duel.",
+            "ou &b/duel&7 pour défier.",
             "or &b/duel&7 to duel.");
         tBoth("sb_ip",
             "&6fedora.free-node.ovh",
             "&6fedora.free-node.ovh");
         tBoth("sb_vs",
-            "&7vs",
+            "&7contre",
             "&7vs");
         tBoth("sb_mode",
             "&dMode: &f%mode%",
             "&dMode: &f%mode%");
+        tBoth("sb_kills",
+            "&dKills: &f%count%",
+            "&dKills: &f%count%");
 
         // ───────────── TAB ─────────────
         tBoth("tab_mode_friends",

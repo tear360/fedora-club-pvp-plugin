@@ -93,6 +93,7 @@ permissions:
       duelplugin.admin.unban: true
       duelplugin.admin.unmute: true
       duelplugin.admin.vip: true
+      duelplugin.admin.rank: true
   duelplugin.admin.reload:
     description: Recharger la configuration
     default: op
@@ -131,6 +132,9 @@ permissions:
     default: op
   duelplugin.admin.vip:
     description: Gérer les VIP (set/remove)
+    default: op
+  duelplugin.admin.rank:
+    description: Gérer les rangs (ADMIN/MANAGER/MODERATEUR/VIP)
     default: op
   duelplugin.play:
     description: Permission de jouer

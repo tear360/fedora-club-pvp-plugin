@@ -70,7 +70,7 @@ public class LobbyItemListener implements Listener {
         }
 
         ItemStack offhand = player.getInventory().getItemInOffHand();
-        if (offhand.getType() == Material.WIND_CHARGE && plugin.getVipManager().isVip(player.getUniqueId())) {
+        if (offhand.getType() == Material.WIND_CHARGE && plugin.getRankManager().isVip(player.getUniqueId())) {
             return;
         }
     }
@@ -604,7 +604,7 @@ public class LobbyItemListener implements Listener {
                 return;
             }
             if (type == Material.ARMOR_STAND) {
-                if (!plugin.getVipManager().isVip(player.getUniqueId())) {
+                if (!plugin.getRankManager().isVip(player.getUniqueId())) {
                     player.sendMessage(plugin.getLanguageManager().msg(player, "party_vip_only"));
                     return;
                 }

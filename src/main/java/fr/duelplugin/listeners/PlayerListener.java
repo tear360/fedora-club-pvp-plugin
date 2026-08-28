@@ -144,7 +144,7 @@ public class PlayerListener implements Listener {
         if (plugin.getDuelManager().isInDuel(player)) return;
 
         ItemStack offhand = player.getInventory().getItemInOffHand();
-        if (offhand.getType() == Material.WIND_CHARGE && plugin.getVipManager().isVip(player.getUniqueId())) {
+        if (offhand.getType() == Material.WIND_CHARGE && plugin.getRankManager().isVip(player.getUniqueId())) {
             if (event.getAction() == org.bukkit.event.block.Action.RIGHT_CLICK_AIR || event.getAction() == org.bukkit.event.block.Action.RIGHT_CLICK_BLOCK) {
                 plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
                     if (player.isOnline() && plugin.getLobbyManager().isLobbySet() && !plugin.getDuelManager().isInDuel(player)) {
@@ -182,10 +182,10 @@ public class PlayerListener implements Listener {
         if (isLobbyItem(dropped) || isVipLobbyItem(dropped)) {
             event.setCancelled(true);
         }
-        if (dropped.getType() == Material.WIND_CHARGE && plugin.getVipManager().isVip(player.getUniqueId())) {
+        if (dropped.getType() == Material.WIND_CHARGE && plugin.getRankManager().isVip(player.getUniqueId())) {
             event.setCancelled(true);
         }
-        if (dropped.getType() == Material.ELYTRA && plugin.getVipManager().isVip(player.getUniqueId())) {
+        if (dropped.getType() == Material.ELYTRA && plugin.getRankManager().isVip(player.getUniqueId())) {
             event.setCancelled(true);
         }
     }
@@ -225,7 +225,7 @@ public class PlayerListener implements Listener {
                 .name(plugin.getLanguageManager().msgRaw(player, "lobby_item_settings"))
                 .lore("", plugin.getLanguageManager().msgRaw(player, "lobby_item_settings_lore"), "").build());
 
-        if (plugin != null && plugin.getVipManager().isVip(player.getUniqueId())) {
+        if (plugin != null && plugin.getRankManager().isVip(player.getUniqueId())) {
             ItemStack windCharge = new ItemStack(Material.WIND_CHARGE, 64);
             player.getInventory().setItemInOffHand(windCharge);
 

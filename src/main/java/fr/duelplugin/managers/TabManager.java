@@ -19,18 +19,23 @@ public class TabManager {
     private final Set<UUID> friendTabActive = new HashSet<>();
     private final Map<UUID, Scoreboard> viewerScoreboards = new HashMap<>();
 
-    private static final Map<String, NamedTextColor> COLOR_MAP = Map.of(
-            "§c", NamedTextColor.RED,
-            "§6", NamedTextColor.GOLD,
-            "§e", NamedTextColor.YELLOW,
-            "§a", NamedTextColor.GREEN,
-            "§b", NamedTextColor.AQUA,
-            "§d", NamedTextColor.LIGHT_PURPLE,
-            "§5", NamedTextColor.DARK_PURPLE,
-            "§f", NamedTextColor.WHITE,
-            "§7", NamedTextColor.GRAY,
-            "§0", NamedTextColor.BLACK
-    );
+    private static final Map<String, NamedTextColor> COLOR_MAP = createColorMap();
+
+    private static Map<String, NamedTextColor> createColorMap() {
+        Map<String, NamedTextColor> map = new HashMap<>();
+        map.put("§4", NamedTextColor.DARK_RED);
+        map.put("§c", NamedTextColor.RED);
+        map.put("§6", NamedTextColor.GOLD);
+        map.put("§e", NamedTextColor.YELLOW);
+        map.put("§a", NamedTextColor.GREEN);
+        map.put("§b", NamedTextColor.AQUA);
+        map.put("§d", NamedTextColor.LIGHT_PURPLE);
+        map.put("§5", NamedTextColor.DARK_PURPLE);
+        map.put("§f", NamedTextColor.WHITE);
+        map.put("§7", NamedTextColor.GRAY);
+        map.put("§0", NamedTextColor.BLACK);
+        return Collections.unmodifiableMap(map);
+    }
 
     public TabManager(DuelPlugin plugin) {
         this.plugin = plugin;
@@ -142,7 +147,7 @@ public class TabManager {
                         team.prefix(Component.text("» ", NamedTextColor.GRAY));
                     }
                     team.color(NamedTextColor.WHITE);
-                } else if (plugin.getVipManager().isVip(other.getUniqueId())) {
+                } else if (plugin.getRankManager().isVip(other.getUniqueId())) {
                     String colorCode = plugin.getVipManager().getNameColor(other.getUniqueId());
                     if (colorCode == null) colorCode = "§d";
                     NamedTextColor vipColor = COLOR_MAP.getOrDefault(colorCode, NamedTextColor.LIGHT_PURPLE);
@@ -150,8 +155,13 @@ public class TabManager {
                     team.prefix(Component.text(badge + " ", vipColor));
                     team.color(vipColor);
                 } else {
+                    fr.duelplugin.models.Rank rank = plugin.getRankManager().getRank(other.getUniqueId());
                     team.prefix(Component.empty());
-                    team.color(NamedTextColor.WHITE);
+                    if (rank != null) {
+                        team.color(COLOR_MAP.getOrDefault(rank.getColor(), NamedTextColor.WHITE));
+                    } else {
+                        team.color(NamedTextColor.GRAY);
+                    }
                 }
             }
         }
@@ -236,13 +246,18 @@ public class TabManager {
         boolean isFriendMode = friendTabActive.contains(player.getUniqueId());
         player.sendPlayerListHeaderAndFooter(buildHeader(), buildLobbyFooter(player, isFriendMode));
 
-        if (plugin.getVipManager().isVip(player.getUniqueId())) {
+        if (plugin.getRankManager().isVip(player.getUniqueId())) {
             String colorCode = plugin.getVipManager().getNameColor(player.getUniqueId());
             if (colorCode == null) colorCode = "§d";
             NamedTextColor color = COLOR_MAP.getOrDefault(colorCode, NamedTextColor.LIGHT_PURPLE);
             player.playerListName(Component.text().append(Component.text(plugin.getVipManager().getBadge(player.getUniqueId()) + " ", color)).append(Component.text(player.getName(), color)).build());
         } else {
-            player.playerListName(Component.text(player.getName(), NamedTextColor.WHITE));
+            fr.duelplugin.models.Rank rank = plugin.getRankManager().getRank(player.getUniqueId());
+            if (rank != null) {
+                player.playerListName(Component.text(player.getName(), COLOR_MAP.getOrDefault(rank.getColor(), NamedTextColor.WHITE)));
+            } else {
+                player.playerListName(Component.text(player.getName(), NamedTextColor.GRAY));
+            }
         }
     }
 

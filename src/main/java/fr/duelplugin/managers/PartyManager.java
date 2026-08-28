@@ -133,7 +133,7 @@ public class PartyManager {
     }
 
     public int getMaxSize(Player leader) {
-        if (leader != null && plugin.getVipManager().isVip(leader.getUniqueId())) {
+        if (leader != null && plugin.getRankManager().isVip(leader.getUniqueId())) {
             return MAX_SIZE_VIP;
         }
         return MAX_SIZE_NORMAL;
@@ -300,7 +300,7 @@ public class PartyManager {
         public int getSize() { return members.size() + 1; }
 
         public boolean isFull(Player leader) {
-            int maxSize = (leader != null && leader.hasPermission("duelplugin.vip")) ? MAX_SIZE_VIP : MAX_SIZE_NORMAL;
+            int maxSize = (leader != null && fr.duelplugin.DuelPlugin.getInstance().getRankManager().isVip(leader.getUniqueId())) ? MAX_SIZE_VIP : MAX_SIZE_NORMAL;
             return getSize() >= maxSize;
         }
 

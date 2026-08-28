@@ -4,7 +4,7 @@
   <groupId>fr.duelplugin</groupId>
   <artifactId>DuelPlugin</artifactId>
   <name>DuelPlugin</name>
-  <version>1.12.29</version>
+  <version>1.12.30</version>
   <description>Plugin de duel PvP pour Paper 1.21.4</description>
   <build>
     <resources>

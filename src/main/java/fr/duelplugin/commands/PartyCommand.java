@@ -277,7 +277,7 @@ public class PartyCommand implements CommandExecutor, TabCompleter {
     }
 
     private void handlePub(Player player) {
-        if (!plugin.getVipManager().isVip(player.getUniqueId())) {
+        if (!plugin.getRankManager().isVip(player.getUniqueId())) {
             player.sendMessage(lang().msg(player, "party_vip_only"));
             return;
         }

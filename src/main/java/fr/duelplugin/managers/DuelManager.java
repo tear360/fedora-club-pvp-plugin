@@ -249,6 +249,9 @@ public class DuelManager {
                     }, 100L);
                 }
             }
+            if (duel.getArena() != null) {
+                duel.getArena().restoreFromSnapshot();
+            }
             return;
         }
 

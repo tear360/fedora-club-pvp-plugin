@@ -14,6 +14,8 @@ import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.FileUpload;
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
 
@@ -99,35 +101,34 @@ public class DiscordBotManager extends ListenerAdapter {
         });
     }
 
-    // ─── BUG REPORT THREAD ─────────────────────────────────────
+    // ─── BUG REPORT FORUM POST ────────────────────────────────
 
     public void createBugReportThread(String playerName, String playerUuid, String bug) {
         if (!isEnabled() || bugReportChannelId.isBlank()) return;
 
         CompletableFuture.runAsync(() -> {
             try {
-                TextChannel channel = jda.getTextChannelById(bugReportChannelId);
-                if (channel == null) return;
+                ForumChannel forum = jda.getForumChannelById(bugReportChannelId);
+                if (forum == null) return;
 
-                String threadName = "bug-" + playerName.toLowerCase() + "-" + System.currentTimeMillis();
+                String postName = "bug-" + playerName.toLowerCase() + "-" + System.currentTimeMillis();
 
-                channel.sendMessageEmbeds(new net.dv8tion.jda.api.EmbedBuilder()
-                        .setTitle("\ud83d\udc1b Bug Report")
-                        .setColor(0xFF0000)
-                        .addField("\ud83d\udc64 Joueur", playerName, true)
-                        .addField("\ud83d\udccb Bug", bug, false)
-                        .setFooter("Fedora Club - Bug Report")
-                        .setTimestamp(Instant.now())
-                        .build()).queue(message -> {
-                            message.createThreadChannel(threadName)
-                                    .setAutoArchiveDuration(ThreadChannel.AutoArchiveDuration.TIME_24_HOURS)
-                                    .queue(thread -> {
-                                        thread.sendMessage("\ud83d\udcdd **Bug report de " + playerName + "**\n\n" + bug)
-                                                .queue(msg -> msg.addReaction(Emoji.fromUnicode(CLOSE_EMOJI)).queue());
-                                    });
-                        });
+                MessageCreateData content = new MessageCreateBuilder()
+                        .addContent("\ud83d\udc1b **Bug report de " + playerName + "**\n\n" + bug)
+                        .addEmbeds(new net.dv8tion.jda.api.EmbedBuilder()
+                                .setTitle("\ud83d\udc1b Bug Report")
+                                .setColor(0xFF0000)
+                                .addField("\ud83d\udc64 Joueur", playerName, true)
+                                .addField("\ud83d\udccb Bug", bug, false)
+                                .setFooter("Fedora Club - Bug Report")
+                                .setTimestamp(Instant.now())
+                                .build())
+                        .build();
+
+                forum.createForumPost(postName, content).queue(post ->
+                        post.getMessage().addReaction(Emoji.fromUnicode(CLOSE_EMOJI)).queue());
             } catch (Exception e) {
-                plugin.getLogger().warning("[Discord] Failed to create bug report thread: " + e.getMessage());
+                plugin.getLogger().warning("[Discord] Failed to create bug report forum post: " + e.getMessage());
             }
         });
     }

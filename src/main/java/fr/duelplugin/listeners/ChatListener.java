@@ -1,6 +1,7 @@
 package fr.duelplugin.listeners;
 
 import fr.duelplugin.DuelPlugin;
+import fr.duelplugin.models.Rank;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -30,13 +31,20 @@ public class ChatListener implements Listener {
         String filtered = plugin.getChatFilterManager().censor(event.getMessage());
         event.setMessage(filtered);
 
-        if (!plugin.getVipManager().isVip(player.getUniqueId())) return;
+        Rank rank = plugin.getRankManager().getRank(player.getUniqueId());
+        if (rank == null) return;
 
-        String color = plugin.getVipManager().getNameColor(player.getUniqueId());
-        if (color == null) color = "§d";
+        if (rank == Rank.VIP) {
+            String color = plugin.getVipManager().getNameColor(player.getUniqueId());
+            if (color == null) color = "§d";
 
-        String prefix = plugin.colorize(color + plugin.getVipManager().getBadge(player.getUniqueId()) + " ");
-        String coloredName = plugin.colorize(color + player.getName());
-        event.setFormat(prefix + coloredName + plugin.colorize("&7: ") + "%2$s");
+            String prefix = plugin.colorize(color + plugin.getVipManager().getBadge(player.getUniqueId()) + " ");
+            String coloredName = plugin.colorize(color + player.getName());
+            event.setFormat(prefix + coloredName + plugin.colorize("&7: ") + "%2$s");
+        } else {
+            String prefix = rank.getTag() + " ";
+            String coloredName = "§f" + player.getName();
+            event.setFormat(plugin.colorize(prefix + coloredName + plugin.colorize("&7: ") + "%2$s"));
+        }
     }
 }

@@ -54,6 +54,7 @@ public class DuelPlugin extends JavaPlugin {
     private PartyGUI partyGUI;
     private QueueManager queueManager;
     private VIPManager vipManager;
+    private RankManager rankManager;
     private FriendsManager friendsManager;
     private PartyManager partyManager;
     private SettingsManager settingsManager;
@@ -83,6 +84,7 @@ public class DuelPlugin extends JavaPlugin {
         partyGUI = new PartyGUI(this);
         queueManager = new QueueManager(this);
         vipManager = new VIPManager(this);
+        rankManager = new RankManager(this);
         friendsManager = new FriendsManager(this);
         partyManager = new PartyManager(this);
         settingsManager = new SettingsManager(this);
@@ -160,6 +162,7 @@ public class DuelPlugin extends JavaPlugin {
     public PartyGUI getPartyGUI() { return partyGUI; }
     public QueueManager getQueueManager() { return queueManager; }
     public VIPManager getVipManager() { return vipManager; }
+    public RankManager getRankManager() { return rankManager; }
     public FriendsManager getFriendsManager() { return friendsManager; }
     public PartyManager getPartyManager() { return partyManager; }
     public SettingsManager getSettingsManager() { return settingsManager; }

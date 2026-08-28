@@ -8,7 +8,9 @@ import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Arena {
 
@@ -136,26 +138,10 @@ public class Arena {
     public void restoreFromSnapshot() {
         if (!snapshotActive) return;
         Location min = resolveMinCorner();
-        World world = Bukkit.getWorlds().get(0);
-        if (min != null && min.getWorld() != null) {
-            world = min.getWorld();
-        }
-
-        for (BlockSnapshot snap : originalBlocks) {
-            World w = Bukkit.getWorld(snap.worldName);
-            if (w == null) w = world;
-            Block block = w.getBlockAt(snap.x, snap.y, snap.z);
-            try {
-                block.setType(snap.material);
-                block.setBlockData(Bukkit.createBlockData(snap.blockData));
-            } catch (Exception e) {
-                block.setType(snap.material);
-            }
-        }
-
-        if (min == null) return;
         Location max = resolveMaxCorner();
-        if (max == null) return;
+        if (min == null || max == null) return;
+        World world = min.getWorld();
+        if (world == null) world = Bukkit.getWorlds().get(0);
 
         int minX = (int) Math.min(min.getX(), max.getX());
         int minY = (int) Math.min(min.getY(), max.getY());
@@ -164,19 +150,26 @@ public class Arena {
         int maxY = (int) Math.max(min.getY(), max.getY());
         int maxZ = (int) Math.max(min.getZ(), max.getZ());
 
+        Map<Long, BlockSnapshot> byCoord = new HashMap<>();
+        for (BlockSnapshot snap : originalBlocks) {
+            byCoord.put(snapshotKey(snap.x, snap.y, snap.z, minX, minY, minZ), snap);
+        }
+
         for (int x = minX; x <= maxX; x++) {
             for (int y = minY; y <= maxY; y++) {
                 for (int z = minZ; z <= maxZ; z++) {
-                    boolean found = false;
-                    for (BlockSnapshot snap : originalBlocks) {
-                        if (snap.x == x && snap.y == y && snap.z == z) {
-                            found = true;
-                            break;
+                    Block block = world.getBlockAt(x, y, z);
+                    BlockSnapshot snap = byCoord.get(snapshotKey(x, y, z, minX, minY, minZ));
+                    if (snap != null) {
+                        if (!block.getBlockData().getAsString().equals(snap.blockData)) {
+                            try {
+                                block.setBlockData(Bukkit.createBlockData(snap.blockData), false);
+                            } catch (Exception e) {
+                                block.setType(snap.material, false);
+                            }
                         }
-                    }
-                    if (!found) {
-                        Block block = world.getBlockAt(x, y, z);
-                        block.setType(Material.AIR);
+                    } else if (block.getType() != Material.AIR && block.getType() != Material.CAVE_AIR) {
+                        block.setType(Material.AIR, false);
                     }
                 }
             }
@@ -184,6 +177,13 @@ public class Arena {
 
         snapshotActive = false;
         originalBlocks.clear();
+    }
+
+    private static long snapshotKey(int x, int y, int z, int minX, int minY, int minZ) {
+        long rx = (long) x - minX;
+        long ry = (long) y - minY;
+        long rz = (long) z - minZ;
+        return (rx & 0x1FFFFF) | ((ry & 0x1FFFFF) << 21) | ((rz & 0x1FFFFF) << 42);
     }
 
     public void saveToConfig(ConfigurationSection section) {

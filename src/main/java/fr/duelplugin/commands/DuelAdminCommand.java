@@ -5,6 +5,7 @@ import fr.duelplugin.managers.LanguageManager;
 import fr.duelplugin.managers.ReportManager;
 import fr.duelplugin.models.Arena;
 import fr.duelplugin.models.DuelGameMode;
+import fr.duelplugin.models.Rank;
 import fr.duelplugin.utils.ItemBuilder;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -91,6 +92,13 @@ public class DuelAdminCommand implements CommandExecutor, TabCompleter, Listener
                     return true;
                 }
                 handleReportCommand(player, args);
+            }
+            case "rank" -> {
+                if (!player.hasPermission("duelplugin.admin.rank")) {
+                    player.sendMessage(lang().msg(player, "no_permission"));
+                    return true;
+                }
+                handleRankCommand(player, args);
             }
             default -> sendHelp(player);
         }
@@ -377,6 +385,46 @@ public class DuelAdminCommand implements CommandExecutor, TabCompleter, Listener
         }
     }
 
+    private void handleRankCommand(Player player, String[] args) {
+        if (args.length < 4) {
+            player.sendMessage("§5═══════════════════════");
+            player.sendMessage("§d§lGestion des rangs:");
+            player.sendMessage("");
+            player.sendMessage("§d/da rank <admin|manager|moderateur|vip> add <joueur>");
+            player.sendMessage("§d/da rank <admin|manager|moderateur|vip> remove <joueur>");
+            player.sendMessage("§5═══════════════════════");
+            return;
+        }
+
+        Rank rank = Rank.fromId(args[1]);
+        if (rank == null) {
+            player.sendMessage("§cRang invalide. Rangs: ADMIN, MANAGER, MODERATEUR, VIP");
+            return;
+        }
+
+        String action = args[2].toLowerCase();
+        if (!action.equals("add") && !action.equals("remove")) {
+            player.sendMessage("§cUsage: /da rank <rang> add|remove <joueur>");
+            return;
+        }
+
+        Player target = Bukkit.getPlayer(args[3]);
+        if (target == null) {
+            player.sendMessage(lang().msg(player, "player_not_found"));
+            return;
+        }
+
+        if (action.equals("add")) {
+            plugin.getRankManager().setRank(target.getUniqueId(), rank);
+            player.sendMessage(rank.getColor() + rank.getDisplayName() + " §adonné à §d" + target.getName() + "§a!");
+            target.sendMessage(plugin.colorize(rank.getColor() + "Vous avez reçu le rang " + rank.getDisplayName() + "§r!"));
+        } else {
+            plugin.getRankManager().setRank(target.getUniqueId(), null);
+            player.sendMessage("§cRang retiré à §d" + target.getName() + "§c.");
+            target.sendMessage("§cVotre rang a été retiré.");
+        }
+    }
+
     private void sendHelp(Player player) {
         player.sendMessage("§5═══════════════════════");
         player.sendMessage("§d§lFedora Club §7- Admin");
@@ -386,6 +434,7 @@ public class DuelAdminCommand implements CommandExecutor, TabCompleter, Listener
         player.sendMessage("§d/da arena <cmd> §7- Gestion des arènes");
         player.sendMessage("§d/da lobby <cmd> §7- Gestion du lobby");
         player.sendMessage("§d/da report §7- Gérer les reports");
+        player.sendMessage("§d/da rank <rang> add/remove <joueur> §7- Gérer les rangs");
         player.sendMessage("§5═══════════════════════");
     }
 
@@ -419,6 +468,15 @@ public class DuelAdminCommand implements CommandExecutor, TabCompleter, Listener
             if (sender.hasPermission("duelplugin.admin.arena")) completions.add("arena");
             if (sender.hasPermission("duelplugin.admin.lobby")) completions.add("lobby");
             if (sender.hasPermission("duelplugin.admin.report")) completions.add("report");
+            if (sender.hasPermission("duelplugin.admin.rank")) completions.add("rank");
+        } else if (args.length == 2 && args[0].equalsIgnoreCase("rank")) {
+            completions.addAll(Arrays.asList("admin", "manager", "moderateur", "vip"));
+        } else if (args.length == 3 && args[0].equalsIgnoreCase("rank")) {
+            completions.addAll(Arrays.asList("add", "remove"));
+        } else if (args.length == 4 && args[0].equalsIgnoreCase("rank")) {
+            for (Player p : Bukkit.getOnlinePlayers()) {
+                completions.add(p.getName());
+            }
         } else if (args.length == 2 && args[0].equalsIgnoreCase("arena")) {
             completions.addAll(Arrays.asList("create", "delete", "setspawn", "setmin", "setmax", "tp", "info", "list"));
         } else if (args.length == 2 && args[0].equalsIgnoreCase("lobby")) {

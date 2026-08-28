@@ -38,13 +38,15 @@ public class BugReportCommand implements CommandExecutor, TabCompleter {
         }
 
         long now = System.currentTimeMillis();
-        Long lastUse = cooldowns.get(player.getUniqueId());
-        if (lastUse != null && (now - lastUse) < COOLDOWN_MS) {
-            long remaining = (COOLDOWN_MS - (now - lastUse)) / 1000;
-            long minutes = remaining / 60;
-            long seconds = remaining % 60;
-            player.sendMessage(plugin.getLanguageManager().msg(player, "bugreport_cooldown", "%time%", minutes + "m " + seconds + "s"));
-            return true;
+        if (!player.hasPermission("duelplugin.bugreport.bypass")) {
+            Long lastUse = cooldowns.get(player.getUniqueId());
+            if (lastUse != null && (now - lastUse) < COOLDOWN_MS) {
+                long remaining = (COOLDOWN_MS - (now - lastUse)) / 1000;
+                long minutes = remaining / 60;
+                long seconds = remaining % 60;
+                player.sendMessage(plugin.getLanguageManager().msg(player, "bugreport_cooldown", "%time%", minutes + "m " + seconds + "s"));
+                return true;
+            }
         }
 
         String bug = String.join(" ", args);

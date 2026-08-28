@@ -6,6 +6,7 @@ import fr.duelplugin.models.DuelGameMode;
 import org.bukkit.GameMode;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -14,6 +15,7 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.UUID;
 import java.util.Set;
@@ -101,6 +103,11 @@ public class GameListener implements Listener {
         }
 
         if (victim.getHealth() - event.getFinalDamage() <= 0) {
+            ItemStack mainHand = victim.getInventory().getItemInMainHand();
+            ItemStack offHand = victim.getInventory().getItemInOffHand();
+            if (mainHand.getType() == Material.TOTEM_OF_UNDYING || offHand.getType() == Material.TOTEM_OF_UNDYING) {
+                return;
+            }
             event.setCancelled(true);
             victim.setHealth(20.0);
 

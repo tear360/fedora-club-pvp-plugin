@@ -138,3 +138,9 @@ permissions:
   duelplugin.vip:
     description: Permission VIP
     default: op
+  duelplugin.acceptduel:
+    description: Autorise à accepter les demandes de duel
+    default: op
+  duelplugin.bugreport.bypass:
+    description: Supprime le cooldown de la commande /bugreport
+    default: op

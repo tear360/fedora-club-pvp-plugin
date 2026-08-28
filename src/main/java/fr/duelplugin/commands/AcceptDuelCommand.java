@@ -33,6 +33,11 @@ public class AcceptDuelCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
+        if (!player.hasPermission("duelplugin.acceptduel")) {
+            player.sendMessage(lang().msg(player, "duel_accept_no_perm"));
+            return true;
+        }
+
         DuelRequest req;
         if (args.length > 0) {
             Player target = Bukkit.getPlayer(args[0]);

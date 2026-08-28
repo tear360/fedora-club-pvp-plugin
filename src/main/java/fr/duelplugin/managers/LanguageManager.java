@@ -417,6 +417,9 @@ public class LanguageManager {
         tBoth("duel_accept_fail",
             "&cImpossible de démarrer le duel.",
             "&cCould not start the duel.");
+        tBoth("duel_accept_no_perm",
+            "&cVous n'avez pas la permission d'accepter les duels.",
+            "&cYou don't have permission to accept duels.");
         tBoth("duel_deny_broadcast",
             "&d%player% &ca refusé votre duel.",
             "&d%player% &crejected your duel.");

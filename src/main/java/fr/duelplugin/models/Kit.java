@@ -68,9 +68,14 @@ public class Kit {
         inv.setItem(5, new ItemStack(Material.ARROW, 10));
         inv.setItem(6, new ItemStack(Material.GOLDEN_APPLE, 8));
         inv.setItem(7, new ItemStack(Material.PLAYER_HEAD, 2));
-        inv.setItem(8, new ItemStack(Material.WATER_BUCKET, 4));
-        inv.setItem(9, new ItemStack(Material.LAVA_BUCKET, 2));
-        inv.setItem(10, new ItemStack(Material.OAK_PLANKS, 128));
+        inv.setItem(8, new ItemStack(Material.WATER_BUCKET));
+        inv.setItem(9, new ItemStack(Material.WATER_BUCKET));
+        inv.setItem(10, new ItemStack(Material.WATER_BUCKET));
+        inv.setItem(11, new ItemStack(Material.WATER_BUCKET));
+        inv.setItem(12, new ItemStack(Material.LAVA_BUCKET));
+        inv.setItem(13, new ItemStack(Material.LAVA_BUCKET));
+        inv.setItem(14, new ItemStack(Material.OAK_PLANKS, 64));
+        inv.setItem(15, new ItemStack(Material.OAK_PLANKS, 64));
         inv.setArmorContents(new ItemStack[]{
                 ench(Material.DIAMOND_BOOTS, Enchantment.PROTECTION, 3),
                 ench(Material.DIAMOND_LEGGINGS, Enchantment.PROTECTION, 2),
@@ -127,13 +132,15 @@ public class Kit {
         inv.setItem(1, ench(Material.NETHERITE_AXE, Enchantment.SHARPNESS, 5, Enchantment.UNBREAKING, 3));
         inv.setItem(2, ench(Material.MACE, Enchantment.BREACH, 4, Enchantment.UNBREAKING, 3));
         inv.setItem(3, ench(Material.MACE, Enchantment.DENSITY, 5, Enchantment.WIND_BURST, 1, Enchantment.UNBREAKING, 3));
-        inv.setItem(4, new ItemStack(Material.GOLDEN_APPLE, 128));
-        inv.setItem(5, new ItemStack(Material.ENDER_PEARL, 32));
-        inv.setItem(6, new ItemStack(Material.WIND_CHARGE, 128));
+        inv.setItem(4, new ItemStack(Material.GOLDEN_APPLE, 64));
+        inv.setItem(5, new ItemStack(Material.GOLDEN_APPLE, 64));
+        inv.setItem(6, new ItemStack(Material.ENDER_PEARL, 16));
+        inv.setItem(7, new ItemStack(Material.ENDER_PEARL, 16));
+        inv.setItem(8, new ItemStack(Material.WIND_CHARGE, 64));
+        inv.setItem(9, new ItemStack(Material.WIND_CHARGE, 64));
         ItemStack elytra = new ItemStack(Material.ELYTRA);
-        elytra.setDurability((short) (elytra.getType().getMaxDurability() - 150));
-        inv.setItem(7, elytra);
-        inv.setItem(8, ench(Material.SHIELD, Enchantment.UNBREAKING, 3, Enchantment.MENDING, 1));
+        inv.setItem(10, elytra);
+        inv.setItem(11, ench(Material.SHIELD, Enchantment.UNBREAKING, 3, Enchantment.MENDING, 1));
         inv.setArmorContents(new ItemStack[]{
                 ench(Material.NETHERITE_BOOTS, Enchantment.PROTECTION, 4, Enchantment.FEATHER_FALLING, 4),
                 ench(Material.NETHERITE_LEGGINGS, Enchantment.PROTECTION, 4),
@@ -141,13 +148,13 @@ public class Kit {
                 ench(Material.NETHERITE_HELMET, Enchantment.PROTECTION, 4)
         });
         inv.setItemInOffHand(new ItemStack(Material.TOTEM_OF_UNDYING));
-        inv.setItem(31, new ItemStack(Material.TOTEM_OF_UNDYING));
-        for (int i = 9; i <= 19; i++) {
+        for (int i = 12; i <= 22; i++) {
             inv.setItem(i, splash(PotionEffectType.STRENGTH, 1));
         }
-        for (int i = 20; i <= 29; i++) {
+        for (int i = 23; i <= 32; i++) {
             inv.setItem(i, splash(PotionEffectType.SPEED, 1));
         }
+        inv.setItem(33, new ItemStack(Material.TOTEM_OF_UNDYING));
 
         ItemStack shulker = new ItemStack(Material.SHULKER_BOX);
         ItemMeta shulkerMeta = shulker.getItemMeta();
@@ -162,17 +169,19 @@ public class Kit {
             bsm.setBlockState(shulkerBox);
             shulker.setItemMeta(bsm);
         }
-        inv.setItem(30, shulker);
+        inv.setItem(34, shulker);
     }
 
     private static void giveSMPKit(PlayerInventory inv) {
         inv.setItem(0, ench(Material.NETHERITE_SWORD, Enchantment.SHARPNESS, 5, Enchantment.FIRE_ASPECT, 2, Enchantment.UNBREAKING, 3));
         inv.setItem(1, ench(Material.NETHERITE_SWORD, Enchantment.SHARPNESS, 5, Enchantment.FIRE_ASPECT, 2, Enchantment.KNOCKBACK, 1, Enchantment.UNBREAKING, 3));
         inv.setItem(2, ench(Material.NETHERITE_AXE, Enchantment.SHARPNESS, 5, Enchantment.UNBREAKING, 3));
-        inv.setItem(3, new ItemStack(Material.GOLDEN_APPLE, 128));
-        inv.setItem(4, new ItemStack(Material.EXPERIENCE_BOTTLE, 64));
-        inv.setItem(5, new ItemStack(Material.ENDER_PEARL, 32));
-        inv.setItem(6, new ItemStack(Material.TOTEM_OF_UNDYING));
+        inv.setItem(3, new ItemStack(Material.GOLDEN_APPLE, 64));
+        inv.setItem(4, new ItemStack(Material.GOLDEN_APPLE, 64));
+        inv.setItem(5, new ItemStack(Material.EXPERIENCE_BOTTLE, 64));
+        inv.setItem(6, new ItemStack(Material.ENDER_PEARL, 16));
+        inv.setItem(7, new ItemStack(Material.ENDER_PEARL, 16));
+        inv.setItem(8, new ItemStack(Material.TOTEM_OF_UNDYING));
         inv.setArmorContents(new ItemStack[]{
                 ench(Material.NETHERITE_BOOTS, Enchantment.PROTECTION, 4, Enchantment.FEATHER_FALLING, 4, Enchantment.UNBREAKING, 3, Enchantment.MENDING, 1),
                 ench(Material.NETHERITE_LEGGINGS, Enchantment.PROTECTION, 4, Enchantment.SWIFT_SNEAK, 3, Enchantment.UNBREAKING, 3, Enchantment.MENDING, 1),
@@ -180,29 +189,31 @@ public class Kit {
                 ench(Material.NETHERITE_HELMET, Enchantment.PROTECTION, 4, Enchantment.UNBREAKING, 3, Enchantment.MENDING, 1)
         });
         inv.setItemInOffHand(ench(Material.SHIELD, Enchantment.UNBREAKING, 3, Enchantment.MENDING, 1));
-        for (int i = 7; i <= 18; i++) {
+        for (int i = 9; i <= 20; i++) {
             inv.setItem(i, splash(PotionEffectType.STRENGTH, 1));
         }
-        for (int i = 19; i <= 30; i++) {
+        for (int i = 21; i <= 32; i++) {
             inv.setItem(i, splash(PotionEffectType.SPEED, 1));
         }
-        inv.setItem(31, splashWithDuration(PotionEffectType.FIRE_RESISTANCE, 0, 9600));
-        inv.setItem(32, splashWithDuration(PotionEffectType.FIRE_RESISTANCE, 0, 9600));
         inv.setItem(33, splashWithDuration(PotionEffectType.FIRE_RESISTANCE, 0, 9600));
+        inv.setItem(34, splashWithDuration(PotionEffectType.FIRE_RESISTANCE, 0, 9600));
+        inv.setItem(35, splashWithDuration(PotionEffectType.FIRE_RESISTANCE, 0, 9600));
     }
 
     private static void giveDiaSMPKit(PlayerInventory inv) {
         inv.setItem(0, ench(Material.DIAMOND_AXE, Enchantment.SHARPNESS, 5, Enchantment.UNBREAKING, 3));
         inv.setItem(1, ench(Material.DIAMOND_SWORD, Enchantment.SHARPNESS, 5, Enchantment.FIRE_ASPECT, 2, Enchantment.UNBREAKING, 3));
         inv.setItem(2, ench(Material.SHIELD, Enchantment.UNBREAKING, 3, Enchantment.MENDING, 1));
-        inv.setItem(3, new ItemStack(Material.GOLDEN_APPLE, 128));
-        inv.setItem(4, new ItemStack(Material.EXPERIENCE_BOTTLE, 64));
-        inv.setItem(5, new ItemStack(Material.ENDER_PEARL, 32));
-        inv.setItem(6, new ItemStack(Material.TOTEM_OF_UNDYING));
-        inv.setItem(7, ench(Material.NETHERITE_PICKAXE, Enchantment.EFFICIENCY, 5, Enchantment.SILK_TOUCH, 1, Enchantment.MENDING, 1, Enchantment.UNBREAKING, 3));
-        inv.setItem(8, new ItemStack(Material.OAK_LOG, 64));
-        inv.setItem(9, new ItemStack(Material.COBWEB, 64));
-        inv.setItem(10, new ItemStack(Material.CHORUS_FRUIT, 64));
+        inv.setItem(3, new ItemStack(Material.GOLDEN_APPLE, 64));
+        inv.setItem(4, new ItemStack(Material.GOLDEN_APPLE, 64));
+        inv.setItem(5, new ItemStack(Material.EXPERIENCE_BOTTLE, 64));
+        inv.setItem(6, new ItemStack(Material.ENDER_PEARL, 16));
+        inv.setItem(7, new ItemStack(Material.ENDER_PEARL, 16));
+        inv.setItem(8, new ItemStack(Material.TOTEM_OF_UNDYING));
+        inv.setItem(9, ench(Material.NETHERITE_PICKAXE, Enchantment.EFFICIENCY, 5, Enchantment.SILK_TOUCH, 1, Enchantment.MENDING, 1, Enchantment.UNBREAKING, 3));
+        inv.setItem(10, new ItemStack(Material.OAK_LOG, 64));
+        inv.setItem(11, new ItemStack(Material.COBWEB, 64));
+        inv.setItem(12, new ItemStack(Material.CHORUS_FRUIT, 64));
         inv.setArmorContents(new ItemStack[]{
                 ench(Material.DIAMOND_BOOTS, Enchantment.PROTECTION, 4, Enchantment.FEATHER_FALLING, 4, Enchantment.UNBREAKING, 3, Enchantment.MENDING, 1),
                 ench(Material.DIAMOND_LEGGINGS, Enchantment.PROTECTION, 4, Enchantment.SWIFT_SNEAK, 3, Enchantment.UNBREAKING, 3, Enchantment.MENDING, 1),
@@ -210,13 +221,13 @@ public class Kit {
                 ench(Material.DIAMOND_HELMET, Enchantment.PROTECTION, 4, Enchantment.UNBREAKING, 3, Enchantment.MENDING, 1)
         });
         inv.setItemInOffHand(ench(Material.SHIELD, Enchantment.UNBREAKING, 3, Enchantment.MENDING, 1));
-        for (int i = 11; i <= 26; i++) {
+        for (int i = 13; i <= 28; i++) {
             inv.setItem(i, splash(PotionEffectType.STRENGTH, 1));
         }
-        for (int i = 27; i <= 29; i++) {
+        for (int i = 29; i <= 31; i++) {
             inv.setItem(i, splash(PotionEffectType.SPEED, 0));
         }
-        for (int i = 30; i <= 32; i++) {
+        for (int i = 32; i <= 34; i++) {
             inv.setItem(i, splashWithDuration(PotionEffectType.FIRE_RESISTANCE, 0, 9600));
         }
     }
@@ -236,21 +247,15 @@ public class Kit {
     }
 
     private static ItemStack splash(PotionEffectType type, int amplifier) {
-        ItemStack item = new ItemStack(Material.SPLASH_POTION);
-        ItemMeta meta = item.getItemMeta();
-        if (meta instanceof org.bukkit.inventory.meta.PotionMeta pm) {
-            pm.addCustomEffect(new PotionEffect(type, 1, amplifier), true);
-            item.setItemMeta(pm);
-        }
-        return item;
+        return splashWithDuration(type, amplifier, 3600);
     }
 
     private static ItemStack splashWithTwo(PotionEffectType type1, int amp1, PotionEffectType type2, int amp2) {
         ItemStack item = new ItemStack(Material.SPLASH_POTION);
         ItemMeta meta = item.getItemMeta();
         if (meta instanceof org.bukkit.inventory.meta.PotionMeta pm) {
-            pm.addCustomEffect(new PotionEffect(type1, 1, amp1), true);
-            pm.addCustomEffect(new PotionEffect(type2, 1, amp2), true);
+            pm.addCustomEffect(new PotionEffect(type1, 3600, amp1), true);
+            pm.addCustomEffect(new PotionEffect(type2, 3600, amp2), true);
             item.setItemMeta(pm);
         }
         return item;

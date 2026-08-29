@@ -51,7 +51,7 @@ public class ReportCommand implements CommandExecutor, TabCompleter {
         String reason = reasonBuilder.toString();
 
         int id = plugin.getReportManager().createReport(player.getName(), reported.getName(), reason);
-        plugin.getDiscordBotManager().createReportChannel(player.getName(), reported.getName(), reason, id);
+        plugin.getDiscordBotManager().createReportForumPost(player.getName(), reported.getName(), reason, id);
         player.sendMessage(plugin.getLanguageManager().msg(player, "report_success", "%id%", String.valueOf(id), "%player%", reported.getName()));
         return true;
     }

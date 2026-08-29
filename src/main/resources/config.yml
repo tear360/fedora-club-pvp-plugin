@@ -69,4 +69,4 @@ discord:
   bot-token: ""
   bug-report-channel-id: ""
   duel-result-channel-id: ""
-  report-category-id: ""
+  report-channel-id: ""

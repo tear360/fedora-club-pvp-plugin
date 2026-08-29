@@ -1,5 +1,12 @@
 package fr.duelplugin.managers;
 
+import com.github.retrooper.packetevents.PacketEvents;
+import com.github.retrooper.packetevents.protocol.npc.NPC;
+import com.github.retrooper.packetevents.protocol.player.GameMode;
+import com.github.retrooper.packetevents.protocol.player.TextureProperty;
+import com.github.retrooper.packetevents.protocol.player.UserProfile;
+import io.github.retrooper.packetevents.util.SpigotConversionUtil;
+import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEntityAnimation;
 import fr.duelplugin.DuelPlugin;
 import fr.duelplugin.models.Arena;
 import fr.duelplugin.models.DuelGameMode;
@@ -21,10 +28,18 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.util.Vector;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class DuelBotManager implements Listener {
 
@@ -37,6 +52,9 @@ public class DuelBotManager implements Listener {
     private static final double ATTACK_RANGE = 2.4;
     private static final double BOT_DAMAGE = 7.0;
     private static final int ATTACK_INTERVAL = 26;
+
+    private static final String SKIN_UUID = "853c80ef-3c37-49fd-aa49-938b674adae6";
+    private static final Pattern JSON_EXTRACT = Pattern.compile("\"value\"\\s*:\\s*\"([^\"]+)\"\\s*,\\s*\"signature\"\\s*:\\s*\"([^\"]+)\"");
 
     public DuelBotManager(DuelPlugin plugin) {
         this.plugin = plugin;
@@ -64,7 +82,7 @@ public class DuelBotManager implements Listener {
         if (loc == null || loc.getWorld() == null) return;
         World world = loc.getWorld();
 
-        String botName = plugin.getLanguageManager().msgRaw(player, "bot_name");
+        String botName = strip(plugin.getLanguageManager().msgRaw(player, "bot_name"));
 
         Zombie bot = world.spawn(loc, Zombie.class, z -> {
             z.setAI(false);
@@ -75,8 +93,9 @@ public class DuelBotManager implements Listener {
             z.setPersistent(true);
             z.setCollidable(false);
             z.setShouldBurnInDay(false);
-            z.setCustomNameVisible(true);
-            z.setCustomName("§5⚔ " + botName);
+            z.setInvisible(true);
+            z.setCustomNameVisible(false);
+            z.setCustomName(null);
         });
 
         bot.getAttribute(Attribute.MAX_HEALTH).setBaseValue(20.0);
@@ -96,9 +115,65 @@ public class DuelBotManager implements Listener {
             eq.setHelmetDropChance(0);
         }
 
-        botDuels.put(player.getUniqueId(), new BotState(bot.getUniqueId(), arena));
+        UserProfile profile = new UserProfile(botUuid, botName, Collections.emptyList());
+        NPC npc = new NPC(profile, bot.getEntityId());
+        npc.setGameMode(GameMode.SURVIVAL);
+        npc.spawn(PacketEvents.getAPI().getPlayerManager().getChannel(player));
+
+        BotState state = new BotState(bot.getUniqueId(), arena, npc);
+        botDuels.put(player.getUniqueId(), state);
         entityToPlayer.put(bot.getUniqueId(), player.getUniqueId());
         attackTicks.put(player.getUniqueId(), 0);
+
+        fetchSkinAsync(state, player);
+    }
+
+    private void fetchSkinAsync(BotState state, Player viewer) {
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            List<TextureProperty> textures = fetchSkinTextures();
+            if (textures == null || textures.isEmpty()) return;
+            Bukkit.getScheduler().runTask(plugin, () -> {
+                BotState current = botDuels.get(viewer.getUniqueId());
+                if (current == null || current.npc == null || current.npc.getId() != state.npc.getId()) return;
+                try {
+                    current.npc.changeSkin(UUID.randomUUID(), textures);
+                } catch (Exception ignored) {
+                }
+            });
+        });
+    }
+
+    private List<TextureProperty> fetchSkinTextures() {
+        HttpURLConnection conn = null;
+        try {
+            URL url = new URL("https://sessionserver.mojang.com/session/minecraft/profile/" + SKIN_UUID + "?unsigned=false");
+            conn = (HttpURLConnection) url.openConnection();
+            conn.setConnectTimeout(4000);
+            conn.setReadTimeout(4000);
+            conn.setRequestProperty("User-Agent", "DuelPlugin/1.12");
+            int code = conn.getResponseCode();
+            if (code != 200) return null;
+            StringBuilder sb = new StringBuilder();
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()))) {
+                String line;
+                while ((line = reader.readLine()) != null) sb.append(line);
+            }
+            Matcher m = JSON_EXTRACT.matcher(sb.toString());
+            if (m.find()) {
+                List<TextureProperty> list = new ArrayList<>();
+                list.add(new TextureProperty("textures", m.group(1), m.group(2)));
+                return list;
+            }
+        } catch (Exception ignored) {
+        } finally {
+            if (conn != null) conn.disconnect();
+        }
+        return null;
+    }
+
+    private static String strip(String s) {
+        if (s == null) return "Bot";
+        return s.replaceAll("§[0-9a-fk-orA-FK-OR]", "").trim();
     }
 
     public boolean isBotDuelEntity(Entity entity) {
@@ -146,13 +221,14 @@ public class DuelBotManager implements Listener {
 
         Location look = bot.getLocation().clone();
         look.setDirection(dir);
-        look.setYaw(bot.getLocation().getYaw());
         bot.teleport(look);
+        syncNpc(state.npc, bot);
 
         if (dist > ATTACK_RANGE) {
             Location next = bot.getLocation().clone().add(dir.multiply(BOT_SPEED));
             next.setY(bot.getLocation().getY() + dir.getY() * BOT_SPEED + dy * 0.1);
             bot.teleport(next);
+            syncNpc(state.npc, bot);
         }
 
         if (dist <= ATTACK_RANGE) {
@@ -164,10 +240,30 @@ public class DuelBotManager implements Listener {
                     p.damage(BOT_DAMAGE, bot);
                     Vector kb = dir.setY(0).normalize().multiply(0.5).add(new Vector(0, 0.35, 0));
                     p.setVelocity(kb);
+                    playSwing(state.npc, p);
                 }
             }
         } else {
             attackTicks.put(playerUuid, 0);
+        }
+    }
+
+    private void syncNpc(NPC npc, Zombie bot) {
+        try {
+            Location location = bot.getLocation();
+            npc.updateRotation(location.getYaw(), location.getPitch());
+            npc.teleport(SpigotConversionUtil.fromBukkitLocation(location));
+        } catch (Exception ignored) {
+        }
+    }
+
+    private void playSwing(NPC npc, Player viewer) {
+        try {
+            WrapperPlayServerEntityAnimation animation =
+                    new WrapperPlayServerEntityAnimation(npc.getId(), WrapperPlayServerEntityAnimation.EntityAnimationType.SWING_MAIN_ARM);
+            PacketEvents.getAPI().getPlayerManager().sendPacket(
+                    PacketEvents.getAPI().getPlayerManager().getChannel(viewer), animation);
+        } catch (Exception ignored) {
         }
     }
 
@@ -192,6 +288,10 @@ public class DuelBotManager implements Listener {
             if (entity != null && !entity.isDead()) {
                 entity.remove();
             }
+            try {
+                state.npc.despawnAll();
+            } catch (Exception ignored) {
+            }
         }
     }
 
@@ -214,10 +314,12 @@ public class DuelBotManager implements Listener {
     private static class BotState {
         final UUID botEntityUuid;
         final Arena arena;
+        final NPC npc;
 
-        BotState(UUID botEntityUuid, Arena arena) {
+        BotState(UUID botEntityUuid, Arena arena, NPC npc) {
             this.botEntityUuid = botEntityUuid;
             this.arena = arena;
+            this.npc = npc;
         }
     }
 }

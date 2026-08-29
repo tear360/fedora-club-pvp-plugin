@@ -6,7 +6,7 @@
 
     <groupId>fr.duelplugin</groupId>
     <artifactId>DuelPlugin</artifactId>
-    <version>1.12.32</version>
+    <version>1.12.33</version>
     <packaging>jar</packaging>
 
     <name>DuelPlugin</name>
@@ -27,6 +27,10 @@
             <id>central</id>
             <url>https://repo1.maven.org/maven2/</url>
         </repository>
+        <repository>
+            <id>codemc-releases</id>
+            <url>https://repo.codemc.io/repository/maven-releases/</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -40,6 +44,11 @@
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
             <version>5.2.2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.retrooper</groupId>
+            <artifactId>packetevents-spigot</artifactId>
+            <version>2.7.0</version>
         </dependency>
     </dependencies>
 
@@ -66,6 +75,18 @@
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <relocations>
+                        <relocation>
+                            <pattern>com.github.retrooper.packetevents</pattern>
+                            <shadedPattern>fr.duelplugin.packetevents.api</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>io.github.retrooper.packetevents</pattern>
+                            <shadedPattern>fr.duelplugin.packetevents.impl</shadedPattern>
+                        </relocation>
+                    </relocations>
+                </configuration>
             </plugin>
         </plugins>
         <resources>

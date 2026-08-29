@@ -4,6 +4,13 @@ main: fr.duelplugin.DuelPlugin
 api-version: '1.21'
 description: Plugin de duel PvP Practice pour Fedora Club
 authors: [DuelPlugin]
+softdepend:
+  - ProtocolLib
+  - ProtocolSupport
+  - ViaVersion
+  - ViaBackwards
+  - ViaRewind
+  - Geyser-Spigot
 
 commands:
   duel:

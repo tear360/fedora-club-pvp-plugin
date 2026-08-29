@@ -29,6 +29,8 @@ import fr.duelplugin.listeners.GameListener;
 import fr.duelplugin.listeners.LobbyItemListener;
 import fr.duelplugin.listeners.PlayerListener;
 import fr.duelplugin.managers.*;
+import com.github.retrooper.packetevents.PacketEvents;
+import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -67,9 +69,16 @@ public class DuelPlugin extends JavaPlugin {
     private final Set<UUID> buildModePlayers = ConcurrentHashMap.newKeySet();
 
     @Override
+    public void onLoad() {
+        PacketEvents.setAPI(SpigotPacketEventsBuilder.build(this));
+        PacketEvents.getAPI().load();
+    }
+
+    @Override
     public void onEnable() {
         instance = this;
         saveDefaultConfig();
+        PacketEvents.getAPI().init();
 
         arenaManager = new ArenaManager(this);
         lobbyManager = new LobbyManager(this);
@@ -148,6 +157,7 @@ public class DuelPlugin extends JavaPlugin {
         arenaManager.saveArenas();
         playerManager.saveAndUnload();
         discordBotManager.shutdown();
+        PacketEvents.getAPI().terminate();
         getLogger().info("§5Fedora Club §d- DuelPlugin disabled.");
     }
 

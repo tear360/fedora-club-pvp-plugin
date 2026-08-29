@@ -5,7 +5,6 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.channel.concrete.Category;
 import net.dv8tion.jda.api.entities.channel.concrete.ForumChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
@@ -32,14 +31,14 @@ public class DiscordBotManager extends ListenerAdapter {
     private JDA jda;
     private final String bugReportChannelId;
     private final String duelResultChannelId;
-    private final String reportCategoryId;
+    private final String reportChannelId;
     private static final String CLOSE_EMOJI = "\u2705";
 
     public DiscordBotManager(DuelPlugin plugin) {
         this.plugin = plugin;
         this.bugReportChannelId = plugin.getConfig().getString("discord.bug-report-channel-id", "");
         this.duelResultChannelId = plugin.getConfig().getString("discord.duel-result-channel-id", "");
-        this.reportCategoryId = plugin.getConfig().getString("discord.report-category-id", "");
+        this.reportChannelId = plugin.getConfig().getString("discord.report-channel-id", "");
         initBot();
     }
 
@@ -133,35 +132,35 @@ public class DiscordBotManager extends ListenerAdapter {
         });
     }
 
-    // ─── REPORT CHANNEL ────────────────────────────────────────
+    // ─── REPORT FORUM POST ─────────────────────────────────────
 
-    public void createReportChannel(String reporterName, String reportedName, String reason, int reportId) {
-        if (!isEnabled() || reportCategoryId.isBlank()) return;
+    public void createReportForumPost(String reporterName, String reportedName, String reason, int reportId) {
+        if (!isEnabled() || reportChannelId.isBlank()) return;
 
         CompletableFuture.runAsync(() -> {
             try {
-                Category category = jda.getCategoryById(reportCategoryId);
-                if (category == null) return;
+                ForumChannel forum = jda.getForumChannelById(reportChannelId);
+                if (forum == null) return;
 
-                String channelName = "report-" + reportedName.toLowerCase() + "-" + reportId;
+                String postName = "report-" + reportedName.toLowerCase().replace(' ', '-') + "-" + reportId;
 
-                category.createTextChannel(channelName)
-                        .setTopic("Report #" + reportId + " - " + reportedName)
-                        .queue(channel -> {
-                            channel.sendMessageEmbeds(new net.dv8tion.jda.api.EmbedBuilder()
-                                    .setTitle("\ud83d\udcdd Report #" + reportId)
-                                    .setColor(0xFFA500)
-                                    .addField("\ud83d\udc64 Joueur signal\u00e9", reportedName, true)
-                                    .addField("\ud83d\udc64 Signal\u00e9 par", reporterName, true)
-                                    .addField("\ud83d\udccb Raison", reason, false)
-                                    .setFooter("Fedora Club - Report")
-                                    .setTimestamp(Instant.now())
-                                    .build()).queue(message -> {
-                                        message.addReaction(Emoji.fromUnicode(CLOSE_EMOJI)).queue();
-                                    });
-                        });
+                MessageCreateData content = new MessageCreateBuilder()
+                        .addContent("\ud83d\udcdd **Report #" + reportId + " de " + reporterName + "**\n\n" + reason)
+                        .addEmbeds(new net.dv8tion.jda.api.EmbedBuilder()
+                                .setTitle("\ud83d\udcdd Report #" + reportId)
+                                .setColor(0xFFA500)
+                                .addField("\ud83d\udc64 Joueur signal\u00e9", reportedName, true)
+                                .addField("\ud83d\udc64 Signal\u00e9 par", reporterName, true)
+                                .addField("\ud83d\udccb Raison", reason, false)
+                                .setFooter("Fedora Club - Report")
+                                .setTimestamp(Instant.now())
+                                .build())
+                        .build();
+
+                forum.createForumPost(postName, content).queue(post ->
+                        post.getMessage().addReaction(Emoji.fromUnicode(CLOSE_EMOJI)).queue());
             } catch (Exception e) {
-                plugin.getLogger().warning("[Discord] Failed to create report channel: " + e.getMessage());
+                plugin.getLogger().warning("[Discord] Failed to create report forum post: " + e.getMessage());
             }
         });
     }
@@ -177,28 +176,20 @@ public class DiscordBotManager extends ListenerAdapter {
 
         long channelId = event.getChannel().getIdLong();
 
-        if (bugReportChannelId.isBlank() && reportCategoryId.isBlank()) return;
+        if (bugReportChannelId.isBlank() && reportChannelId.isBlank()) return;
 
         try {
             if (event.getChannelType() == net.dv8tion.jda.api.entities.channel.ChannelType.GUILD_PUBLIC_THREAD) {
                 ThreadChannel thread = event.getChannel().asThreadChannel();
-                if (String.valueOf(thread.getParentChannel().getIdLong()).equals(bugReportChannelId)) {
+                long parentId = thread.getParentChannel().getIdLong();
+                boolean isBug = String.valueOf(parentId).equals(bugReportChannelId);
+                boolean isReport = String.valueOf(parentId).equals(reportChannelId);
+                if (isBug || isReport) {
                     thread.sendMessage("\ud83d\udeab Report trait\u00e9 par **" + event.getUser().getName() + "**").queue();
                     thread.getManager().setLocked(true).queue();
                     Bukkit.getScheduler().runTaskLater(plugin, () -> {
                         try {
                             thread.delete().queue();
-                        } catch (Exception ignored) {}
-                    }, 100L);
-                }
-            } else if (event.getChannelType() == net.dv8tion.jda.api.entities.channel.ChannelType.TEXT) {
-                TextChannel textChannel = event.getChannel().asTextChannel();
-                if (textChannel.getParentCategory() != null &&
-                        String.valueOf(textChannel.getParentCategory().getIdLong()).equals(reportCategoryId)) {
-                    textChannel.sendMessage("\ud83d\udeab Report trait\u00e9 par **" + event.getUser().getName() + "**").queue();
-                    Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                        try {
-                            textChannel.delete().queue();
                         } catch (Exception ignored) {}
                     }, 100L);
                 }

@@ -102,6 +102,11 @@ public class PlayerListener implements Listener {
         var duel = plugin.getDuelManager().getDuel(player.getUniqueId());
         if (duel == null) return;
 
+        if (duel.isBotDuel()) {
+            plugin.getDuelManager().endDuel(player.getUniqueId(), duel.getPlayer2(), player.getUniqueId());
+            return;
+        }
+
         Player killer = player.getKiller();
         if (killer == null) {
             killer = plugin.getServer().getPlayer(duel.getOpponent(player.getUniqueId()));

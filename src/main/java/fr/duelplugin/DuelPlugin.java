@@ -63,6 +63,7 @@ public class DuelPlugin extends JavaPlugin {
     private BanManager banManager;
     private ReportManager reportManager;
     private DiscordBotManager discordBotManager;
+    private DuelBotManager duelBotManager;
     private final Set<UUID> buildModePlayers = ConcurrentHashMap.newKeySet();
 
     @Override
@@ -93,6 +94,7 @@ public class DuelPlugin extends JavaPlugin {
         banManager = new BanManager(this);
         reportManager = new ReportManager(this);
         discordBotManager = new DiscordBotManager(this);
+        duelBotManager = new DuelBotManager(this);
 
         getCommand("duel").setExecutor(new DuelCommand(this));
         getCommand("duel").setTabCompleter(new DuelCommand(this));
@@ -131,6 +133,7 @@ public class DuelPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new LobbyItemListener(this), this);
         getServer().getPluginManager().registerEvents(new ChatListener(this), this);
         getServer().getPluginManager().registerEvents(new FriendsTabListener(this), this);
+        getServer().getPluginManager().registerEvents(duelBotManager, this);
 
         updateManager.checkForUpdates();
 
@@ -141,6 +144,7 @@ public class DuelPlugin extends JavaPlugin {
     public void onDisable() {
         queueManager.cleanup();
         duelManager.cleanup();
+        duelBotManager.cleanup();
         arenaManager.saveArenas();
         playerManager.saveAndUnload();
         discordBotManager.shutdown();
@@ -171,6 +175,7 @@ public class DuelPlugin extends JavaPlugin {
     public BanManager getBanManager() { return banManager; }
     public ReportManager getReportManager() { return reportManager; }
     public DiscordBotManager getDiscordBotManager() { return discordBotManager; }
+    public DuelBotManager getDuelBotManager() { return duelBotManager; }
     public Set<UUID> getBuildModePlayers() { return Collections.unmodifiableSet(buildModePlayers); }
     public boolean isBuildMode(UUID uuid) { return buildModePlayers.contains(uuid); }
     public void setBuildMode(UUID uuid, boolean enabled) {

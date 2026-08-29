@@ -1022,6 +1022,38 @@ public class LanguageManager {
             "&dKills: &f%count%",
             "&dKills: &f%count%");
 
+        // ───────────── BOT DUEL ─────────────
+        tBoth("bot_name",
+            "&5Bot",
+            "&5Bot");
+        tBoth("bot_duel_title",
+            "&5&lCOMBAT CONTRE LE BOT",
+            "&5&lBOT FIGHT");
+        tBoth("bot_duel_started",
+            "&7Le combat contre &5%bot% &7a commencé! &7Mode: &d%mode%",
+            "&7The fight against &5%bot% &7has begun! &7Mode: &d%mode%");
+        tBoth("bot_duel_winner",
+            "&a&lVictoire! &7Tu as vaincu &5%player% &7!",
+            "&a&lVictory! &7You defeated &5%player% &7!");
+        tBoth("bot_duel_defeat",
+            "&c&lDéfaite! &7Le &5Bot &7t'a vaincu...",
+            "&c&lDefeat! &7The &5Bot &7beat you...");
+        tBoth("bot_queue_name",
+            "&5&l⚔ Duel un bot",
+            "&5&l⚔ Duel a bot");
+        tBoth("bot_queue_lore",
+            "&7Affronte un &5Bot &7entraîné!",
+            "&7Face a trained &5Bot&7!");
+        tBoth("bot_start_fail",
+            "&cImpossible de démarrer un duel contre le bot.",
+            "&cCould not start a duel against the bot.");
+        tBoth("bot_start_fail_arena",
+            "&cAucune arène de Sword disponible pour le duel contre le bot.",
+            "&cNo Sword arena available for the bot duel.");
+        tBoth("bot_in_duel",
+            "&cTu ne peux pas lancer un duel de bot pendant un duel ou une queue.",
+            "&cYou cannot start a bot duel while in a duel or queue.");
+
         // ───────────── TAB ─────────────
         tBoth("tab_mode_friends",
             " ★ Mode Amis",

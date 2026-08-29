@@ -113,6 +113,15 @@ public class LobbyItemListener implements Listener {
                     ).build());
         }
 
+        inv.setItem(23, new ItemBuilder(Material.ZOMBIE_HEAD)
+                .name(plugin.getLanguageManager().msgRaw(player, "bot_queue_name"))
+                .lore(
+                        "",
+                        plugin.getLanguageManager().msgRaw(player, "bot_queue_lore"),
+                        "",
+                        plugin.getLanguageManager().msgRaw(player, "gui_click_to_play")
+                ).build());
+
         queueGUIs.put(player.getUniqueId(), inv);
         player.openInventory(inv);
     }
@@ -277,6 +286,21 @@ public class LobbyItemListener implements Listener {
         if (item.getType() == Material.BLACK_STAINED_GLASS_PANE || item.getType() == Material.PURPLE_STAINED_GLASS_PANE) return;
 
         String name = item.getItemMeta() != null ? item.getItemMeta().getDisplayName() : "";
+
+        if (item.getType() == Material.ZOMBIE_HEAD) {
+            if (plugin.getDuelManager().isInDuel(player) || plugin.getQueueManager().isInAnyQueue(player)) {
+                player.sendMessage(plugin.getLanguageManager().msg(player, "bot_in_duel"));
+                return;
+            }
+            if (DuelGameMode.SWORD.isArenaRestricted() && plugin.getArenaManager().getAvailableArena(DuelGameMode.SWORD) == null) {
+                player.sendMessage(plugin.getLanguageManager().msg(player, "bot_start_fail_arena"));
+                return;
+            }
+            plugin.getDuelBotManager().startBotDuel(player);
+            player.closeInventory();
+            return;
+        }
+
         for (DuelGameMode mode : DuelGameMode.values()) {
             if (name.contains(mode.getColoredName())) {
                 if (plugin.getQueueManager().isInQueue(player, mode)) {

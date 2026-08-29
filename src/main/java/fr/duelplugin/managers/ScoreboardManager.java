@@ -76,6 +76,35 @@ public class ScoreboardManager {
         player.setScoreboard(board);
     }
 
+    public void createBotScoreboard(Player player, String botName, DuelGameMode mode) {
+        Scoreboard board = plugin.getTabManager().getOrCreateScoreboard(player);
+        clearSidebar(board);
+
+        Component title = Component.text()
+                .append(Component.text("FEDORA", NamedTextColor.DARK_PURPLE, TextDecoration.BOLD))
+                .append(Component.text(" "))
+                .append(Component.text("CLUB", NamedTextColor.LIGHT_PURPLE, TextDecoration.BOLD))
+                .build();
+        Objective obj = board.registerNewObjective("duel_bot", Criteria.DUMMY, title);
+        obj.setDisplaySlot(DisplaySlot.SIDEBAR);
+
+        String date = new SimpleDateFormat("dd/MM/yyyy").format(new Date());
+
+        int line = 12;
+        addLine(obj, line--, "");
+        addLine(obj, line--, "§c⚔ " + player.getName());
+        addLine(obj, line--, plugin.getLanguageManager().msgRaw(player, "sb_vs") + " §c" + botName);
+        addLine(obj, line--, "");
+        addLine(obj, line--, plugin.getLanguageManager().msgRaw(player, "sb_mode", "%mode%", mode.getDisplayName()));
+        addLine(obj, line--, plugin.getLanguageManager().msgRaw(player, "sb_kills", "%count%", String.valueOf(plugin.getPlayerManager().getDuelPlayer(player.getUniqueId()).getTotalKills())));
+        addLine(obj, line--, "");
+        addLine(obj, line--, "§7" + date);
+        addLine(obj, line--, "");
+        addLine(obj, line--, plugin.getLanguageManager().msgRaw(player, "sb_ip"));
+
+        player.setScoreboard(board);
+    }
+
     public void removeScoreboard(Player player) {
         Scoreboard board = player.getScoreboard();
         clearSidebar(board);

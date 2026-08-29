@@ -186,6 +186,77 @@ public class DuelManager {
         startCountdown(player1, player2, mode);
     }
 
+    public void startBotDuel(Player player1, UUID botUuid, Arena arena) {
+        saveInventory(player1);
+
+        if (arena != null && arena.canInteractBlocks()) {
+            arena.takeSnapshot();
+        }
+
+        Location loc1 = null;
+        if (arena != null && arena.isSetup()) {
+            loc1 = arena.resolveSpawn1();
+        } else {
+            Location lobby = plugin.getLobbyManager().resolveLobby();
+            if (lobby == null) lobby = new Location(Bukkit.getWorlds().get(0), 0, 64, 0);
+            loc1 = lobby.clone();
+        }
+
+        final Location finalLoc1 = loc1;
+
+        DuelGameMode mode = DuelGameMode.SWORD;
+        ActiveDuel duel = new ActiveDuel(player1.getUniqueId(), botUuid, mode, arena);
+        duel.setBotDuel(true);
+        activeDuels.put(player1.getUniqueId(), duel);
+        activeDuels.put(botUuid, duel);
+
+        frozenPlayers.add(player1.getUniqueId());
+
+        String botName = plugin.getLanguageManager().msgRaw(player1, "bot_name");
+
+        player1.teleportAsync(finalLoc1, org.bukkit.event.player.PlayerTeleportEvent.TeleportCause.PLUGIN).thenAccept(success -> {
+            if (!success || !player1.isOnline()) return;
+            applyKit(player1, mode);
+            player1.setHealth(20.0);
+            player1.setFoodLevel(20);
+            player1.setSaturation(20f);
+            player1.showTitle(net.kyori.adventure.title.Title.title(
+                    Component.text(plugin.getLanguageManager().msgRaw(player1, "bot_duel_title"), NamedTextColor.DARK_PURPLE, TextDecoration.BOLD),
+                    Component.text(botName + " - " + mode.getDisplayName(), NamedTextColor.LIGHT_PURPLE),
+                    net.kyori.adventure.title.Title.Times.times(java.time.Duration.ZERO, java.time.Duration.ofSeconds(2), java.time.Duration.ofSeconds(1))
+            ));
+        });
+
+        plugin.getScoreboardManager().createBotScoreboard(player1, botName, mode);
+
+        startBotCountdown(player1, mode);
+    }
+
+    private void startBotCountdown(Player player1, DuelGameMode mode) {
+        countdownActive.add(player1.getUniqueId());
+
+        new org.bukkit.scheduler.BukkitRunnable() {
+            int count = 3;
+
+            @Override
+            public void run() {
+                if (count > 0) {
+                    String msg = plugin.getLanguageManager().msgRaw(player1, "duel_countdown", "%count%", String.valueOf(count));
+                    player1.sendActionBar(Component.text(msg));
+                    count--;
+                } else {
+                    frozenPlayers.remove(player1.getUniqueId());
+                    countdownActive.remove(player1.getUniqueId());
+
+                    player1.sendActionBar(Component.text(plugin.getLanguageManager().msgRaw(player1, "duel_go")));
+                    player1.sendMessage(plugin.getLanguageManager().msg(player1, "bot_duel_started", "%bot%", plugin.getLanguageManager().msgRaw(player1, "bot_name"), "%mode%", mode.getDisplayName()));
+
+                    cancel();
+                }
+            }
+        }.runTaskTimer(plugin, 20L, 20L);
+    }
+
     private void startCountdown(Player player1, Player player2, DuelGameMode mode) {
         countdownActive.add(player1.getUniqueId());
         countdownActive.add(player2.getUniqueId());
@@ -221,6 +292,11 @@ public class DuelManager {
     public void endDuel(UUID uuid, UUID winner, UUID loser) {
         ActiveDuel duel = activeDuels.get(uuid);
         if (duel == null) return;
+
+        if (duel.isBotDuel()) {
+            endDuelFinal(duel, winner, loser);
+            return;
+        }
 
         if (duel.isFFA() && duel.getFFAParticipants() != null) {
             activeDuels.remove(uuid);
@@ -354,15 +430,19 @@ public class DuelManager {
         Player w = Bukkit.getPlayer(winner);
         Player l = Bukkit.getPlayer(loser);
 
-        DuelPlayer dw = playerManager.getDuelPlayer(winner);
-        DuelPlayer dl = playerManager.getDuelPlayer(loser);
+        boolean isBot = duel.isBotDuel();
 
-        dw.addKill(duel.getMode().getConfigName());
-        dw.addWin();
-        dl.addDeath(duel.getMode().getConfigName());
-        dl.resetWinStreak();
+        if (!isBot) {
+            DuelPlayer dw = playerManager.getDuelPlayer(winner);
+            DuelPlayer dl = playerManager.getDuelPlayer(loser);
 
-        if (!duel.isFFA()) {
+            dw.addKill(duel.getMode().getConfigName());
+            dw.addWin();
+            dl.addDeath(duel.getMode().getConfigName());
+            dl.resetWinStreak();
+        }
+
+        if (!duel.isFFA() && !isBot) {
             boolean winnerDiscord = plugin.getSettingsManager().discordNotificationsEnabled(winner);
             boolean loserDiscord = plugin.getSettingsManager().discordNotificationsEnabled(loser);
             if (winnerDiscord && loserDiscord) {
@@ -380,7 +460,7 @@ public class DuelManager {
             w.setGameMode(GameMode.SURVIVAL);
             w.showTitle(net.kyori.adventure.title.Title.title(
                     Component.text(plugin.getLanguageManager().msgRaw(w, "title_victory"), NamedTextColor.GREEN, TextDecoration.BOLD),
-                    Component.text(plugin.getLanguageManager().msgRaw(w, "duel_winner_against", "%player%", (l != null ? l.getName() : "Unknown")), NamedTextColor.GRAY),
+                    Component.text(plugin.getLanguageManager().msgRaw(w, isBot ? "bot_duel_winner" : "duel_winner_against", "%player%", (l != null ? l.getName() : "Bot")), NamedTextColor.GRAY),
                     net.kyori.adventure.title.Title.Times.times(java.time.Duration.ZERO, java.time.Duration.ofSeconds(3), java.time.Duration.ofSeconds(1))
             ));
             w.sendMessage("");
@@ -388,6 +468,8 @@ public class DuelManager {
             w.sendMessage(plugin.getLanguageManager().msg(w, "duel_winner"));
             if (duel.isFFA()) {
                 w.sendMessage(plugin.getLanguageManager().msg(w, "duel_winner_ffa"));
+            } else if (isBot) {
+                w.sendMessage(plugin.getLanguageManager().msg(w, "bot_duel_winner"));
             } else {
                 w.sendMessage(plugin.getLanguageManager().msg(w, "duel_winner_against", "%player%", (l != null ? l.getName() : "Unknown")));
             }
@@ -407,7 +489,7 @@ public class DuelManager {
             l.setGameMode(GameMode.SURVIVAL);
             l.showTitle(net.kyori.adventure.title.Title.title(
                     Component.text(plugin.getLanguageManager().msgRaw(l, "title_defeat"), NamedTextColor.RED, TextDecoration.BOLD),
-                    Component.text(plugin.getLanguageManager().msgRaw(l, "duel_eliminated_against", "%player%", (w != null ? w.getName() : "Unknown")), NamedTextColor.GRAY),
+                    Component.text(plugin.getLanguageManager().msgRaw(l, isBot ? "bot_duel_defeat" : "duel_eliminated_against", "%player%", (w != null ? w.getName() : "Unknown")), NamedTextColor.GRAY),
                     net.kyori.adventure.title.Title.Times.times(java.time.Duration.ZERO, java.time.Duration.ofSeconds(3), java.time.Duration.ofSeconds(1))
             ));
             l.sendMessage("");
@@ -415,6 +497,8 @@ public class DuelManager {
             l.sendMessage(plugin.getLanguageManager().msg(l, "duel_eliminated"));
             if (duel.isFFA()) {
                 l.sendMessage(plugin.getLanguageManager().msg(l, "duel_eliminated_ffa"));
+            } else if (isBot) {
+                l.sendMessage(plugin.getLanguageManager().msg(l, "bot_duel_defeat"));
             } else {
                 l.sendMessage(plugin.getLanguageManager().msg(l, "duel_eliminated_against", "%player%", (w != null ? w.getName() : "Unknown")));
             }
@@ -428,6 +512,10 @@ public class DuelManager {
                     plugin.getScoreboardManager().createLobbyScoreboard(l, null, null);
                 }
             }, 100L);
+        }
+
+        if (isBot) {
+            plugin.getDuelBotManager().cleanup(duel.getPlayer1());
         }
 
         for (UUID specUuid : new HashSet<>(plugin.getTabManager().getSpectators(duel.getPlayer1()))) {
@@ -679,6 +767,7 @@ public class DuelManager {
         private final long startTime;
         private UUID ffaId;
         private Set<UUID> ffaParticipants;
+        private boolean botDuel = false;
         private final Set<String> placedBlocks = new HashSet<>();
         private final Map<UUID, Integer> roundWins = new HashMap<>();
         private int maxRounds = 2;
@@ -701,6 +790,9 @@ public class DuelManager {
         public Map<UUID, Integer> getRoundWins() { return roundWins; }
         public int getMaxRounds() { return maxRounds; }
         public void setMaxRounds(int maxRounds) { this.maxRounds = maxRounds; }
+
+        public boolean isBotDuel() { return botDuel; }
+        public void setBotDuel(boolean botDuel) { this.botDuel = botDuel; }
 
         public UUID getOpponent(UUID uuid) {
             return uuid.equals(player1) ? player2 : player1;

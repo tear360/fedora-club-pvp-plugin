@@ -146,7 +146,7 @@ public class SettingsCommand implements CommandExecutor, TabCompleter, Listener 
     public void onSettingsClick(InventoryClickEvent event) {
         if (!(event.getWhoClicked() instanceof Player player)) return;
         String title = event.getView().getTitle();
-        if (!title.contains("Paramètres") && !title.contains("Settings")) return;
+        if (!title.contains("Paramètres / Settings") && !title.contains("Settings / Paramètres")) return;
 
         event.setCancelled(true);
         int slot = event.getRawSlot();

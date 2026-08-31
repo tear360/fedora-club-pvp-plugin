@@ -200,6 +200,7 @@ public class PartyGUI {
                 case DIASMP -> Material.CHORUS_FRUIT;
                 case POT -> Material.SPLASH_POTION;
                 case NETHPOT -> Material.NETHERITE_HELMET;
+                case VANILLA -> Material.NETHERITE_SWORD;
             };
             inv.setItem(slots[i], new ItemBuilder(icon)
                     .name(mode.getColoredName())

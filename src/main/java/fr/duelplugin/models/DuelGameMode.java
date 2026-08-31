@@ -9,7 +9,8 @@ public enum DuelGameMode {
     NETHPOT("NethPot", "§5🔥 NethPot", "nethpot", true, false, false),
     MACE("Mace", "§5🔨 Mace", "mace", true, false, false),
     SMP("SMP", "§5⚔ SMP", "smp", true, false, false),
-    DIASMP("DiaSMP", "§5💎 DiaSMP", "diasmp", true, true, true);
+    DIASMP("DiaSMP", "§5💎 DiaSMP", "diasmp", true, true, true),
+    VANILLA("Vanilla", "§5🌿 Vanilla", "vanilla", true, true, true);
 
     private final String displayName;
     private final String coloredName;
@@ -49,6 +50,10 @@ public enum DuelGameMode {
 
     public boolean isDiaSMP() {
         return this == DIASMP;
+    }
+
+    public boolean isSandbox() {
+        return this == VANILLA;
     }
 
     public boolean supportsRounds() {

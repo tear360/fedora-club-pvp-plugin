@@ -101,7 +101,23 @@ public class Arena {
     }
 
     public boolean canInteractBlocks() {
-        return gameMode == DuelGameMode.UHC || gameMode == DuelGameMode.DIASMP;
+        return gameMode == DuelGameMode.UHC || gameMode == DuelGameMode.DIASMP || gameMode == DuelGameMode.VANILLA;
+    }
+
+    public boolean isWallBlock(Location loc) {
+        Location min = resolveMinCorner();
+        Location max = resolveMaxCorner();
+        if (min == null || max == null || loc.getWorld() == null) return false;
+        if (!loc.getWorld().equals(min.getWorld())) return false;
+        int x = loc.getBlockX(), y = loc.getBlockY(), z = loc.getBlockZ();
+        int minX = (int) Math.min(min.getX(), max.getX());
+        int minY = (int) Math.min(min.getY(), max.getY());
+        int minZ = (int) Math.min(min.getZ(), max.getZ());
+        int maxX = (int) Math.max(min.getX(), max.getX());
+        int maxY = (int) Math.max(min.getY(), max.getY());
+        int maxZ = (int) Math.max(min.getZ(), max.getZ());
+        return x < minX || x > maxX || z < minZ || z > maxZ || y < minY || y > maxY
+                || x == minX || x == maxX || z == minZ || z == maxZ || y == minY || y == maxY;
     }
 
     public void takeSnapshot() {

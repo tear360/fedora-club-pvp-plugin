@@ -31,6 +31,7 @@ public class Kit {
             case MACE -> giveMaceKit(inv);
             case SMP -> giveSMPKit(inv);
             case DIASMP -> giveDiaSMPKit(inv);
+            case VANILLA -> giveVanillaKit(inv);
         }
     }
 
@@ -229,6 +230,48 @@ public class Kit {
         }
         for (int i = 32; i <= 34; i++) {
             inv.setItem(i, splashWithDuration(PotionEffectType.FIRE_RESISTANCE, 0, 9600));
+        }
+    }
+
+    private static void giveVanillaKit(PlayerInventory inv) {
+        inv.setItem(0, ench(Material.NETHERITE_SWORD, Enchantment.SHARPNESS, 5, Enchantment.UNBREAKING, 3));
+        inv.setItem(1, ench(Material.NETHERITE_PICKAXE, Enchantment.EFFICIENCY, 5, Enchantment.UNBREAKING, 3));
+        inv.setItem(2, ench(Material.CROSSBOW, Enchantment.QUICK_CHARGE, 3, Enchantment.MULTISHOT, 1));
+        inv.setItem(3, new ItemStack(Material.RESPAWN_ANCHOR, 64));
+        inv.setItem(4, new ItemStack(Material.RESPAWN_ANCHOR, 64));
+        inv.setItem(5, new ItemStack(Material.GLOWSTONE, 64));
+        inv.setItem(6, new ItemStack(Material.GLOWSTONE, 64));
+        inv.setItem(7, new ItemStack(Material.OBSIDIAN, 64));
+        inv.setItem(8, new ItemStack(Material.OBSIDIAN, 64));
+        inv.setItem(9, new ItemStack(Material.END_CRYSTAL, 64));
+        inv.setItem(10, new ItemStack(Material.END_CRYSTAL, 64));
+        inv.setItem(11, new ItemStack(Material.ENDER_PEARL, 16));
+        inv.setItem(12, new ItemStack(Material.ENDER_PEARL, 16));
+        inv.setItem(13, new ItemStack(Material.ENDER_PEARL, 16));
+        inv.setItem(14, new ItemStack(Material.ENDER_PEARL, 16));
+        inv.setItemInOffHand(ench(Material.SHIELD, Enchantment.UNBREAKING, 3));
+
+        ItemStack shulker = new ItemStack(Material.SHULKER_BOX);
+        ItemMeta shulkerMeta = shulker.getItemMeta();
+        if (shulkerMeta instanceof BlockStateMeta bsm) {
+            ShulkerBox shulkerBox = (ShulkerBox) bsm.getBlockState();
+            for (int i = 0; i < 27; i++) {
+                shulkerBox.getInventory().setItem(i, new ItemStack(Material.TOTEM_OF_UNDYING));
+            }
+            bsm.setBlockState(shulkerBox);
+            shulker.setItemMeta(bsm);
+        }
+        inv.setItem(15, shulker);
+
+        inv.setArmorContents(new ItemStack[]{
+                ench(Material.NETHERITE_BOOTS, Enchantment.PROTECTION, 4, Enchantment.UNBREAKING, 3, Enchantment.MENDING, 1, Enchantment.FEATHER_FALLING, 4),
+                ench(Material.NETHERITE_LEGGINGS, Enchantment.PROTECTION, 4, Enchantment.UNBREAKING, 3, Enchantment.MENDING, 1, Enchantment.SWIFT_SNEAK, 3),
+                ench(Material.NETHERITE_CHESTPLATE, Enchantment.PROTECTION, 4, Enchantment.UNBREAKING, 3, Enchantment.MENDING, 1),
+                ench(Material.NETHERITE_HELMET, Enchantment.PROTECTION, 4, Enchantment.UNBREAKING, 3, Enchantment.MENDING, 1)
+        });
+
+        for (int i = 16; i <= 35; i++) {
+            inv.setItem(i, new ItemStack(Material.TOTEM_OF_UNDYING));
         }
     }
 

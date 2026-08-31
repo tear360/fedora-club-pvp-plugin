@@ -441,6 +441,7 @@ public class KitEditorGUI {
             case DIASMP -> Material.CHORUS_FRUIT;
             case POT -> Material.SPLASH_POTION;
             case NETHPOT -> Material.NETHERITE_HELMET;
+            case VANILLA -> Material.NETHERITE_SWORD;
         };
     }
 }

@@ -45,6 +45,14 @@ public class GameListener implements Listener {
             return;
         }
 
+        if (mode.isSandbox()) {
+            if (duel.getArena() != null && duel.getArena().isWallBlock(event.getBlock().getLocation())) {
+                event.setCancelled(true);
+                player.sendMessage(plugin.getLanguageManager().msg(player, "gamemode_disabled"));
+            }
+            return;
+        }
+
         if (!duel.isPlayerPlacedBlock(event.getBlock().getLocation())) {
             event.setCancelled(true);
             player.sendMessage(plugin.getLanguageManager().msg(player, "gamemode_disabled"));

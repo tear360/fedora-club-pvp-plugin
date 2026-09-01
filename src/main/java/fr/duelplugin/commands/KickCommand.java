@@ -26,7 +26,7 @@ public class KickCommand implements CommandExecutor {
         }
 
         if (args.length < 1) {
-            sender.sendMessage("§dUsage: /kick <joueur> [raison]");
+            sender.sendMessage("§dUsage: /kick <player> [reason]");
             return true;
         }
 
@@ -52,23 +52,23 @@ public class KickCommand implements CommandExecutor {
         Component kickScreen = Component.empty()
                 .append(Component.text("═══════════════════════════════", NamedTextColor.DARK_PURPLE))
                 .appendNewline()
-                .append(Component.text("Vous avez été kické!", NamedTextColor.RED, TextDecoration.BOLD))
+                .append(Component.text("You have been kicked!", NamedTextColor.RED, TextDecoration.BOLD))
                 .appendNewline()
                 .appendNewline()
-                .append(Component.text("Raison: ", NamedTextColor.GRAY)
-                        .append(Component.text(finalReason.isEmpty() ? "Aucune" : finalReason, NamedTextColor.WHITE)))
+                .append(Component.text("Reason: ", NamedTextColor.GRAY)
+                        .append(Component.text(finalReason.isEmpty() ? "None" : finalReason, NamedTextColor.WHITE)))
                 .appendNewline()
-                .append(Component.text("Par: ", NamedTextColor.GRAY)
+                .append(Component.text("By: ", NamedTextColor.GRAY)
                         .append(Component.text(kickerName, NamedTextColor.RED)))
                 .appendNewline()
                 .appendNewline()
-                .append(Component.text("Vous pouvez vous reconnecter.", NamedTextColor.GRAY))
+                .append(Component.text("You can reconnect now.", NamedTextColor.GRAY))
                 .appendNewline()
                 .append(Component.text("═══════════════════════════════", NamedTextColor.DARK_PURPLE));
 
         target.kick(kickScreen);
-        sender.sendMessage("§a§l" + target.getName() + " §7a été kické.");
-        if (!reason.isEmpty()) sender.sendMessage("§7Raison: §f" + reason);
+        sender.sendMessage("§a§l" + target.getName() + " §7has been kicked.");
+        if (!reason.isEmpty()) sender.sendMessage("§7Reason: §f" + reason);
 
         return true;
     }

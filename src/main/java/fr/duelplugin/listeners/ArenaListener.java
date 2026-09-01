@@ -28,7 +28,8 @@ public class ArenaListener implements Listener {
         String title = event.getView().getTitle();
         String cleanTitle = title.replaceAll("§[0-9a-fk-or]", "");
         if (!cleanTitle.contains("Sélection de mode") && !cleanTitle.contains("Mode Selection")
-                && !cleanTitle.contains("Défi →") && !cleanTitle.contains("Challenge →")) return;
+                && !cleanTitle.contains("Défi →") && !cleanTitle.contains("Challenge →")
+                && !cleanTitle.equals(plugin.getLanguageManager().msgRaw(player, "gui_mode_select").replaceAll("§[0-9a-fk-or]", ""))) return;
 
         event.setCancelled(true);
         ItemStack item = event.getCurrentItem();

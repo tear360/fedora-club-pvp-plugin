@@ -1,284 +1,214 @@
-# Fedora Club - Duel Plugin
+# DuelPlugin
 
-Plugin de duel PvP pour **Paper Minecraft 1.21.4**, créé pour le serveur **Fedora Club**.
+A PvP duel / practice plugin for **Paper Minecraft 1.21.4** with:
 
-**IP :** `fedora.free-node.ovh`
+- 1v1 duels with selectable game modes
+- Party system (invite, FFA, leadership transfer)
+- Friend system
+- Queue system
+- Bot duels (fight a bot that looks like a real player)
+- Custom kits + kit editor (with VIP trims)
+- Arena management with per-mode arenas
+- Block-break sandbox arenas (Vanilla / UHC / DiaSMP)
+- Scoreboard, tab list, spectator mode
+- Join/quit and chat messages
+- Discord integration (JDA bot): duel results, bug reports, player reports
+- Chat filter
+- Moderation commands (ban, kick, tempban, mute, unban, unmute)
+- Multilingual: **English, Français, Deutsch, Español**
 
 ---
 
 ## Installation
 
-1. Télécharge le fichier `DuelPlugin-1.0.0.jar` depuis les [Releases](https://github.com/tear360/fedora-club-pvp-plugin/releases) ou compile-le toi-même (voir ci-dessous).
-2. Place le `.jar` dans le dossier `plugins/` de ton serveur Paper 1.21.4.
-3. Redémarre le serveur.
-4. Le fichier `config.yml` sera généré automatiquement dans `plugins/DuelPlugin/`.
+1. Download the latest `DuelPlugin-*.jar` from the [Releases](https://github.com/tear360/fedora-club-pvp-plugin/releases) page, or build it yourself (see below).
+2. Put the `.jar` inside the `plugins/` folder of your Paper 1.21.4 server.
+3. Restart the server.
+4. `config.yml` and the language files under `plugins/DuelPlugin/lang/` are generated automatically.
 
-### Compiler le plugin
+### Building from source
 
 ```bash
-# Besoin de Maven installé
+# Requires Maven and JDK 21+
 git clone https://github.com/tear360/fedora-club-pvp-plugin.git
 cd fedora-club-pvp-plugin
 mvn clean package
 ```
 
-Le JAR sera dans `target/DuelPlugin-1.0.0.jar`.
-
----
-
-## Commandes
-
-### Joueurs
-
-| Commande | Description |
-|----------|-------------|
-| `/duel <joueur>` | Ouvre le menu pour choisir un mode de jeu, puis envoie la demande |
-| `/acceptduel [joueur]` | Accepte un duel en attente |
-| `/denyduel [joueur]` | Refuse un duel en attente |
-
-**Comment ça marche :**
-1. Tape `/duel NomDuJoueur`
-2. Un menu GUI s'ouvre avec tous les modes de jeu
-3. Clique sur le mode que tu veux
-4. Le joueur cible reçoit un message dans le chat avec des boutons cliquables **[ACCEPTER]** et **[REFUSER]**
-5. Il peut cliquer sur le bouton ou taper `/acceptduel`
-
-### Admin (permission `duelplugin.admin`)
-
-| Commande | Description |
-|----------|-------------|
-| `/da setlobby` | Définit le point d'apparition du lobby |
-| `/da create <nom> <mode>` | Crée une arène |
-| `/da delete <nom>` | Supprime une arène |
-| `/da setspawn <nom> <1\|2>` | Définit le spawn du joueur 1 ou 2 |
-| `/da setmin <nom>` | Définit le coin minimum de la zone |
-| `/da setmax <nom>` | Définit le coin maximum de la zone |
-| `/da info <nom>` | Affiche les infos d'une arène |
-| `/da list` | Liste toutes les arènes |
-| `/da reload` | Recharge la configuration |
-
----
-
-## Modes de jeu
-
-| Mode | Armure | Arme principale | blocs cassables |
-|------|--------|-----------------|-----------------|
-| **Sword** | Diamond Prot 3 | Diamond Sword Sharp 5 + Sweeping 3 | Non |
-| **Axe** | Diamond (base) | Diamond Axe + Sword Sharp 5 | Non |
-| **UHC** | Diamond Prot 2-3 | Diamond Sword Sharp 3 + Axe Eff 3 | **Oui** |
-| **Pot** | Diamond Prot 4 + Unb 3 | Diamond Sword Sharp 5 + Unb 3 | Non |
-| **NethPot** | Netherite Prot 4 + Unb 3 + Mending | Netherite Sword Sharp 5 + Unb 3 | Non |
-| **Mace** | Netherite Prot 4 | Mace Breach 4 + Density 5/Wind Burst 1 | Non |
-| **Vanilla** | Diamond Prot 3-4 + Unb 3 | Diamond Sword Sharp 5 + Unb 3 | **Oui** |
-| **SMP** | Netherite Prot 4 + Mending | 2x Netherite Swords (KB I + normal) | Non |
-| **DiaSMP** | Diamond Prot 4 + Mending | Diamond Sword + Axe Sharp 5 | **Oui** |
-| **Spear-Mace** | Netherite Prot 4 | Mace Density 5 + Trident Impaling 5 | Non |
-
-### Détails des kits
-
-<details>
-<summary><b>Sword</b></summary>
-
-- Diamond Sword : Sharpness 5, Sweeping Edge 3, Unbreaking 3
-- Diamond Armor : Protection 3, Unbreaking 3 (toutes pièces)
-- Bow : Power 2, Unbreaking 3
-- 32 Flèches, 8 Ender Pearls, 8 Golden Apples
-- Shield : Unbreaking 3
-</details>
-
-<details>
-<summary><b>Axe</b></summary>
-
-- Diamond Sword : Sharpness 5, Unbreaking 3
-- Diamond Axe : Sharpness 5, Unbreaking 3
-- Diamond Armor (base, sans enchants)
-- Shield : Unbreaking 3
-- Bow, Crossbow, 6 Flèches
-- 8 Golden Apples
-</details>
-
-<details>
-<summary><b>UHC</b></summary>
-
-- Diamond Helmet Prot 3 / Chestplate Prot 2 / Leggings Prot 2 / Boots Prot 3
-- Diamond Sword : Sharpness 3
-- Diamond Axe : Efficiency 3
-- Bow : Power 1 / Crossbow : Piercing 1
-- Diamond Pickaxe : Efficiency 3
-- Shield
-- 8 Golden Apples, 2 Golden Heads
-- 4 Water Buckets, 2 Lava Buckets
-- 2x64 Oak Planks
-- 10 Flèches (+1 chargée dans l'arbalète)
-- **Pas de régénération naturelle**
-</details>
-
-<details>
-<summary><b>Pot</b></summary>
-
-- Diamond Sword : Sharpness 5, Unbreaking 3
-- Diamond Armor : Protection 4, Unbreaking 3
-- 26 Splash Potions de Healing II
-- 3 Strength II, 3 Speed II, 3 Regeneration II (Splash)
-- 5 Steaks
-</details>
-
-<details>
-<summary><b>NethPot</b></summary>
-
-- Netherite Sword : Sharpness 5, Unbreaking 3
-- Netherite Armor : Protection 4, Unbreaking 3, Mending
-- 5 Sets Strength II + Speed II (Splash)
-- 64 Golden Apples, 64 XP Bottles
-- 2 Totems of Undying
-</details>
-
-<details>
-<summary><b>Mace</b></summary>
-
-- Netherite Sword : Sharpness 5, Unbreaking 3
-- Netherite Axe : Sharpness 5, Unbreaking 3
-- Mace 1 : Breach 4, Unbreaking 3
-- Mace 2 : Density 5, Wind Burst 1, Unbreaking 3
-- Netherite Armor : Protection 4, Boots Feather Falling 4
-- Shield : Unbreaking 3, Mending
-- Elytra (150 durabilité)
-- 2x64 Golden Apples, 4x64 Ender Pearls, 2x64 Wind Charges
-- 2 Totems of Undying
-- 11 Strength II + 10 Speed II (Splash)
-- Shulker Box : 14 Speed II + 13 Strength II
-</details>
-
-<details>
-<summary><b>Vanilla</b></summary>
-
-- Diamond Sword : Sharpness 5, Unbreaking 3
-- Diamond Armor : Protection 3-4, Unbreaking 3
-- Bow : Power 2, Unbreaking 3
-- 32 Flèches, 8 Ender Pearls, 8 Golden Apples
-- Shield : Unbreaking 3
-- Oak Planks, Cobblestone, Water Bucket
-- **Les joueurs peuvent casser/poser leurs propres blocs**
-</details>
-
-<details>
-<summary><b>SMP</b></summary>
-
-- Netherite Sword 1 : Sharpness 5, Fire Aspect 2, Knockback 1, Unbreaking 3
-- Netherite Sword 2 : Sharpness 5, Fire Aspect 2, Unbreaking 3
-- Netherite Axe : Sharpness 5, Unbreaking 3
-- Netherite Armor : Protection 4, Unbreaking 3, Mending, Boots Feather Falling 4, Leggings Swift Sneak 3
-- Shield : Unbreaking 3, Mending
-- 2x64 Golden Apples, 2x64 Ender Pearls, 64 XP Bottles
-- 1 Totem of Undying
-- 12 Strength II + Speed II (Splash), 3 Fire Resistance 8min
-</details>
-
-<details>
-<summary><b>DiaSMP</b></summary>
-
-- Diamond Sword : Sharpness 5, Fire Aspect 2, Unbreaking 3
-- Diamond Axe : Sharpness 5, Unbreaking 3
-- Netherite Pickaxe : Efficiency 5, Silk Touch, Mending, Unbreaking 3
-- Diamond Armor : Protection 4, Unbreaking 3, Mending, Boots Feather Falling 4, Leggings Swift Sneak 3
-- Shield : Unbreaking 3, Mending
-- 2x64 Golden Apples, 2x64 Ender Pearls, 64 XP Bottles
-- 1 Totem of Undying
-- 64 Oak Logs, 64 Cobwebs, 64 Chorus Fruit
-- 16 Strength II, 3 Speed II, 3 Fire Resistance 8min (Splash)
-- **Les joueurs peuvent casser/poser leurs propres blocs**
-</details>
-
-<details>
-<summary><b>Spear-Mace</b></summary>
-
-- Netherite Sword : Sharpness 5, Sweeping Edge 3, Knockback 1, Unbreaking 3
-- Netherite Axe : Sharpness 5, Unbreaking 3
-- Trident : Impaling 5, Unbreaking 3
-- Mace : Density 5, Wind Burst 1, Unbreaking 3
-- Netherite Armor : Protection 4, Boots Feather Falling 4
-- Shield : Unbreaking 3, Mending
-- Elytra, 16 Ender Pearls, 64 Golden Apples, 64 Wind Charges
-- 2 Totems of Undying
-</details>
-
----
-
-## Créer une arène
-
-1. **Créer l'arène :**
-   ```
-   /da create nomArena Sword
-   ```
-
-2. **Se positionner au spawn du joueur 1 et taper :**
-   ```
-   /da setspawn nomArena 1
-   ```
-
-3. **Se positionner au spawn du joueur 2 et taper :**
-   ```
-   /da setspawn nomArena 2
-   ```
-
-4. **Définir la zone (optionnel, requis pour les modes avec blocs) :**
-   ```
-   /da setmin nomArena    # Se placer au coin minimum
-   /da setmax nomArena    # Se placer au coin maximum
-   ```
-
-5. **Vérifier la config :**
-   ```
-   /da info nomArena
-   ```
-
-### Modes avec interaction de blocs
-
-Pour les modes **Vanilla**, **UHC** et **DiaSMP**, les joueurs peuvent casser et poser leurs propres blocs pendant le duel. Les blocs de l'arène sont protégés : un snapshot est pris au début du duel et tout est restauré à la fin.
-
-Les autres modes (Sword, Axe, Pot, NethPot, Mace, SMP, Spear-Mace) n'ont aucune interaction avec les blocs de l'arène.
+The JAR is produced in `target/DuelPlugin-<version>.jar`.
 
 ---
 
 ## Configuration
 
-Le fichier `config.yml` se trouve dans `plugins/DuelPlugin/config.yml` :
+Everything is configured in `plugins/DuelPlugin/config.yml`:
 
 ```yaml
+# Server name / IP used in scoreboard, tab and Discord embeds
+server-info:
+  name: "My Server"
+  ip: "play.example.com"
+
+# Default language for new players: EN, FR, DE, ES
 messages:
-  prefix: "&8[&6Fedora &eClub&8] &r"
-  # Tous les messages du plugin sont personnalisables ici
+  default-language: "EN"
+  prefix: "&8[&6Duel &ePlugin&8] &r"
 
-scoreboard:
-  title: "&6&lFEDORA &e&lCLUB"
-  # Le scoreboard affiche le nom du serveur en sidebar
+# Optional GitHub auto-update (owner/repo), token only for private repos
+github-repo: ""
+github-token: ""
 
-lobby:
-  world: world
-  spawn-x: 0
-  spawn-y: 64
-  spawn-z: 0
+# Discord bot (JDA)
+discord:
+  bot-token: ""
+  bug-report-channel-id: ""
+  duel-result-channel-id: ""
+  report-channel-id: ""
 ```
 
-Pour changer le lobby, tape `/da setlobby` depuis l'endroit souhaité.
+### Languages
+
+Each language has its own editable file in `plugins/DuelPlugin/lang/`:
+
+- `en_us.yml`
+- `fr_fr.yml`
+- `de_de.yml`
+- `es_es.yml`
+
+Every message in the plugin is a key in these files, so you can translate or reword anything. Color codes (`&a`, `&c`, ...) and placeholders (`%player%`, `%mode%`, ...) are supported.
+
+---
+
+## Commands
+
+### Players
+
+| Command | Description |
+|---------|-------------|
+| `/duel <player>` | Open the mode selector and send a duel request |
+| `/acceptduel [player]` | Accept a pending duel |
+| `/denyduel [player]` | Decline a pending duel |
+| `/f add <player>` | Send a friend request |
+| `/f accept` / `/f deny` | Accept / decline the last friend request |
+| `/f remove <player>` | Remove a friend |
+| `/f list` | List your friends |
+| `/party create` | Create a party |
+| `/party invite <player>` | Invite a player |
+| `/party join` | Accept an invitation |
+| `/party leave` | Leave the party |
+| `/party kick <player>` | Kick a member |
+| `/party transfer <player>` | Transfer leadership |
+| `/party disband` | Disband the party |
+| `/spec <player>` | Spectate a player in duel |
+| `/report <player> <reason>` | Report a player |
+| `/bugreport <bug>` | Report a bug (to Discord if configured) |
+| `/settings` | Player settings (friends, duels, language) |
+
+### Admin (permission `duelplugin.admin`)
+
+| Command | Description |
+|---------|-------------|
+| `/da setlobby` | Set the lobby spawn here |
+| `/da lobby build` | Toggle lobby build mode |
+| `/da arena create <name> <mode>` | Create an arena |
+| `/da arena delete <name>` | Delete an arena |
+| `/da arena setspawn <name> <1\|2>` | Set spawn 1 or 2 |
+| `/da arena setmin <name>` | Set minimum corner (block modes) |
+| `/da arena setmax <name>` | Set maximum corner (block modes) |
+| `/da arena info <name>` | Show arena info |
+| `/da arena list` | List arenas |
+| `/da arena tp <name>` | Teleport to an arena |
+| `/da reload` | Reload configuration |
+| `/vip set <player>` | Give VIP |
+| `/vip remove <player>` | Remove VIP |
+| `/ban <player> [duration] [reason]` | Ban a player |
+| `/kick <player> [reason]` | Kick a player |
+| `/tempban <player> <duration> [reason]` | Temporarily ban |
+| `/mute <player> <duration> [reason]` | Mute a player |
+| `/unban <player>` | Unban a player |
+| `/unmute <player>` | Unmute a player |
+
+---
+
+## Game Modes
+
+| Mode | Armor | Main weapon | Breakable blocks |
+|------|-------|-------------|------------------|
+| **Sword** | Diamond Prot 3 | Diamond Sword Sharp 5 + Sweeping 3 | No |
+| **Axe** | Diamond (base) | Diamond Axe + Sword Sharp 5 | No |
+| **UHC** | Diamond Prot 2-3 | Diamond Sword Sharp 3 + Axe Eff 3 | **Yes** |
+| **Pot** | Diamond Prot 4 + Unb 3 | Diamond Sword Sharp 5 + Unb 3 | No |
+| **NethPot** | Netherite Prot 4 + Unb 3 + Mending | Netherite Sword Sharp 5 + Unb 3 | No |
+| **Mace** | Netherite Prot 4 | Mace Breach 4 + Density 5 / Wind Burst 1 | No |
+| **Vanilla** | Netherite Prot 4 + Unb 3 + Mending | Netherite Sword Sharp 5 | **Yes** |
+| **SMP** | Netherite Prot 4 + Mending | 2x Netherite Swords (KB I + normal) | No |
+| **DiaSMP** | Diamond Prot 4 + Mending | Diamond Sword + Axe Sharp 5 | **Yes** |
+| **Spear-Mace** | Netherite Prot 4 | Mace Density 5 + Trident Impaling 5 | No |
+
+All kits are fully customizable through the kit editor and/or directly in the language kit files.
+
+---
+
+## Setting up an arena
+
+1. Create the arena:
+   ```
+   /da arena create myArena Sword
+   ```
+2. Stand at player 1's spawn and run:
+   ```
+   /da arena setspawn myArena 1
+   ```
+3. Stand at player 2's spawn and run:
+   ```
+   /da arena setspawn myArena 2
+   ```
+4. (Optional, required for block modes) Define the protected area:
+   ```
+   /da arena setmin myArena    # stand at the minimum corner
+   /da arena setmax myArena    # stand at the maximum corner
+   ```
+5. Verify:
+   ```
+   /da arena info myArena
+   ```
+
+### Block modes (Vanilla / UHC / DiaSMP)
+
+In these modes players can break and place blocks during the duel. A snapshot is taken at the start and everything is restored when the duel ends. The outer walls of the arena are unbreakable.
+
+---
+
+## Discord integration
+
+The plugin can run a JDA bot to send:
+
+- Duel results to a channel
+- `/bugreport` submissions as forum posts
+- `/report` submissions as forum posts
+
+Configure it in `config.yml` under `discord:`. Leave `bot-token` empty to disable. The bot needs these permissions on your server: `Send Messages`, `Create Public Threads`, `Create Private Threads`, `Manage Threads`, `Read Message History`, `Add Reactions`.
 
 ---
 
 ## Permissions
 
-| Permission | Description | Défaut |
-|------------|-------------|--------|
-| `duelplugin.admin` | Commandes admin (/da) | OP |
-| `duelplugin.play` | Peut jouer aux duels | true (tous) |
+| Permission | Description | Default |
+|------------|-------------|---------|
+| `duelplugin.admin` | Admin commands (/da) and sub-permissions | OP |
+| `duelplugin.play` | Can play duels | true (everyone) |
+| `duelplugin.vip` | VIP features | OP |
+| `duelplugin.acceptduel` | Can accept duel requests | OP |
+| `duelplugin.bugreport.bypass` | Bypass /bugreport cooldown | OP |
 
 ---
 
 ## Tech
 
-- **Version Minecraft :** Paper 1.21.4
-- **API :** Paper API
-- **Java :** 21+
-- **Build :** Maven
+- **Minecraft version:** Paper 1.21.4
+- **API:** Paper API
+- **Java:** 21+
+- **Build:** Maven (maven-shade-plugin bundles dependencies)
 
 ## License
 

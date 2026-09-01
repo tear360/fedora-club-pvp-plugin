@@ -25,7 +25,7 @@ public class UnbanCommand implements CommandExecutor {
         }
 
         if (args.length < 1) {
-            sender.sendMessage("§dUsage: /unban <joueur>");
+            sender.sendMessage("§dUsage: /unban <player>");
             return true;
         }
 
@@ -34,12 +34,12 @@ public class UnbanCommand implements CommandExecutor {
         UUID uuid = offline.getUniqueId();
 
         if (!plugin.getBanManager().isBanned(uuid)) {
-            sender.sendMessage("§c" + targetName + " n'est pas banni.");
+            sender.sendMessage("§c" + targetName + " is not banned.");
             return true;
         }
 
         plugin.getBanManager().unban(uuid);
-        sender.sendMessage("§a§l" + targetName + " §7a été débanni.");
+        sender.sendMessage("§a§l" + targetName + " §7has been unbanned.");
 
         return true;
     }

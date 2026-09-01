@@ -14,8 +14,7 @@ import java.util.logging.Level;
 public class UpdateManager {
 
     private final DuelPlugin plugin;
-    private static final String GITHUB_REPO = "tear360/fedora-club-pvp-plugin";
-    private static final String API_URL = "https://api.github.com/repos/" + GITHUB_REPO + "/releases/latest";
+    private static final String API_URL = "https://api.github.com/repos/%s/releases/latest";
     private boolean updateAvailable = false;
     private String latestVersion = "";
     private String downloadUrl = "";
@@ -24,16 +23,22 @@ public class UpdateManager {
         this.plugin = plugin;
     }
 
+    private String repoUrl() {
+        return String.format(API_URL, plugin.getConfig().getString("github-repo", ""));
+    }
+
     public void checkForUpdates() {
         new BukkitRunnable() {
             @Override
             public void run() {
+                String repo = plugin.getConfig().getString("github-repo", "");
+                if (repo == null || repo.trim().isEmpty()) return;
                 try {
                     String currentVersion = plugin.getDescription().getVersion();
-                    String jsonResponse = fetchJson(API_URL);
+                    String jsonResponse = fetchJson(repoUrl());
 
                     if (jsonResponse == null) {
-                        plugin.getLogger().warning("§5[Update] §cImpossible de contacter GitHub.");
+                        plugin.getLogger().warning("§5[Update] §cCould not contact GitHub.");
                         return;
                     }
 
@@ -41,25 +46,25 @@ public class UpdateManager {
                     downloadUrl = extractDownloadUrl(jsonResponse);
 
                     if (latestVersion == null || latestVersion.isEmpty()) {
-                        plugin.getLogger().warning("§5[Update] §cImpossible de lire la version latest.");
+                        plugin.getLogger().warning("§5[Update] §cCould not read the latest version.");
                         return;
                     }
 
                     if (isNewerVersion(latestVersion, currentVersion)) {
                         updateAvailable = true;
-                        plugin.getLogger().info("§5[Update] §dNouvelle version disponible: §f" + latestVersion + " §d(Vous: §f" + currentVersion + "§d)");
-                        plugin.getLogger().info("§5[Update] §dTéléchargement en cours...");
+                        plugin.getLogger().info("§5[Update] §dNew version available: §f" + latestVersion + " §d(Current: §f" + currentVersion + "§d)");
+                        plugin.getLogger().info("§5[Update] §dDownloading...");
 
                         boolean downloaded = downloadUpdate(downloadUrl, currentVersion);
 
                         if (downloaded) {
-                            plugin.getLogger().info("§5[Update] §aMise à jour téléchargée! Redémarrez le serveur pour appliquer.");
+                            plugin.getLogger().info("§5[Update] §aUpdate downloaded! Restart the server to apply it.");
                         }
                     } else {
-                        plugin.getLogger().info("§5[Update] §aVous êtes à jour (§f" + currentVersion + "§a).");
+                        plugin.getLogger().info("§5[Update] §aYou are up to date (§f" + currentVersion + "§a).");
                     }
                 } catch (Exception e) {
-                    plugin.getLogger().log(Level.WARNING, "§5[Update] §cErreur lors de la vérification:", e);
+                    plugin.getLogger().log(Level.WARNING, "§5[Update] §cError during update check:", e);
                 }
             }
         }.runTaskAsynchronously(plugin);
@@ -67,14 +72,14 @@ public class UpdateManager {
 
     private String fetchJson(String urlString) throws IOException {
         String token = plugin.getConfig().getString("github-token", "");
-        plugin.getLogger().info("§5[Update] §dToken configuré: " + (token != null && !token.isEmpty() ? "oui (" + token.substring(0, Math.min(4, token.length())) + "...)" : "non"));
+        plugin.getLogger().info("§5[Update] §dToken configured: " + (token != null && !token.isEmpty() ? "yes (" + token.substring(0, Math.min(4, token.length())) + "...)" : "no"));
 
         URL url = new URL(urlString);
-        plugin.getLogger().info("§5[Update] §dRequête vers: " + urlString);
+        plugin.getLogger().info("§5[Update] §dRequest to: " + urlString);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("GET");
         conn.setRequestProperty("Accept", "application/vnd.github.v3+json");
-        conn.setRequestProperty("User-Agent", "FedoraClub-DuelPlugin");
+        conn.setRequestProperty("User-Agent", "DuelPlugin");
         if (token != null && !token.isEmpty()) {
             conn.setRequestProperty("Authorization", "token " + token);
         }
@@ -82,16 +87,16 @@ public class UpdateManager {
         conn.setReadTimeout(10000);
 
         int code = conn.getResponseCode();
-        plugin.getLogger().info("§5[Update] §dRéponse GitHub: HTTP " + code);
+        plugin.getLogger().info("§5[Update] §dGitHub response: HTTP " + code);
         if (code != 200) {
-            plugin.getLogger().warning("§5[Update] §cGitHub a répondu avec le code: " + code);
+            plugin.getLogger().warning("§5[Update] §cGitHub responded with code: " + code);
             if (code == 404) {
-                plugin.getLogger().warning("§5[Update] §cDépôt ou release introuvable.");
+                plugin.getLogger().warning("§5[Update] §cRepository or release not found.");
             } else if (code == 401 || code == 403) {
                 if (token == null || token.isEmpty()) {
-                    plugin.getLogger().warning("§5[Update] §cDépôt privé. Ajoutez un token dans config.yml (github-token).");
+                    plugin.getLogger().warning("§5[Update] §cPrivate repository. Add a token in config.yml (github-token).");
                 } else {
-                    plugin.getLogger().warning("§5[Update] §cToken invalide ou sans permission.");
+                    plugin.getLogger().warning("§5[Update] §cInvalid token or insufficient permissions.");
                 }
             }
             return null;
@@ -147,7 +152,7 @@ public class UpdateManager {
             File newJar = new File(pluginsFolder, "DuelPlugin-" + latestVersion + ".jar");
 
             if (newJar.exists()) {
-                plugin.getLogger().info("§5[Update] §dLe fichier existe déjà: " + newJar.getName());
+                plugin.getLogger().info("§5[Update] §dThe file already exists: " + newJar.getName());
                 return true;
             }
 
@@ -155,7 +160,7 @@ public class UpdateManager {
 
             URL url = new URL(urlString);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestProperty("User-Agent", "FedoraClub-DuelPlugin");
+            conn.setRequestProperty("User-Agent", "DuelPlugin");
             conn.setRequestProperty("Accept", "application/octet-stream");
             if (token != null && !token.isEmpty()) {
                 conn.setRequestProperty("Authorization", "token " + token);
@@ -165,7 +170,7 @@ public class UpdateManager {
 
             int code = conn.getResponseCode();
             if (code != 200) {
-                plugin.getLogger().warning("§5[Update] §cErreur de téléchargement: HTTP " + code);
+                plugin.getLogger().warning("§5[Update] §cDownload error: HTTP " + code);
                 plugin.getLogger().warning("§5[Update] §cURL: " + urlString);
                 return false;
             }
@@ -185,12 +190,12 @@ public class UpdateManager {
             in.close();
             conn.disconnect();
 
-            plugin.getLogger().info("§5[Update] §aTéléchargé: §f" + newJar.getName() + " §a(" + (totalBytes / 1024) + " KB)");
-            plugin.getLogger().info("§5[Update] §dSupprimez l'ancien JAR (§f" + currentJar.getName() + "§d) après redémarrage.");
+            plugin.getLogger().info("§5[Update] §aDownloaded: §f" + newJar.getName() + " §a(" + (totalBytes / 1024) + " KB)");
+            plugin.getLogger().info("§5[Update] §dDelete the old JAR (§f" + currentJar.getName() + "§d) after restart.");
             return true;
 
         } catch (Exception e) {
-            plugin.getLogger().log(Level.WARNING, "§5[Update] §cErreur lors du téléchargement:", e);
+            plugin.getLogger().log(Level.WARNING, "§5[Update] §cError during download:", e);
             return false;
         }
     }

@@ -26,7 +26,7 @@ public class DuelSettingsGUI {
         int roundCount = plugin.getSettingsManager().getRoundCount(uuid);
 
         Inventory inv = Bukkit.createInventory(null, 27,
-                Component.text("Paramètres de duel", NamedTextColor.DARK_PURPLE, TextDecoration.BOLD));
+                Component.text("Duel Settings", NamedTextColor.DARK_PURPLE, TextDecoration.BOLD));
 
         for (int i = 0; i < 27; i++) {
             inv.setItem(i, new ItemBuilder(Material.PURPLE_STAINED_GLASS_PANE).name(" ").build());
@@ -36,26 +36,26 @@ public class DuelSettingsGUI {
                 .name("§5⚙ Discord")
                 .lore(
                         "",
-                        discordEnabled ? "§a✔ Envoyer les résultats sur Discord" : "§c✖ Envoyer les résultats sur Discord",
+                        discordEnabled ? "§a✔ Send results to Discord" : "§c✖ Send results to Discord",
                         "",
-                        discordEnabled ? "§aActivé" : "§cDésactivé",
+                        discordEnabled ? "§aEnabled" : "§cDisabled",
                         "",
-                        "§7Cliquez pour changer"
+                        "§7Click to change"
                 ).build());
 
         inv.setItem(15, new ItemBuilder(Material.PAPER)
                 .name("§5⟳ Rounds (Sword & Axe)")
                 .lore(
                         "",
-                        "§dNombre de rounds: §f" + roundCount,
+                        "§dNumber of rounds: §f" + roundCount,
                         "§7(First to " + roundCount + ")",
                         "",
-                        "§7Clic gauche pour augmenter",
-                        "§7Clic droit pour diminuer"
+                        "§7Left click to increase",
+                        "§7Right click to decrease"
                 ).build());
 
         inv.setItem(13, new ItemBuilder(Material.RED_STAINED_GLASS_PANE)
-                .name("§cRetour")
+                .name("§cBack")
                 .build());
 
         player.openInventory(inv);

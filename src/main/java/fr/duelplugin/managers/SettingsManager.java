@@ -66,7 +66,8 @@ public class SettingsManager {
     }
 
     public Language getLanguage(UUID uuid) {
-        return languages.getOrDefault(uuid, Language.FR);
+        Language def = Language.fromString(plugin.getConfig().getString("messages.default-language", "EN"));
+        return languages.getOrDefault(uuid, def);
     }
 
     public boolean discordNotificationsEnabled(UUID uuid) {

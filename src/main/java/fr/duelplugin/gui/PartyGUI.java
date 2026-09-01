@@ -159,7 +159,7 @@ public class PartyGUI {
         if (party == null) return;
 
         Inventory inv = Bukkit.createInventory(null, 27,
-                Component.text("Kick un membre", NamedTextColor.DARK_PURPLE, TextDecoration.BOLD));
+                Component.text(plugin.getLanguageManager().msgRaw(player, "gui_party_kick"), NamedTextColor.DARK_PURPLE, TextDecoration.BOLD));
 
         fillGlass(inv, 27);
 
@@ -180,7 +180,7 @@ public class PartyGUI {
 
     public void openFFASelector(Player player) {
         Inventory inv = Bukkit.createInventory(null, 27,
-                Component.text("Choisir un mode FFA", NamedTextColor.DARK_PURPLE, TextDecoration.BOLD));
+                Component.text(plugin.getLanguageManager().msgRaw(player, "gui_party_ffa"), NamedTextColor.DARK_PURPLE, TextDecoration.BOLD));
 
         fillGlass(inv, 27);
 
@@ -224,7 +224,7 @@ public class PartyGUI {
         if (party == null) return;
 
         Inventory inv = Bukkit.createInventory(null, 27,
-                Component.text("Transférer le leadership", NamedTextColor.DARK_PURPLE, TextDecoration.BOLD));
+                Component.text(plugin.getLanguageManager().msgRaw(player, "gui_party_transfer"), NamedTextColor.DARK_PURPLE, TextDecoration.BOLD));
 
         fillGlass(inv, 27);
 

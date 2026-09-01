@@ -5,6 +5,7 @@ import fr.duelplugin.models.DuelGameMode;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.*;
 
@@ -23,15 +24,11 @@ public class ScoreboardManager {
         Scoreboard board = plugin.getTabManager().getOrCreateScoreboard(player);
         clearSidebar(board);
 
-        Component title = Component.text()
-                .append(Component.text("FEDORA", NamedTextColor.DARK_PURPLE, TextDecoration.BOLD))
-                .append(Component.text(" "))
-                .append(Component.text("CLUB", NamedTextColor.LIGHT_PURPLE, TextDecoration.BOLD))
-                .build();
+        Component title = buildTitle(player);
         Objective obj = board.registerNewObjective("duel_lobby", Criteria.DUMMY, title);
         obj.setDisplaySlot(DisplaySlot.SIDEBAR);
 
-        String date = new SimpleDateFormat("dd/MM/yyyy").format(new Date());
+        String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 
         int line = 12;
         addLine(obj, line--, "");
@@ -51,15 +48,11 @@ public class ScoreboardManager {
         Scoreboard board = plugin.getTabManager().getOrCreateScoreboard(player);
         clearSidebar(board);
 
-        Component title = Component.text()
-                .append(Component.text("FEDORA", NamedTextColor.DARK_PURPLE, TextDecoration.BOLD))
-                .append(Component.text(" "))
-                .append(Component.text("CLUB", NamedTextColor.LIGHT_PURPLE, TextDecoration.BOLD))
-                .build();
+        Component title = buildTitle(player);
         Objective obj = board.registerNewObjective("duel_fight", Criteria.DUMMY, title);
         obj.setDisplaySlot(DisplaySlot.SIDEBAR);
 
-        String date = new SimpleDateFormat("dd/MM/yyyy").format(new Date());
+        String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 
         int line = 12;
         addLine(obj, line--, "");
@@ -80,15 +73,11 @@ public class ScoreboardManager {
         Scoreboard board = plugin.getTabManager().getOrCreateScoreboard(player);
         clearSidebar(board);
 
-        Component title = Component.text()
-                .append(Component.text("FEDORA", NamedTextColor.DARK_PURPLE, TextDecoration.BOLD))
-                .append(Component.text(" "))
-                .append(Component.text("CLUB", NamedTextColor.LIGHT_PURPLE, TextDecoration.BOLD))
-                .build();
+        Component title = buildTitle(player);
         Objective obj = board.registerNewObjective("duel_bot", Criteria.DUMMY, title);
         obj.setDisplaySlot(DisplaySlot.SIDEBAR);
 
-        String date = new SimpleDateFormat("dd/MM/yyyy").format(new Date());
+        String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 
         int line = 12;
         addLine(obj, line--, "");
@@ -109,6 +98,12 @@ public class ScoreboardManager {
         Scoreboard board = player.getScoreboard();
         clearSidebar(board);
         player.setScoreboard(board);
+    }
+
+    private Component buildTitle(Player player) {
+        String title = plugin.getConfig().getString("scoreboard.title", "&5&l%server_name% &d&lDuels");
+        title = title.replace("%server_name%", plugin.getConfig().getString("server-info.name", "My Server"));
+        return LegacyComponentSerializer.legacyAmpersand().deserialize(title);
     }
 
     private void clearSidebar(Scoreboard board) {

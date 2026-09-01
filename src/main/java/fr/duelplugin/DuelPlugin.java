@@ -146,7 +146,7 @@ public class DuelPlugin extends JavaPlugin {
 
         updateManager.checkForUpdates();
 
-        getLogger().info("§5Fedora Club §d- DuelPlugin enabled!");
+        getLogger().info("§5DuelPlugin §d- enabled!");
     }
 
     @Override
@@ -158,7 +158,7 @@ public class DuelPlugin extends JavaPlugin {
         playerManager.saveAndUnload();
         discordBotManager.shutdown();
         PacketEvents.getAPI().terminate();
-        getLogger().info("§5Fedora Club §d- DuelPlugin disabled.");
+        getLogger().info("§5DuelPlugin §d- disabled.");
     }
 
     public static DuelPlugin getInstance() { return instance; }
@@ -194,7 +194,15 @@ public class DuelPlugin extends JavaPlugin {
     }
 
     public String getPrefix() {
-        return colorize(getConfig().getString("messages.prefix", "&8[&6Fedora &eClub&8] &r"));
+        return colorize(getConfig().getString("messages.prefix", "&8[&6Duel &ePlugin&8] &r"));
+    }
+
+    public String getServerName() {
+        return colorize(getConfig().getString("server-info.name", "My Server"));
+    }
+
+    public String getServerIp() {
+        return getConfig().getString("server-info.ip", "play.example.com");
     }
 
     public String colorize(String text) {

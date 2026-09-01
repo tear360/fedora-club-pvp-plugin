@@ -27,8 +27,8 @@ public class BanCommand implements CommandExecutor {
         }
 
         if (args.length < 1) {
-            sender.sendMessage("§dUsage: /ban <joueur> [durée] [raison]");
-            sender.sendMessage("§7Exemples: §f/ban Player1 7d hack");
+            sender.sendMessage("§dUsage: /ban <player> [duration] [reason]");
+            sender.sendMessage("§7Examples: §f/ban Player1 7d hack");
             sender.sendMessage("§7           §f/ban Player1 Permanent cheat");
             return true;
         }
@@ -40,7 +40,7 @@ public class BanCommand implements CommandExecutor {
         if (args.length >= 2) {
             duration = BanManager.parseDuration(args[1]);
             if (duration == -1 && !args[1].equalsIgnoreCase("permanent") && !args[1].equalsIgnoreCase("perm")) {
-                sender.sendMessage("§cDurée invalide. Utilisez: 30s, 10m, 2h, 7d, 2w, ou perm");
+                sender.sendMessage("§cInvalid duration. Use: 30s, 10m, 2h, 7d, 2w, or perm");
                 return true;
             }
             if (args[1].equalsIgnoreCase("permanent") || args[1].equalsIgnoreCase("perm")) {
@@ -70,9 +70,9 @@ public class BanCommand implements CommandExecutor {
         plugin.getBanManager().ban(uuid, targetName, reason, bannerName, duration);
 
         String durationStr = duration == -1 ? "Permanent" : BanManager.formatDuration(duration);
-        sender.sendMessage("§a§l" + targetName + " §7a été banni.");
-        sender.sendMessage("§7Durée: §f" + durationStr);
-        if (!reason.isEmpty()) sender.sendMessage("§7Raison: §f" + reason);
+        sender.sendMessage("§a§l" + targetName + " §7has been banned.");
+        sender.sendMessage("§7Duration: §f" + durationStr);
+        if (!reason.isEmpty()) sender.sendMessage("§7Reason: §f" + reason);
 
         if (target != null) {
             target.kick(plugin.getBanManager().buildBanScreen(uuid));

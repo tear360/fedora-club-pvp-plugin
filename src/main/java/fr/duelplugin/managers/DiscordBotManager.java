@@ -85,13 +85,13 @@ public class DiscordBotManager extends ListenerAdapter {
                         .format(DateTimeFormatter.ISO_INSTANT);
 
                 channel.sendMessageEmbeds(new net.dv8tion.jda.api.EmbedBuilder()
-                        .setTitle("\u2694 R\u00e9sultat de duel")
+                        .setTitle("\u2694 Duel Result")
                         .setColor(0x959066)
-                        .addField("\ud83c\udfc6 Gagnant", winnerName, true)
-                        .addField("\ud83d\udc80 Perdant", loserName, true)
+                        .addField("\ud83c\udfc6 Winner", winnerName, true)
+                        .addField("\ud83d\udc80 Loser", loserName, true)
                         .addField("\ud83c\udfae Mode", modeName, true)
-                        .addField("\u23f1 Dur\u00e9e", duration, true)
-                        .setFooter("Fedora Club")
+                        .addField("\u23f1 Duration", duration, true)
+                        .setFooter(plugin.getServerName())
                         .setTimestamp(Instant.parse(timestamp))
                         .build()).queue();
             } catch (Exception e) {
@@ -113,13 +113,13 @@ public class DiscordBotManager extends ListenerAdapter {
                 String postName = "bug-" + playerName.toLowerCase() + "-" + System.currentTimeMillis();
 
                 MessageCreateData content = new MessageCreateBuilder()
-                        .addContent("\ud83d\udc1b **Bug report de " + playerName + "**\n\n" + bug)
+                        .addContent("\ud83d\udc1b **Bug report by " + playerName + "**\n\n" + bug)
                         .addEmbeds(new net.dv8tion.jda.api.EmbedBuilder()
                                 .setTitle("\ud83d\udc1b Bug Report")
                                 .setColor(0xFF0000)
-                                .addField("\ud83d\udc64 Joueur", playerName, true)
+                                .addField("\ud83d\udc64 Player", playerName, true)
                                 .addField("\ud83d\udccb Bug", bug, false)
-                                .setFooter("Fedora Club - Bug Report")
+                                .setFooter(plugin.getServerName() + " - Bug Report")
                                 .setTimestamp(Instant.now())
                                 .build())
                         .build();
@@ -145,14 +145,14 @@ public class DiscordBotManager extends ListenerAdapter {
                 String postName = "report-" + reportedName.toLowerCase().replace(' ', '-') + "-" + reportId;
 
                 MessageCreateData content = new MessageCreateBuilder()
-                        .addContent("\ud83d\udcdd **Report #" + reportId + " de " + reporterName + "**\n\n" + reason)
+                        .addContent("\ud83d\udcdd **Report #" + reportId + " by " + reporterName + "**\n\n" + reason)
                         .addEmbeds(new net.dv8tion.jda.api.EmbedBuilder()
                                 .setTitle("\ud83d\udcdd Report #" + reportId)
                                 .setColor(0xFFA500)
-                                .addField("\ud83d\udc64 Joueur signal\u00e9", reportedName, true)
-                                .addField("\ud83d\udc64 Signal\u00e9 par", reporterName, true)
-                                .addField("\ud83d\udccb Raison", reason, false)
-                                .setFooter("Fedora Club - Report")
+                                .addField("\ud83d\udc64 Reported player", reportedName, true)
+                                .addField("\ud83d\udc64 Reported by", reporterName, true)
+                                .addField("\ud83d\udccb Reason", reason, false)
+                                .setFooter(plugin.getServerName() + " - Report")
                                 .setTimestamp(Instant.now())
                                 .build())
                         .build();
@@ -185,7 +185,7 @@ public class DiscordBotManager extends ListenerAdapter {
                 boolean isBug = String.valueOf(parentId).equals(bugReportChannelId);
                 boolean isReport = String.valueOf(parentId).equals(reportChannelId);
                 if (isBug || isReport) {
-                    thread.sendMessage("\ud83d\udeab Report trait\u00e9 par **" + event.getUser().getName() + "**").queue();
+                    thread.sendMessage("\uD83D\uDEAB Report handled by **" + event.getUser().getName() + "**").queue();
                     thread.getManager().setLocked(true).queue();
                     Bukkit.getScheduler().runTaskLater(plugin, () -> {
                         try {

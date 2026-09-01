@@ -341,7 +341,7 @@ public class DuelManager {
 
             if (w != null) {
                 w.showTitle(net.kyori.adventure.title.Title.title(
-                        Component.text("Round gagné!", NamedTextColor.GREEN, TextDecoration.BOLD),
+                        Component.text("Round won!", NamedTextColor.GREEN, TextDecoration.BOLD),
                         Component.text(wins + " - " + duel.getRoundWins().getOrDefault(loser, 0) + " (Best of " + maxR + ")", NamedTextColor.LIGHT_PURPLE),
                         net.kyori.adventure.title.Title.Times.times(java.time.Duration.ZERO, java.time.Duration.ofSeconds(2), java.time.Duration.ofSeconds(1))
                 ));

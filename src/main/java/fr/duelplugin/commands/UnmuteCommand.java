@@ -26,7 +26,7 @@ public class UnmuteCommand implements CommandExecutor {
         }
 
         if (args.length < 1) {
-            sender.sendMessage("§dUsage: /unmute <joueur>");
+            sender.sendMessage("§dUsage: /unmute <player>");
             return true;
         }
 
@@ -35,16 +35,16 @@ public class UnmuteCommand implements CommandExecutor {
         UUID uuid = offline.getUniqueId();
 
         if (!plugin.getBanManager().isMuted(uuid)) {
-            sender.sendMessage("§c" + targetName + " n'est pas mute.");
+            sender.sendMessage("§c" + targetName + " is not muted.");
             return true;
         }
 
         plugin.getBanManager().unmute(uuid);
-        sender.sendMessage("§a§l" + targetName + " §7a été unmute.");
+        sender.sendMessage("§a§l" + targetName + " §7has been unmuted.");
 
         Player target = Bukkit.getPlayer(targetName);
         if (target != null) {
-            target.sendMessage("§aVous avez été unmute!");
+            target.sendMessage("§aYou have been unmuted!");
         }
 
         return true;

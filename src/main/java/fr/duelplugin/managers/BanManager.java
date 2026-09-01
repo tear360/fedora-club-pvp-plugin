@@ -163,15 +163,15 @@ public class BanManager {
 
     public static String formatDuration(long ms) {
         if (ms == -1) return "Permanent";
-        if (ms <= 0) return "Expiré";
+        if (ms <= 0) return "Expired";
         long seconds = ms / 1000;
         long minutes = seconds / 60;
         long hours = minutes / 60;
         long days = hours / 24;
         long weeks = days / 7;
 
-        if (weeks > 0) return weeks + "j " + (days % 7) + "h " + (hours % 24) + "min";
-        if (days > 0) return days + "j " + (hours % 24) + "h " + (minutes % 60) + "min";
+        if (weeks > 0) return weeks + "w " + (days % 7) + "d " + (hours % 24) + "h";
+        if (days > 0) return days + "d " + (hours % 24) + "h " + (minutes % 60) + "min";
         if (hours > 0) return hours + "h " + (minutes % 60) + "min " + (seconds % 60) + "s";
         if (minutes > 0) return minutes + "min " + (seconds % 60) + "s";
         return seconds + "s";
@@ -184,31 +184,31 @@ public class BanManager {
         long remaining = getBanRemaining(uuid);
 
         Component line = Component.text("═══════════════════════════════", NamedTextColor.DARK_PURPLE);
-        Component title = Component.text("Vous êtes banni!", NamedTextColor.RED, TextDecoration.BOLD);
+        Component title = Component.text("You are banned!", NamedTextColor.RED, TextDecoration.BOLD);
         Component spacer = Component.empty();
 
-        Component reasonLine = Component.text("Raison: ", NamedTextColor.GRAY)
-                .append(Component.text(reason.isEmpty() ? "Aucune" : reason, NamedTextColor.WHITE));
-        Component byLine = Component.text("Banni par: ", NamedTextColor.GRAY)
+        Component reasonLine = Component.text("Reason: ", NamedTextColor.GRAY)
+                .append(Component.text(reason.isEmpty() ? "None" : reason, NamedTextColor.WHITE));
+        Component byLine = Component.text("Banned by: ", NamedTextColor.GRAY)
                 .append(Component.text(banner, NamedTextColor.RED));
         Component durationLine;
         if (duration == -1) {
-            durationLine = Component.text("Durée: ", NamedTextColor.GRAY)
+            durationLine = Component.text("Duration: ", NamedTextColor.GRAY)
                     .append(Component.text("Permanent", NamedTextColor.RED, TextDecoration.BOLD));
         } else {
-            durationLine = Component.text("Durée: ", NamedTextColor.GRAY)
+            durationLine = Component.text("Duration: ", NamedTextColor.GRAY)
                     .append(Component.text(formatDuration(duration), NamedTextColor.YELLOW));
         }
         Component remainingLine;
         if (duration == -1) {
-            remainingLine = Component.text("Cette ban est ", NamedTextColor.GRAY)
-                    .append(Component.text("permanente", NamedTextColor.DARK_RED, TextDecoration.BOLD))
+            remainingLine = Component.text("This ban is ", NamedTextColor.GRAY)
+                    .append(Component.text("permanent", NamedTextColor.DARK_RED, TextDecoration.BOLD))
                     .append(Component.text(".", NamedTextColor.GRAY));
         } else {
-            remainingLine = Component.text("Temps restant: ", NamedTextColor.GRAY)
+            remainingLine = Component.text("Remaining time: ", NamedTextColor.GRAY)
                     .append(Component.text(formatDuration(remaining), NamedTextColor.YELLOW, TextDecoration.BOLD));
         }
-        Component unbanNote = Component.text("Contestez sur le Discord du serveur.", NamedTextColor.DARK_PURPLE);
+        Component unbanNote = Component.text("Appeal on the server Discord.", NamedTextColor.DARK_PURPLE);
 
         return Component.empty()
                 .append(line)

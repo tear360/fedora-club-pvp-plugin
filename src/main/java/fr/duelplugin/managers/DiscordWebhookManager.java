@@ -35,25 +35,27 @@ public class DiscordWebhookManager {
 
         String json = """
                 {
-                  "username": "Fedora Club",
+                  "username": "%s",
                   "embeds": [{
-                    "title": "⚔ Résultat de duel",
+                    "title": "⚔ Duel Result",
                     "color": 9807270,
                     "fields": [
-                      {"name": "🏆 Gagnant", "value": "%s", "inline": true},
-                      {"name": "💀 Perdant", "value": "%s", "inline": true},
+                      {"name": "🏆 Winner", "value": "%s", "inline": true},
+                      {"name": "💀 Loser", "value": "%s", "inline": true},
                       {"name": "🎮 Mode", "value": "%s", "inline": true},
-                      {"name": "⏱ Durée", "value": "%s", "inline": true}
+                      {"name": "⏱ Duration", "value": "%s", "inline": true}
                     ],
-                    "footer": {"text": "Fedora Club"},
+                    "footer": {"text": "%s"},
                     "timestamp": "%s"
                   }]
                 }
                 """.formatted(
+                plugin.getServerName(),
                 escapeJson(winnerName),
                 escapeJson(loserName),
                 escapeJson(modeName),
                 escapeJson(duration),
+                plugin.getServerName(),
                 timestamp
         );
 

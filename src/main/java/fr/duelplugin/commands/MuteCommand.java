@@ -26,9 +26,9 @@ public class MuteCommand implements CommandExecutor {
         }
 
         if (args.length < 2) {
-            sender.sendMessage("§dUsage: /mute <joueur> <durée> [raison]");
-            sender.sendMessage("§7Exemples: §f/mute Player1 10m spam");
-            sender.sendMessage("§7           §f/mute Player1 perm insulte");
+            sender.sendMessage("§dUsage: /mute <player> <duration> [reason]");
+            sender.sendMessage("§7Examples: §f/mute Player1 10m spam");
+            sender.sendMessage("§7           §f/mute Player1 perm insult");
             return true;
         }
 
@@ -41,7 +41,7 @@ public class MuteCommand implements CommandExecutor {
         } else {
             duration = BanManager.parseDuration(durationStr);
             if (duration <= 0) {
-                sender.sendMessage("§cDurée invalide. Utilisez: 30s, 10m, 2h, 7d, 2w, ou perm");
+                sender.sendMessage("§cInvalid duration. Use: 30s, 10m, 2h, 7d, 2w, or perm");
                 return true;
             }
         }
@@ -68,14 +68,14 @@ public class MuteCommand implements CommandExecutor {
         plugin.getBanManager().mute(uuid, targetName, reason, muterName, duration);
 
         String durDisplay = duration == -1 ? "Permanent" : BanManager.formatDuration(duration);
-        sender.sendMessage("§a§l" + targetName + " §7a été mute.");
-        sender.sendMessage("§7Durée: §f" + durDisplay);
-        if (!reason.isEmpty()) sender.sendMessage("§7Raison: §f" + reason);
+        sender.sendMessage("§a§l" + targetName + " §7has been muted.");
+        sender.sendMessage("§7Duration: §f" + durDisplay);
+        if (!reason.isEmpty()) sender.sendMessage("§7Reason: §f" + reason);
 
         if (target != null) {
-            target.sendMessage("§cVous avez été mute par §4" + muterName + "§c.");
-            target.sendMessage("§7Durée: §f" + durDisplay);
-            if (!reason.isEmpty()) target.sendMessage("§7Raison: §f" + reason);
+            target.sendMessage("§cYou have been muted by §4" + muterName + "§c.");
+            target.sendMessage("§7Duration: §f" + durDisplay);
+            if (!reason.isEmpty()) target.sendMessage("§7Reason: §f" + reason);
         }
 
         return true;

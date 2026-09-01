@@ -23,7 +23,7 @@ public class BugReportCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage("§cCommande réservée aux joueurs.");
+            sender.sendMessage("§cPlayers only.");
             return true;
         }
 
@@ -33,7 +33,7 @@ public class BugReportCommand implements CommandExecutor, TabCompleter {
         }
 
         if (!plugin.getDiscordBotManager().isEnabled()) {
-            player.sendMessage("§cLe bot Discord n'est pas connecté.");
+            player.sendMessage("§cThe Discord bot is not connected.");
             return true;
         }
 

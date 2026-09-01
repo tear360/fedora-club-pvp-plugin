@@ -12,3 +12,9 @@ target/
 *~
 .DS_Store
 Thumbs.db
+
+# Local/internal files (not for public distribution)
+.plan/
+AGENTS.md
+bugs.json
+dependency-reduced-pom.xml

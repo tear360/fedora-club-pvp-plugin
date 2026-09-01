@@ -215,7 +215,7 @@ public class DuelAdminCommand implements CommandExecutor, TabCompleter, Listener
                 player.sendMessage("§dSpawn 2: " + formatLoc(arena.resolveSpawn2()));
                 player.sendMessage("§dMin: " + formatLoc(arena.resolveMinCorner()));
                 player.sendMessage("§dMax: " + formatLoc(arena.resolveMaxCorner()));
-                player.sendMessage("§dConfigurée: " + (arena.isSetup() ? lang().msgRaw(player, "arena_configured") : lang().msgRaw(player, "arena_not_configured")));
+                player.sendMessage("§dConfigured: " + (arena.isSetup() ? lang().msgRaw(player, "arena_configured") : lang().msgRaw(player, "arena_not_configured")));
                 player.sendMessage("§5═══════════════════════");
             }
             case "tp" -> {
@@ -318,7 +318,7 @@ public class DuelAdminCommand implements CommandExecutor, TabCompleter, Listener
         List<ReportManager.Report> allReports = plugin.getReportManager().getAllReports();
         int openCount = plugin.getReportManager().getOpenReportCount();
         Inventory inv = Bukkit.createInventory(null, 54,
-                net.kyori.adventure.text.Component.text("\u00A75\u00A7lReports \u00A77(" + openCount + " ouverts)", NamedTextColor.DARK_PURPLE, TextDecoration.BOLD));
+                net.kyori.adventure.text.Component.text("\u00A75\u00A7lReports \u00A77(" + openCount + " open)", NamedTextColor.DARK_PURPLE, TextDecoration.BOLD));
         for (int i = 0; i < 54; i++) {
             inv.setItem(i, new ItemBuilder(Material.BLACK_STAINED_GLASS_PANE).name(" ").build());
         }
@@ -326,16 +326,16 @@ public class DuelAdminCommand implements CommandExecutor, TabCompleter, Listener
         for (ReportManager.Report report : allReports) {
             if (slot >= 45) break;
             Material icon = report.getStatus().equals("open") ? Material.PAPER : Material.BARRIER;
-            String statusText = report.getStatus().equals("open") ? "\u00A7cOuvert" : "\u00A77Ferm\u00E9";
+            String statusText = report.getStatus().equals("open") ? "\u00A7cOpen" : "\u00A77Closed";
             long diff = System.currentTimeMillis() - report.getTimestamp();
             String timeAgo = formatTimeAgo(diff);
             inv.setItem(slot, new ItemBuilder(icon)
                     .name("\u00A7d#" + report.getId() + " \u00A77- \u00A7c" + report.getReported())
-                    .lore("", "\u00A77Signal\u00E9 par: \u00A7f" + report.getReporter(),
-                            "\u00A77Raison: \u00A7f" + report.getReason(),
+                    .lore("", "\u00A77Reported by: \u00A7f" + report.getReporter(),
+                            "\u00A77Reason: \u00A7f" + report.getReason(),
                             "\u00A77Date: \u00A7f" + timeAgo,
-                            "\u00A77Statut: " + statusText, "",
-                            report.getStatus().equals("open") ? "\u00A7aCliquez pour fermer" : "\u00A77Ferm\u00E9")
+                            "\u00A77Status: " + statusText, "",
+                            report.getStatus().equals("open") ? "\u00A7aClick to close" : "\u00A77Closed")
                     .build());
             slot++;
             if (slot == 17) slot = 19;
@@ -343,9 +343,9 @@ public class DuelAdminCommand implements CommandExecutor, TabCompleter, Listener
             else if (slot == 35) slot = 37;
         }
         if (allReports.isEmpty()) {
-            inv.setItem(22, new ItemBuilder(Material.LIME_STAINED_GLASS_PANE).name("\u00A7aAucun report").lore("", "\u00A77Aucun report en attente").build());
+            inv.setItem(22, new ItemBuilder(Material.LIME_STAINED_GLASS_PANE).name("\u00A7aNo reports").lore("", "\u00A77No pending reports").build());
         }
-        inv.setItem(49, new ItemBuilder(Material.ARROW).name("\u00A7dRetour").lore("", "\u00A77Retour au menu admin").build());
+        inv.setItem(49, new ItemBuilder(Material.ARROW).name("\u00A7dBack").lore("", "\u00A77Back to admin menu").build());
         player.openInventory(inv);
     }
 
@@ -356,7 +356,7 @@ public class DuelAdminCommand implements CommandExecutor, TabCompleter, Listener
         if (m < 60) return m + "m";
         long h = m / 60;
         if (h < 24) return h + "h";
-        return (h / 24) + "j";
+        return (h / 24) + "d";
     }
 
     @EventHandler
@@ -388,23 +388,23 @@ public class DuelAdminCommand implements CommandExecutor, TabCompleter, Listener
     private void handleRankCommand(Player player, String[] args) {
         if (args.length < 4) {
             player.sendMessage("§5═══════════════════════");
-            player.sendMessage("§d§lGestion des rangs:");
+            player.sendMessage("§d§lRank management:");
             player.sendMessage("");
-            player.sendMessage("§d/da rank <admin|manager|moderateur|vip> add <joueur>");
-            player.sendMessage("§d/da rank <admin|manager|moderateur|vip> remove <joueur>");
+            player.sendMessage("§d/da rank <admin|manager|moderateur|vip> add <player>");
+            player.sendMessage("§d/da rank <admin|manager|moderateur|vip> remove <player>");
             player.sendMessage("§5═══════════════════════");
             return;
         }
 
         Rank rank = Rank.fromId(args[1]);
         if (rank == null) {
-            player.sendMessage("§cRang invalide. Rangs: ADMIN, MANAGER, MODERATEUR, VIP");
+            player.sendMessage("§cInvalid rank. Ranks: ADMIN, MANAGER, MODERATOR, VIP");
             return;
         }
 
         String action = args[2].toLowerCase();
         if (!action.equals("add") && !action.equals("remove")) {
-            player.sendMessage("§cUsage: /da rank <rang> add|remove <joueur>");
+            player.sendMessage("§cUsage: /da rank <rank> add|remove <player>");
             return;
         }
 
@@ -416,46 +416,46 @@ public class DuelAdminCommand implements CommandExecutor, TabCompleter, Listener
 
         if (action.equals("add")) {
             plugin.getRankManager().setRank(target.getUniqueId(), rank);
-            player.sendMessage(rank.getColor() + rank.getDisplayName() + " §adonné à §d" + target.getName() + "§a!");
-            target.sendMessage(plugin.colorize(rank.getColor() + "Vous avez reçu le rang " + rank.getDisplayName() + "§r!"));
+            player.sendMessage(rank.getColor() + rank.getDisplayName() + " §agiven to §d" + target.getName() + "§a!");
+            target.sendMessage(plugin.colorize(rank.getColor() + "You received the rank " + rank.getDisplayName() + "§r!"));
         } else {
             plugin.getRankManager().setRank(target.getUniqueId(), null);
-            player.sendMessage("§cRang retiré à §d" + target.getName() + "§c.");
-            target.sendMessage("§cVotre rang a été retiré.");
+            player.sendMessage("§cRank removed from §d" + target.getName() + "§c.");
+            target.sendMessage("§cYour rank has been removed.");
         }
     }
 
     private void sendHelp(Player player) {
         player.sendMessage("§5═══════════════════════");
-        player.sendMessage("§d§lFedora Club §7- Admin");
+        player.sendMessage("§d§l" + plugin.getConfig().getString("server-info.name", "Duel Plugin") + " §7- Admin");
         player.sendMessage("");
-        player.sendMessage("§d/da reload §7- Recharger la config");
-        player.sendMessage("§d/da setlobby §7- Définir le lobby");
-        player.sendMessage("§d/da arena <cmd> §7- Gestion des arènes");
-        player.sendMessage("§d/da lobby <cmd> §7- Gestion du lobby");
-        player.sendMessage("§d/da report §7- Gérer les reports");
-        player.sendMessage("§d/da rank <rang> add/remove <joueur> §7- Gérer les rangs");
+        player.sendMessage("§d/da reload §7- Reload the config");
+        player.sendMessage("§d/da setlobby §7- Set the lobby");
+        player.sendMessage("§d/da arena <cmd> §7- Arena management");
+        player.sendMessage("§d/da lobby <cmd> §7- Lobby management");
+        player.sendMessage("§d/da report §7- Manage reports");
+        player.sendMessage("§d/da rank <rank> add/remove <player> §7- Manage ranks");
         player.sendMessage("§5═══════════════════════");
     }
 
     private void sendArenaHelp(Player player) {
         player.sendMessage("§5═══════════════════════");
-        player.sendMessage("§d§lGestion des arènes:");
+        player.sendMessage("§d§lArena management:");
         player.sendMessage("");
-        player.sendMessage("§d/da arena create <nom> <mode>");
-        player.sendMessage("§d/da arena delete <nom>");
-        player.sendMessage("§d/da arena setspawn <nom> <1|2>");
-        player.sendMessage("§d/da arena setmin <nom>");
-        player.sendMessage("§d/da arena setmax <nom>");
-        player.sendMessage("§d/da arena info <nom>");
-        player.sendMessage("§d/da arena tp <nom>");
+        player.sendMessage("§d/da arena create <name> <mode>");
+        player.sendMessage("§d/da arena delete <name>");
+        player.sendMessage("§d/da arena setspawn <name> <1|2>");
+        player.sendMessage("§d/da arena setmin <name>");
+        player.sendMessage("§d/da arena setmax <name>");
+        player.sendMessage("§d/da arena info <name>");
+        player.sendMessage("§d/da arena tp <name>");
         player.sendMessage("§d/da arena list");
         player.sendMessage("§5═══════════════════════");
     }
 
     private String formatLoc(Location loc) {
-        if (loc == null) return "§cNon défini";
-        String worldName = loc.getWorld() != null ? loc.getWorld().getName() : "inconnu";
+        if (loc == null) return "§cNot set";
+        String worldName = loc.getWorld() != null ? loc.getWorld().getName() : "unknown";
         return String.format("§f%s §7(§f%.1f, %.1f, %.1f§7)", worldName, loc.getX(), loc.getY(), loc.getZ());
     }
 

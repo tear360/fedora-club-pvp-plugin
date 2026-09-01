@@ -31,6 +31,16 @@ public class LobbyItemListener implements Listener {
     private final Map<UUID, Inventory> queueGUIs = new HashMap<>();
     private final java.util.Set<UUID> navigating = new java.util.HashSet<>();
 
+    private String guiTitle(Player player, String key) {
+        return plugin.getLanguageManager().msgRaw(player, key).replaceAll("§[0-9a-fk-or]", "");
+    }
+
+    private boolean isDuelGUI(Player player, String title) {
+        if (title.equals(guiTitle(player, "gui_mode_select"))) return true;
+        String prefix = guiTitle(player, "gui_duel_title").replace("%target%", "").trim();
+        return !prefix.isEmpty() && title.startsWith(prefix);
+    }
+
     private static final Map<String, net.kyori.adventure.text.format.TextColor> COLOR_MAP = Map.of(
             "§c", net.kyori.adventure.text.format.NamedTextColor.RED,
             "§6", net.kyori.adventure.text.format.NamedTextColor.GOLD,
@@ -107,7 +117,7 @@ public class LobbyItemListener implements Listener {
                                     (hasArena ? plugin.getLanguageManager().msgRaw(player, "gui_arenas_available") : plugin.getLanguageManager().msgRaw(player, "gui_no_arena")) :
                                     plugin.getLanguageManager().msgRaw(player, "gui_free_mode"),
                             plugin.getLanguageManager().msgRaw(player, "gui_blocks") + (mode.canBreakBlocks() ? plugin.getLanguageManager().msgRaw(player, "gui_blocks_breakable") : plugin.getLanguageManager().msgRaw(player, "gui_blocks_unbreakable")),
-                            "&dQueue: &f" + queueSize + " joueur" + (queueSize != 1 ? "s" : ""),
+                            "&dQueue: &f" + queueSize + " player" + (queueSize != 1 ? "s" : ""),
                             "",
                             plugin.getLanguageManager().msgRaw(player, "gui_click_to_play")
                     ).build());
@@ -134,7 +144,7 @@ public class LobbyItemListener implements Listener {
         String cleanTitle = event.getView().getTitle().replaceAll("§[0-9a-fk-or]", "");
         Material clickedType = event.getCurrentItem() != null ? event.getCurrentItem().getType() : Material.AIR;
 
-        if (cleanTitle.startsWith("Kit ") && !cleanTitle.contains("Kit Editor") && !cleanTitle.contains("Éditeur de kits")) {
+        if (cleanTitle.startsWith("Kit ") && !cleanTitle.equals(guiTitle(player, "gui_kit_editor_title"))) {
             handleKitEditorClick(event, player);
             return;
         }
@@ -156,72 +166,73 @@ public class LobbyItemListener implements Listener {
             return;
         }
 
-        if (cleanTitle.equals("Kick un membre")) {
+        if (cleanTitle.equals("Kick un membre") || cleanTitle.equals(guiTitle(player, "gui_party_kick"))) {
             handleKickClick(event, player);
             return;
         }
 
-        if (cleanTitle.equals("Transférer le leadership")) {
+        if (cleanTitle.equals("Transférer le leadership") || cleanTitle.equals(guiTitle(player, "gui_party_transfer"))) {
             handleTransferClick(event, player);
             return;
         }
 
-        if (cleanTitle.equals("Choisir un mode FFA")) {
+        if (cleanTitle.equals("Choisir un mode FFA") || cleanTitle.equals(guiTitle(player, "gui_party_ffa"))) {
             handleFFAClick(event, player);
             return;
         }
 
-        if (cleanTitle.contains("Badge VIP") || cleanTitle.contains("VIP Badge")) {
+        if (cleanTitle.contains("Badge VIP") || cleanTitle.contains("VIP Badge") || cleanTitle.equals(guiTitle(player, "vip_badges_title"))) {
             handleBadgeClick(event, player);
             return;
         }
 
-        if (cleanTitle.contains("Kit Editor") || cleanTitle.contains("Éditeur de kits")) {
+        if (cleanTitle.contains("Kit Editor") || cleanTitle.contains("Éditeur de kits") || cleanTitle.equals(guiTitle(player, "gui_kit_editor_title"))) {
             handleKitEditorModeSelect(event, player);
             return;
         }
 
-        if (cleanTitle.equals("Paramètres de duel")) {
+        if (cleanTitle.equals("Duel Settings")) {
             handleDuelSettingsClick(event, player);
             return;
         }
 
-        if (cleanTitle.contains("Choisir une pièce") || cleanTitle.contains("Select Armor Piece")) {
+        if (cleanTitle.contains("Choisir une pièce") || cleanTitle.contains("Select Armor Piece") || cleanTitle.equals(guiTitle(player, "gui_kit_armor_select"))) {
             handleArmorPieceClick(event, player);
             return;
         }
 
-        if (cleanTitle.equals("Choisir un pattern") || cleanTitle.equals("Select Pattern")) {
+        if (cleanTitle.contains("Choisir un pattern") || cleanTitle.contains("Select Pattern") || cleanTitle.equals(guiTitle(player, "gui_kit_pattern_select"))) {
             handlePatternClick(event, player);
             return;
         }
 
-        if (cleanTitle.equals("Choisir un matériau") || cleanTitle.equals("Select Material")) {
+        if (cleanTitle.contains("Choisir un matériau") || cleanTitle.contains("Select Material") || cleanTitle.equals(guiTitle(player, "gui_kit_material_select"))) {
             handleMaterialClick(event, player);
             return;
         }
 
         if (cleanTitle.contains("Sélection de mode") || cleanTitle.contains("Mode Selection")
-                || cleanTitle.contains("Défi →") || cleanTitle.contains("Challenge →")) {
+                || cleanTitle.contains("Défi →") || cleanTitle.contains("Challenge →") || isDuelGUI(player, cleanTitle)) {
             handleDuelGUIClick(event, player, cleanTitle);
             return;
         }
     }
 
     private boolean isPluginGUI(String cleanTitle, InventoryClickEvent event) {
+        if (!(event.getWhoClicked() instanceof Player player)) return true;
         if (cleanTitle.equals("Party") || cleanTitle.contains("Party (Leader)")) return true;
-        if (cleanTitle.equals("Kick un membre")) return true;
-        if (cleanTitle.equals("Transférer le leadership")) return true;
-        if (cleanTitle.equals("Choisir un mode FFA")) return true;
-        if (cleanTitle.contains("Badge VIP") || cleanTitle.contains("VIP Badge")) return true;
-        if (cleanTitle.contains("Kit Editor") || cleanTitle.contains("Éditeur de kits")) return true;
-        if (cleanTitle.equals("Paramètres de duel")) return true;
+        if (cleanTitle.equals("Kick un membre") || cleanTitle.equals(guiTitle(player, "gui_party_kick"))) return true;
+        if (cleanTitle.equals("Transférer le leadership") || cleanTitle.equals(guiTitle(player, "gui_party_transfer"))) return true;
+        if (cleanTitle.equals("Choisir un mode FFA") || cleanTitle.equals(guiTitle(player, "gui_party_ffa"))) return true;
+        if (cleanTitle.contains("Badge VIP") || cleanTitle.contains("VIP Badge") || cleanTitle.equals(guiTitle(player, "vip_badges_title"))) return true;
+        if (cleanTitle.contains("Kit Editor") || cleanTitle.contains("Éditeur de kits") || cleanTitle.equals(guiTitle(player, "gui_kit_editor_title"))) return true;
+        if (cleanTitle.equals("Duel Settings")) return true;
         if (cleanTitle.startsWith("Kit ")) return true;
-        if (cleanTitle.contains("Choisir une pièce") || cleanTitle.contains("Select Armor Piece")) return true;
-        if (cleanTitle.equals("Choisir un pattern") || cleanTitle.equals("Select Pattern")) return true;
-        if (cleanTitle.equals("Choisir un matériau") || cleanTitle.equals("Select Material")) return true;
+        if (cleanTitle.contains("Choisir une pièce") || cleanTitle.contains("Select Armor Piece") || cleanTitle.equals(guiTitle(player, "gui_kit_armor_select"))) return true;
+        if (cleanTitle.contains("Choisir un pattern") || cleanTitle.contains("Select Pattern") || cleanTitle.equals(guiTitle(player, "gui_kit_pattern_select"))) return true;
+        if (cleanTitle.contains("Choisir un matériau") || cleanTitle.contains("Select Material") || cleanTitle.equals(guiTitle(player, "gui_kit_material_select"))) return true;
         if (cleanTitle.contains("Sélection de mode") || cleanTitle.contains("Mode Selection")
-                || cleanTitle.contains("Défi →") || cleanTitle.contains("Challenge →")) return true;
+                || cleanTitle.contains("Défi →") || cleanTitle.contains("Challenge →") || isDuelGUI(player, cleanTitle)) return true;
         if (queueGUIs.containsKey(event.getWhoClicked().getUniqueId())) return true;
         if (event.getView().getTopInventory() != null && event.getView().getTopInventory().getItem(10) != null
                 && isModeIcon(event.getView().getTopInventory().getItem(10).getType())) return true;
@@ -242,7 +253,7 @@ public class LobbyItemListener implements Listener {
         String name = item.getItemMeta() != null ? item.getItemMeta().getDisplayName() : "";
         for (DuelGameMode mode : DuelGameMode.values()) {
             if (name.contains(mode.getColoredName())) {
-                if (cleanTitle.contains("Défi →") || cleanTitle.contains("Challenge →")) {
+                if (cleanTitle.contains("Défi →") || cleanTitle.contains("Challenge →") || isDuelGUI(player, cleanTitle)) {
                     UUID targetUuid = plugin.getDuelGUI().getPendingTarget(player.getUniqueId());
                     if (targetUuid != null) {
                         Player target = org.bukkit.Bukkit.getPlayer(targetUuid);
@@ -274,9 +285,10 @@ public class LobbyItemListener implements Listener {
     }
 
     private boolean hasDuelGUITitle(InventoryClickEvent event) {
+        if (!(event.getWhoClicked() instanceof Player player)) return false;
         String cleanTitle = event.getView().getTitle().replaceAll("§[0-9a-fk-or]", "");
         return cleanTitle.contains("Sélection de mode") || cleanTitle.contains("Mode Selection")
-                || cleanTitle.contains("Défi →") || cleanTitle.contains("Challenge →");
+                || cleanTitle.contains("Défi →") || cleanTitle.contains("Challenge →") || isDuelGUI(player, cleanTitle);
     }
 
     private void handleQueueClick(InventoryClickEvent event, Player player) {
@@ -791,7 +803,7 @@ public class LobbyItemListener implements Listener {
 
         String cleanTitle = event.getView().getTitle().replaceAll("§[0-9a-fk-or]", "");
 
-        boolean isKitEditor = cleanTitle.startsWith("Kit ") && !cleanTitle.contains("Kit Editor") && !cleanTitle.contains("Éditeur de kits");
+        boolean isKitEditor = cleanTitle.startsWith("Kit ") && !cleanTitle.equals(guiTitle(player, "gui_kit_editor_title"));
 
         if (isKitEditor) {
             DuelGameMode mode = plugin.getKitEditorGUI().getEditingMode(uuid);

@@ -24,7 +24,7 @@ public class ChatListener implements Listener {
             event.setCancelled(true);
             long remaining = plugin.getBanManager().getMuteRemaining(player.getUniqueId());
             String remainingStr = remaining == -1 ? "Permanent" : fr.duelplugin.managers.BanManager.formatDuration(remaining);
-            player.sendMessage("§cVous êtes mute! Temps restant: §4" + remainingStr);
+            player.sendMessage("§cYou are muted! Remaining time: §4" + remainingStr);
             return;
         }
 

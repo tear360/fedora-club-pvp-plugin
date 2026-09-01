@@ -26,15 +26,15 @@ public class TempBanCommand implements CommandExecutor {
         }
 
         if (args.length < 2) {
-            sender.sendMessage("§dUsage: /tempban <joueur> <durée> [raison]");
-            sender.sendMessage("§7Exemple: §f/tempban Player1 7d cheat");
+            sender.sendMessage("§dUsage: /tempban <player> <duration> [reason]");
+            sender.sendMessage("§7Example: §f/tempban Player1 7d cheat");
             return true;
         }
 
         String targetName = args[0];
         long duration = BanManager.parseDuration(args[1]);
         if (duration <= 0) {
-            sender.sendMessage("§cDurée invalide. Utilisez: 30s, 10m, 2h, 7d, 2w");
+            sender.sendMessage("§cInvalid duration. Use: 30s, 10m, 2h, 7d, 2w");
             return true;
         }
 
@@ -59,9 +59,9 @@ public class TempBanCommand implements CommandExecutor {
         String bannerName = sender instanceof Player ? sender.getName() : "Console";
         plugin.getBanManager().ban(uuid, targetName, reason, bannerName, duration);
 
-        sender.sendMessage("§a§l" + targetName + " §7a été banni temporairement.");
-        sender.sendMessage("§7Durée: §f" + BanManager.formatDuration(duration));
-        if (!reason.isEmpty()) sender.sendMessage("§7Raison: §f" + reason);
+        sender.sendMessage("§a§l" + targetName + " §7has been temporarily banned.");
+        sender.sendMessage("§7Duration: §f" + BanManager.formatDuration(duration));
+        if (!reason.isEmpty()) sender.sendMessage("§7Reason: §f" + reason);
 
         if (target != null) {
             target.kick(plugin.getBanManager().buildBanScreen(uuid));

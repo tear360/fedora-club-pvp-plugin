@@ -1,13 +1,21 @@
 package fr.duelplugin.managers;
 
 public enum Language {
-    FR("Français"),
-    EN("English");
+    FR("fr_fr", "Français"),
+    EN("en_us", "English"),
+    DE("de_de", "Deutsch"),
+    ES("es_es", "Español");
 
+    private final String file;
     private final String displayName;
 
-    Language(String displayName) {
+    Language(String file, String displayName) {
+        this.file = file;
         this.displayName = displayName;
+    }
+
+    public String getFile() {
+        return file;
     }
 
     public String getDisplayName() {
@@ -15,10 +23,11 @@ public enum Language {
     }
 
     public static Language fromString(String s) {
+        if (s == null) return EN;
         try {
             return valueOf(s.toUpperCase());
         } catch (Exception e) {
-            return FR;
+            return EN;
         }
     }
 }

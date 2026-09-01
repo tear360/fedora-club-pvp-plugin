@@ -2,7 +2,7 @@ name: DuelPlugin
 version: '${project.version}'
 main: fr.duelplugin.DuelPlugin
 api-version: '1.21'
-description: Plugin de duel PvP Practice pour Fedora Club
+description: Duel PvP Practice plugin
 authors: [DuelPlugin]
 softdepend:
   - ProtocolLib
@@ -14,77 +14,76 @@ softdepend:
 
 commands:
   duel:
-    description: Défier un joueur en douel
-    usage: /duel <joueur>
+    description: Challenge a player to a duel
+    usage: /duel <player>
     aliases: [duels, fight]
   acceptduel:
-    description: Accepter un duel
-    usage: /acceptduel [joueur]
+    description: Accept a duel
+    usage: /acceptduel [player]
   denyduel:
-    description: Refuser un duel
-    usage: /denyduel [joueur]
+    description: Decline a duel
+    usage: /denyduel [player]
   da:
-    description: Administration Fedora Club
+    description: Duel plugin administration
     usage: /da <args>
     aliases: [dueladmin]
   spec:
-    description: Spectater un duel
-    usage: /spec <joueur>
+    description: Spectate a duel
+    usage: /spec <player>
     aliases: [spectate, spect]
   vip:
-    description: Commande VIP Fedora Club
+    description: VIP command
     usage: /vip <args>
     aliases: [vipcolor]
   f:
-    description: Commande Amis
+    description: Friends command
     usage: /f <add|remove|list>
-    aliases: [ami, friends]
+    aliases: [friends]
   party:
-    description: Commande Party
+    description: Party command
     usage: /party <create|invite|join|leave|kick|disband|list>
-    aliases: [p, groupe]
+    aliases: [p]
   leave:
-    description: Quitter un duel
+    description: Leave a duel
     usage: /leave
-    aliases: [quitter]
   settings:
-    description: Paramètres du joueur
+    description: Player settings
     usage: /settings [friends|duels]
-    aliases: [parametres, options]
+    aliases: [options]
   ban:
-    description: Bannir un joueur
-    usage: /ban <joueur> [durée] [raison]
+    description: Ban a player
+    usage: /ban <player> [duration] [reason]
     permission: duelplugin.admin.ban
   kick:
-    description: Expulser un joueur
-    usage: /kick <joueur> [raison]
+    description: Kick a player
+    usage: /kick <player> [reason]
     permission: duelplugin.admin.kick
   tempban:
-    description: Bannir temporairement un joueur
-    usage: /tempban <joueur> <durée> [raison]
+    description: Temporarily ban a player
+    usage: /tempban <player> <duration> [reason]
     permission: duelplugin.admin.tempban
   mute:
-    description: Mute un joueur
-    usage: /mute <joueur> <durée> [raison]
+    description: Mute a player
+    usage: /mute <player> <duration> [reason]
     permission: duelplugin.admin.mute
   unban:
-    description: Débannir un joueur
-    usage: /unban <joueur>
+    description: Unban a player
+    usage: /unban <player>
     permission: duelplugin.admin.unban
   unmute:
-    description: Unmute un joueur
-    usage: /unmute <joueur>
+    description: Unmute a player
+    usage: /unmute <player>
     permission: duelplugin.admin.unmute
   report:
-    description: Signaler un joueur
-    usage: /report <joueur> <raison>
+    description: Report a player
+    usage: /report <player> <reason>
   bugreport:
-    description: Signaler un bug
+    description: Report a bug
     usage: /bugreport <bug>
 
 permissions:
   duelplugin.admin:
-    description: Permission admin globale (accède à tout)
+    description: Full admin permission (access to everything)
     default: op
     children:
       duelplugin.admin.reload: true
@@ -102,56 +101,56 @@ permissions:
       duelplugin.admin.vip: true
       duelplugin.admin.rank: true
   duelplugin.admin.reload:
-    description: Recharger la configuration
+    description: Reload the configuration
     default: op
   duelplugin.admin.setlobby:
-    description: Définir le lobby
+    description: Set the lobby spawn
     default: op
   duelplugin.admin.arena:
-    description: Gestion des arènes
+    description: Manage arenas
     default: op
   duelplugin.admin.lobby:
-    description: Gestion du lobby
+    description: Manage the lobby
     default: op
   duelplugin.admin.lobby.build:
-    description: Mode build dans le lobby
+    description: Build mode in the lobby
     default: op
   duelplugin.admin.report:
-    description: Gérer les reports
+    description: Manage reports
     default: op
   duelplugin.admin.ban:
-    description: Bannir des joueurs
+    description: Ban players
     default: op
   duelplugin.admin.kick:
-    description: Expulser des joueurs
+    description: Kick players
     default: op
   duelplugin.admin.tempban:
-    description: Bannir temporairement des joueurs
+    description: Temporarily ban players
     default: op
   duelplugin.admin.mute:
-    description: Mute des joueurs
+    description: Mute players
     default: op
   duelplugin.admin.unban:
-    description: Débannir des joueurs
+    description: Unban players
     default: op
   duelplugin.admin.unmute:
-    description: Unmute des joueurs
+    description: Unmute players
     default: op
   duelplugin.admin.vip:
-    description: Gérer les VIP (set/remove)
+    description: Manage VIP (set/remove)
     default: op
   duelplugin.admin.rank:
-    description: Gérer les rangs (ADMIN/MANAGER/MODERATEUR/VIP)
+    description: Manage ranks (ADMIN/MANAGER/MODERATOR/VIP)
     default: op
   duelplugin.play:
-    description: Permission de jouer
+    description: Permission to play
     default: true
   duelplugin.vip:
-    description: Permission VIP
+    description: VIP permission
     default: op
   duelplugin.acceptduel:
-    description: Autorise à accepter les demandes de duel
+    description: Allow accepting duel requests
     default: op
   duelplugin.bugreport.bypass:
-    description: Supprime le cooldown de la commande /bugreport
+    description: Remove the /bugreport cooldown
     default: op

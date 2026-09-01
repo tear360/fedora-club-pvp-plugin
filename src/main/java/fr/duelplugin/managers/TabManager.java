@@ -195,15 +195,15 @@ public class TabManager {
     }
 
     private Component buildHeader() {
+        String header = plugin.getConfig().getString("tab.header", "&5%server_name%");
+        header = header.replace("%server_name%", plugin.getConfig().getString("server-info.name", "My Server"));
         return Component.text()
                 .append(Component.text("\n"))
                 .append(Component.text("    ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", NamedTextColor.DARK_PURPLE))
                 .append(Component.text("\n"))
                 .append(Component.text("\n"))
                 .append(Component.text("         "))
-                .append(Component.text("FEDORA", NamedTextColor.DARK_PURPLE, TextDecoration.BOLD))
-                .append(Component.text(" "))
-                .append(Component.text("CLUB", NamedTextColor.LIGHT_PURPLE, TextDecoration.BOLD))
+                .append(net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacyAmpersand().deserialize(header))
                 .append(Component.text("\n"))
                 .append(Component.text("\n"))
                 .append(Component.text("    ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", NamedTextColor.DARK_PURPLE))
@@ -235,7 +235,8 @@ public class TabManager {
             footer.append(Component.text("\n"));
             footer.append(Component.text(plugin.getLanguageManager().msgRaw(player, "tab_mode_friends"), NamedTextColor.LIGHT_PURPLE, TextDecoration.BOLD));
         } else {
-            footer.append(Component.text(" fedora.free-node.ovh", NamedTextColor.GRAY, TextDecoration.BOLD));
+            String serverIp = plugin.getConfig().getString("server-info.ip", "play.example.com");
+            footer.append(Component.text(" " + serverIp, NamedTextColor.GRAY, TextDecoration.BOLD));
         }
 
         footer.append(Component.text("\n"));

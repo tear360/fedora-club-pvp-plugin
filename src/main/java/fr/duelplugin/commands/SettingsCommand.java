@@ -39,7 +39,7 @@ public class SettingsCommand implements CommandExecutor, TabCompleter, Listener 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage("§cCommande réservée aux joueurs.");
+            sender.sendMessage("§cPlayers only.");
             return true;
         }
 
@@ -65,16 +65,16 @@ public class SettingsCommand implements CommandExecutor, TabCompleter, Listener 
         boolean duels = plugin.getSettingsManager().acceptsDuelRequests(player.getUniqueId());
         Language currentLang = plugin.getSettingsManager().getLanguage(player.getUniqueId());
 
-        Inventory gui = Bukkit.createInventory(null, 27, Component.text("Paramètres / Settings", NamedTextColor.DARK_PURPLE));
+        Inventory gui = Bukkit.createInventory(null, 27, Component.text("Settings", NamedTextColor.DARK_PURPLE));
 
         // Friend requests toggle
         ItemStack friendItem = new ItemStack(Material.PLAYER_HEAD);
         SkullMeta friendMeta = (SkullMeta) friendItem.getItemMeta();
-        friendMeta.displayName(Component.text("Amis / Friends", NamedTextColor.DARK_PURPLE, TextDecoration.BOLD));
+        friendMeta.displayName(Component.text("Friends", NamedTextColor.DARK_PURPLE, TextDecoration.BOLD));
         friendMeta.lore(List.of(
             Component.text(friends ? lang.msgRaw(player, "settings_friends_on").replace("§dAmis: ", "") : lang.msgRaw(player, "settings_friends_off").replace("§dAmis: ", ""), friends ? NamedTextColor.GREEN : NamedTextColor.RED),
             Component.empty(),
-            Component.text("§7" + (currentLang == Language.FR ? "Cliquez pour basculer" : "Click to toggle"))
+            Component.text("§7Click to toggle")
         ));
         friendItem.setItemMeta(friendMeta);
         gui.setItem(11, friendItem);
@@ -92,7 +92,7 @@ public class SettingsCommand implements CommandExecutor, TabCompleter, Listener 
         langMeta.lore(List.of(
             Component.text("§a✔ " + langLabel, NamedTextColor.GREEN),
             Component.empty(),
-            Component.text("§7Cliquer pour passer en " + langSwitchLabel, NamedTextColor.GRAY)
+            Component.text("§7Click to switch to " + langSwitchLabel, NamedTextColor.GRAY)
         ));
         langItem.setItemMeta(langMeta);
         gui.setItem(13, langItem);
@@ -109,13 +109,14 @@ public class SettingsCommand implements CommandExecutor, TabCompleter, Listener 
             .clickEvent(click);
         net.kyori.adventure.text.Component duelLore = Component.text(duels ? lang.msgRaw(player, "settings_duels_on").replace("§dDuels: ", "") : lang.msgRaw(player, "settings_duels_off").replace("§dDuels: ", ""), duels ? NamedTextColor.GREEN : NamedTextColor.RED);
         ItemStack duelDisplay = new ItemStack(Material.DIAMOND_SWORD);
+        String duelStatusWord = langStatus(player, duels ? "settings_duels_on" : "settings_duels_off");
         net.kyori.adventure.text.Component display = Component.empty()
             .append(Component.text("§d" + lang.msgRaw(player, "settings_duels_on").split(":")[0].replace("§d", "") + ": ", NamedTextColor.DARK_PURPLE))
-            .append(Component.text(duels ? "§aActivé" : "§cDésactivé", duels ? NamedTextColor.GREEN : NamedTextColor.RED));
+            .append(Component.text(duelStatusWord, duels ? NamedTextColor.GREEN : NamedTextColor.RED));
         org.bukkit.inventory.meta.ItemMeta duelMeta2 = duelDisplay.getItemMeta();
         duelMeta2.displayName(Component.text("Duels", NamedTextColor.DARK_PURPLE, TextDecoration.BOLD));
         duelMeta2.lore(List.of(
-            Component.text(duels ? "§aActivé" : "§cDésactivé", duels ? NamedTextColor.GREEN : NamedTextColor.RED),
+            Component.text(duelStatusWord, duels ? NamedTextColor.GREEN : NamedTextColor.RED),
             Component.empty(),
             Component.text("§7Click to toggle")
         ));
@@ -125,11 +126,20 @@ public class SettingsCommand implements CommandExecutor, TabCompleter, Listener 
         // Back item
         ItemStack back = new ItemStack(Material.ARROW);
         org.bukkit.inventory.meta.ItemMeta backMeta = back.getItemMeta();
-        backMeta.displayName(Component.text("Retour", NamedTextColor.DARK_PURPLE, TextDecoration.BOLD));
+        backMeta.displayName(Component.text("Back", NamedTextColor.DARK_PURPLE, TextDecoration.BOLD));
         back.setItemMeta(backMeta);
         gui.setItem(22, back);
 
         player.openInventory(gui);
+    }
+
+    private String langStatus(Player player, String langKey) {
+        String raw = plugin.getLanguageManager().msgRaw(player, langKey);
+        int idx = raw.lastIndexOf('§');
+        if (idx >= 0 && idx + 1 < raw.length()) {
+            return raw.substring(idx + 1).replaceFirst("^[0-9a-fk-orx]", "");
+        }
+        return raw;
     }
 
     private ItemStack createSkullItem(String base64Texture) {
@@ -145,8 +155,7 @@ public class SettingsCommand implements CommandExecutor, TabCompleter, Listener 
     @EventHandler
     public void onSettingsClick(InventoryClickEvent event) {
         if (!(event.getWhoClicked() instanceof Player player)) return;
-        String title = event.getView().getTitle();
-        if (!title.contains("Paramètres / Settings") && !title.contains("Settings / Paramètres")) return;
+        if (!event.getView().getTitle().equals("Settings")) return;
 
         event.setCancelled(true);
         int slot = event.getRawSlot();

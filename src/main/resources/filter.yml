@@ -1,6 +1,6 @@
-# Fedora Club - Chat Filter
-# Liste des mots à censurer (en minuscules)
-# Rechargez avec /da reload
+# DuelPlugin - Chat Filter
+# List of words to censor (lowercase)
+# Reload with /da reload
 
 banned-words:
   - con

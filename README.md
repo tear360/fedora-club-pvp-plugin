@@ -31,7 +31,7 @@ A PvP duel / practice plugin for **Paper Minecraft 1.21.4** with:
 ```bash
 # Requires Maven and JDK 21+
 git clone https://github.com/tear360/duel-mc-plugin-blabla.git
-cd fedora-club-pvp-plugin
+cd duel-mc-plugin-blabla
 mvn clean package
 ```
 
@@ -205,7 +205,7 @@ Configure it in `config.yml` under `discord:`. Leave `bot-token` empty to disabl
 
 ## Tech
 
-- **Minecraft version:** Paper 1.21.4
+- **Minecraft version:** Paper 1.21.4 (It might still work on higher versions, test at your own risk!)
 - **API:** Paper API
 - **Java:** 21+
 - **Build:** Maven (maven-shade-plugin bundles dependencies)

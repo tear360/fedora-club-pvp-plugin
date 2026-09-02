@@ -30,7 +30,7 @@ A PvP duel / practice plugin for **Paper Minecraft 1.21.4** with:
 
 ```bash
 # Requires Maven and JDK 21+
-git clone https://github.com/tear360/fedora-club-pvp-plugin.git
+git clone https://github.com/tear360/duel-mc-plugin-blabla.git
 cd fedora-club-pvp-plugin
 mvn clean package
 ```

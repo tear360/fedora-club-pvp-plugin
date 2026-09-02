@@ -21,7 +21,7 @@ A PvP duel / practice plugin for **Paper Minecraft 1.21.4** with:
 
 ## Installation
 
-1. Download the latest `DuelPlugin-*.jar` from the [Releases](https://github.com/tear360/fedora-club-pvp-plugin/releases) page, or build it yourself (see below).
+1. Download the latest `DuelPlugin-*.jar` from the [Releases](https://github.com/tear360/duel-mc-plugin-blabla/releases) page, or build it yourself (see below).
 2. Put the `.jar` inside the `plugins/` folder of your Paper 1.21.4 server.
 3. Restart the server.
 4. `config.yml` and the language files under `plugins/DuelPlugin/lang/` are generated automatically.

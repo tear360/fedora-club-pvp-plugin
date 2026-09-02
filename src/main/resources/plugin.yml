@@ -3,7 +3,7 @@ version: '${project.version}'
 main: fr.duelplugin.DuelPlugin
 api-version: '1.21'
 description: Duel PvP Practice plugin
-authors: [DuelPlugin]
+authors: TEAR36
 softdepend:
   - ProtocolLib
   - ProtocolSupport
